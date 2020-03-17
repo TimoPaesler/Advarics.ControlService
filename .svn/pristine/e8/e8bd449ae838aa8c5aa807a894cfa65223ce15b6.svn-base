@@ -1,0 +1,627 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+  <!-- EF Runtime content -->
+  <edmx:Runtime>
+    <!-- SSDL content -->
+    <edmx:StorageModels>
+    <Schema Namespace="ControlServiceModel.Store" Alias="Self" Provider="System.Data.SqlClient" ProviderManifestToken="2008" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityContainer Name="ControlServiceModelStoreContainer">
+          <EntitySet Name="Cash" EntityType="ControlServiceModel.Store.Cash" store:Type="Tables" Schema="dbo" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
+          <EntitySet Name="CommonSettings" EntityType="ControlServiceModel.Store.CommonSettings" store:Type="Tables" Schema="dbo" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
+          <EntitySet Name="Customer" EntityType="ControlServiceModel.Store.Customer" store:Type="Tables" Schema="dbo" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
+          <EntitySet Name="JobAction" EntityType="ControlServiceModel.Store.JobAction" store:Type="Tables" Schema="dbo" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
+          <EntitySet Name="Log" EntityType="ControlServiceModel.Store.Log" store:Type="Tables" Schema="dbo" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
+          <EntitySet Name="Server" EntityType="ControlServiceModel.Store.Server" store:Type="Tables" Schema="dbo" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
+          <EntitySet Name="ServerSettings" EntityType="ControlServiceModel.Store.ServerSettings" store:Type="Tables" Schema="dbo" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
+          <EntitySet Name="UpdateProfile" EntityType="ControlServiceModel.Store.UpdateProfile" store:Type="Tables" Schema="dbo" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
+          <EntitySet Name="Worker" EntityType="ControlServiceModel.Store.Worker" store:Type="Tables" Schema="dbo" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
+          <AssociationSet Name="FK_Cash_Customer" Association="ControlServiceModel.Store.FK_Cash_Customer">
+            <End Role="Customer" EntitySet="Customer" />
+            <End Role="Cash" EntitySet="Cash" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Customer_Server" Association="ControlServiceModel.Store.FK_Customer_Server">
+            <End Role="Server" EntitySet="Server" />
+            <End Role="Customer" EntitySet="Customer" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Customer_UpdateProfile" Association="ControlServiceModel.Store.FK_Customer_UpdateProfile">
+            <End Role="UpdateProfile" EntitySet="UpdateProfile" />
+            <End Role="Customer" EntitySet="Customer" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Log_JobAction" Association="ControlServiceModel.Store.FK_Log_JobAction">
+            <End Role="JobAction" EntitySet="JobAction" />
+            <End Role="Log" EntitySet="Log" />
+          </AssociationSet>
+          <AssociationSet Name="FK_ServerSettings_Server" Association="ControlServiceModel.Store.FK_ServerSettings_Server">
+            <End Role="Server" EntitySet="Server" />
+            <End Role="ServerSettings" EntitySet="ServerSettings" />
+          </AssociationSet>
+        </EntityContainer>
+        <EntityType Name="Cash">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="bigint" Nullable="false" StoreGeneratedPattern="Identity" />
+          <Property Name="No" Type="bigint" Nullable="false" />
+          <Property Name="Name" Type="nvarchar" Nullable="false" MaxLength="50" />
+          <Property Name="StoreNo" Type="bigint" Nullable="false" />
+          <Property Name="CustomerId" Type="bigint" Nullable="false" />
+          <Property Name="CashProgramVersion" Type="nvarchar" Nullable="false" MaxLength="50" />
+          <Property Name="DataServiceProgramVersion" Type="nvarchar" Nullable="false" MaxLength="50" />
+          <Property Name="CashPackageNo" Type="bigint" Nullable="false" />
+          <Property Name="DataServicePackageNo" Type="bigint" Nullable="false" />
+          <Property Name="sync" Type="bit" />
+          <Property Name="LastSync" Type="datetime" />
+        </EntityType>
+        <EntityType Name="CommonSettings">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="bigint" Nullable="false" StoreGeneratedPattern="Identity" />
+          <Property Name="BackupStoreTimeDays" Type="int" Nullable="false" />
+          <Property Name="LocalUpdatePath" Type="nvarchar" Nullable="false" MaxLength="50" />
+        </EntityType>
+        <EntityType Name="Customer">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="bigint" Nullable="false" StoreGeneratedPattern="Identity" />
+          <Property Name="No" Type="bigint" Nullable="false" />
+          <Property Name="Name" Type="nvarchar" Nullable="false" MaxLength="50" />
+          <Property Name="ToBackup" Type="bit" Nullable="false" />
+          <Property Name="ToUpdate" Type="bit" Nullable="false" />
+          <Property Name="UpdateProfileId" Type="bigint" Nullable="false" />
+          <Property Name="LastBackupDate" Type="datetime" Nullable="false" />
+          <Property Name="LastBackupFile" Type="nvarchar(max)" Nullable="false" />
+          <Property Name="UpdatePackage" Type="bigint" Nullable="false" />
+          <Property Name="RetailProgramVersion" Type="nvarchar" Nullable="false" MaxLength="50" />
+          <Property Name="SecuDataServicePakNo" Type="bigint" Nullable="false" />
+          <Property Name="StatisticServicePakNo" Type="bigint" Nullable="false" />
+          <Property Name="WebShopServicePakNo" Type="bigint" Nullable="false" />
+          <Property Name="RentalServicePakNo" Type="bigint" Nullable="false" />
+          <Property Name="ServerId" Type="bigint" Nullable="false" />
+          <Property Name="ServerBasePath" Type="nvarchar(max)" Nullable="false" />
+          <Property Name="RetailPakNo" Type="bigint" Nullable="false" />
+          <Property Name="DBName" Type="nvarchar" Nullable="false" MaxLength="50" />
+          <Property Name="RetailDBVersion" Type="bigint" Nullable="false" />
+          <Property Name="ServerUrl" Type="nvarchar" MaxLength="50" />
+          <Property Name="LastUpdatedPackageNo" Type="bigint" />
+          <Property Name="NoUpdate" Type="bit" />
+        </EntityType>
+        <EntityType Name="JobAction">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="bigint" Nullable="false" StoreGeneratedPattern="Identity" />
+          <Property Name="Status" Type="nvarchar" Nullable="false" MaxLength="50" />
+          <Property Name="Message" Type="nvarchar" Nullable="false" MaxLength="50" />
+          <Property Name="StartTime" Type="datetime" Nullable="false" />
+          <Property Name="Operation" Type="int" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Log">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="bigint" Nullable="false" StoreGeneratedPattern="Identity" />
+          <Property Name="Date" Type="datetime" Nullable="false" />
+          <Property Name="Path" Type="nvarchar(max)" />
+          <Property Name="Info" Type="nvarchar(max)" />
+          <Property Name="Exception" Type="nvarchar(max)" />
+          <Property Name="Error" Type="bit" Nullable="false" />
+          <Property Name="Description" Type="nvarchar" MaxLength="50" />
+          <Property Name="CustomerName" Type="nvarchar" MaxLength="50" />
+          <Property Name="ServerName" Type="nvarchar" MaxLength="50" />
+          <Property Name="WorkerStartTime" Type="datetime" Nullable="false" />
+          <Property Name="WorkerErrorCount" Type="int" Nullable="false" />
+          <Property Name="WorkerPackageNo" Type="bigint" Nullable="false" />
+          <Property Name="WorkerSuccessful" Type="bit" Nullable="false" />
+          <Property Name="JobActionId" Type="bigint" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Server">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="bigint" Nullable="false" StoreGeneratedPattern="Identity" />
+          <Property Name="No" Type="bigint" Nullable="false" />
+          <Property Name="Name" Type="nvarchar" Nullable="false" MaxLength="50" />
+        </EntityType>
+        <EntityType Name="ServerSettings">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="bigint" Nullable="false" StoreGeneratedPattern="Identity" />
+          <Property Name="ServerId" Type="bigint" Nullable="false" />
+          <Property Name="BackupStoragePath" Type="nvarchar(max)" Nullable="false" />
+          <Property Name="UploadStoragePath" Type="nvarchar(max)" Nullable="false" />
+          <Property Name="Url" Type="nvarchar(max)" Nullable="false" />
+          <Property Name="BaseUpdatePath" Type="nvarchar(max)" Nullable="false" />
+          <Property Name="BaseAdvProgramPath" Type="nvarchar(max)" Nullable="false" />
+        </EntityType>
+        <EntityType Name="UpdateProfile">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="bigint" Nullable="false" StoreGeneratedPattern="Identity" />
+          <Property Name="No" Type="bigint" Nullable="false" />
+          <Property Name="Name" Type="nvarchar" Nullable="false" MaxLength="50" />
+        </EntityType>
+        <EntityType Name="Worker">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="bigint" Nullable="false" StoreGeneratedPattern="Identity" />
+          <Property Name="BaseTyp" Type="int" Nullable="false" />
+          <Property Name="BaseTypId" Type="bigint" Nullable="false" />
+          <Property Name="StartTime" Type="datetime" Nullable="false" />
+          <Property Name="RepeatOnError" Type="bit" Nullable="false" />
+          <Property Name="Successful" Type="bit" Nullable="false" />
+          <Property Name="ErrorRepeatCount" Type="int" Nullable="false" />
+          <Property Name="Operation" Type="int" Nullable="false" />
+          <Property Name="Interval" Type="int" Nullable="false" />
+          <Property Name="PackageNo" Type="bigint" Nullable="false" />
+        </EntityType>
+        <Association Name="FK_Cash_Customer">
+          <End Role="Customer" Type="ControlServiceModel.Store.Customer" Multiplicity="1" />
+          <End Role="Cash" Type="ControlServiceModel.Store.Cash" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Customer">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Cash">
+              <PropertyRef Name="CustomerId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Customer_Server">
+          <End Role="Server" Type="ControlServiceModel.Store.Server" Multiplicity="1" />
+          <End Role="Customer" Type="ControlServiceModel.Store.Customer" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Server">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Customer">
+              <PropertyRef Name="ServerId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Customer_UpdateProfile">
+          <End Role="UpdateProfile" Type="ControlServiceModel.Store.UpdateProfile" Multiplicity="1" />
+          <End Role="Customer" Type="ControlServiceModel.Store.Customer" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="UpdateProfile">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Customer">
+              <PropertyRef Name="UpdateProfileId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Log_JobAction">
+          <End Role="JobAction" Type="ControlServiceModel.Store.JobAction" Multiplicity="1" />
+          <End Role="Log" Type="ControlServiceModel.Store.Log" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="JobAction">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Log">
+              <PropertyRef Name="JobActionId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_ServerSettings_Server">
+          <End Role="Server" Type="ControlServiceModel.Store.Server" Multiplicity="1" />
+          <End Role="ServerSettings" Type="ControlServiceModel.Store.ServerSettings" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Server">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="ServerSettings">
+              <PropertyRef Name="ServerId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+      </Schema></edmx:StorageModels>
+    <!-- CSDL content -->
+    <edmx:ConceptualModels>
+      <Schema Namespace="ControlServiceModel" Alias="Self" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+        <EntityContainer Name="Entities" annotation:LazyLoadingEnabled="true" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:ib12="http://www.ideablade.com/edm/2012" ib12:ValidationAttributeMode="DotNetValidation" ib12:DevForceEnabled="true">
+          <EntitySet Name="CommonSettings" EntityType="ControlServiceModel.CommonSetting" />
+          <EntitySet Name="Customers" EntityType="ControlServiceModel.Customer" />
+          <EntitySet Name="Servers" EntityType="ControlServiceModel.Server" />
+          <EntitySet Name="ServerSettings" EntityType="ControlServiceModel.ServerSetting" />
+          <EntitySet Name="Cashes" EntityType="ControlServiceModel.Cash" />
+          <EntitySet Name="UpdateProfiles" EntityType="ControlServiceModel.UpdateProfile" />
+          <AssociationSet Name="FK_Cash_Customer" Association="ControlServiceModel.FK_Cash_Customer">
+            <End Role="Customer" EntitySet="Customers" />
+            <End Role="Cash" EntitySet="Cashes" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Customer_Server" Association="ControlServiceModel.FK_Customer_Server">
+            <End Role="Server" EntitySet="Servers" />
+            <End Role="Customer" EntitySet="Customers" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Customer_UpdateProfile" Association="ControlServiceModel.FK_Customer_UpdateProfile">
+            <End Role="UpdateProfile" EntitySet="UpdateProfiles" />
+            <End Role="Customer" EntitySet="Customers" />
+          </AssociationSet>
+          <AssociationSet Name="FK_ServerSettings_Server" Association="ControlServiceModel.FK_ServerSettings_Server">
+            <End Role="Server" EntitySet="Servers" />
+            <End Role="ServerSetting" EntitySet="ServerSettings" />
+          </AssociationSet>
+          <EntitySet Name="Workers" EntityType="ControlServiceModel.Worker" />
+          <EntitySet Name="JobActions" EntityType="ControlServiceModel.JobAction" />
+          <EntitySet Name="Logs" EntityType="ControlServiceModel.Log" />
+          <AssociationSet Name="FK_Log_JobAction" Association="ControlServiceModel.FK_Log_JobAction">
+            <End Role="JobAction" EntitySet="JobActions" />
+            <End Role="Log" EntitySet="Logs" />
+          </AssociationSet>
+        </EntityContainer>
+        <EntityType Name="CommonSetting">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" />
+          <Property Type="Int32" Name="BackupStoreTimeDays" Nullable="false" />
+          <Property Type="String" Name="LocalUpdatePath" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
+        </EntityType>
+        <EntityType Name="Customer">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" />
+          <Property Name="No" Type="Int64" Nullable="false" />
+          <Property Name="Name" Type="String" MaxLength="50" Unicode="true" FixedLength="false" Nullable="false" />
+          <Property Name="ToBackup" Type="Boolean" Nullable="false" />
+          <Property Type="Boolean" Name="ToUpdate" Nullable="false" />
+          <Property Type="Int64" Name="UpdateProfileId" Nullable="false" />
+          <Property Type="DateTime" Name="LastBackupDate" Nullable="false" />
+          <Property Type="String" Name="LastBackupFile" Nullable="false" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Type="Int64" Name="UpdatePackage" Nullable="false" />
+          <Property Type="String" Name="RetailProgramVersion" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Type="Int64" Name="ServerId" Nullable="false" />
+          <NavigationProperty Name="Cashes" Relationship="ControlServiceModel.FK_Cash_Customer" FromRole="Customer" ToRole="Cash" />
+          <NavigationProperty Name="Server" Relationship="ControlServiceModel.FK_Customer_Server" FromRole="Customer" ToRole="Server" />
+          <NavigationProperty Name="UpdateProfile" Relationship="ControlServiceModel.FK_Customer_UpdateProfile" FromRole="Customer" ToRole="UpdateProfile" />
+          <Property Type="String" Name="ServerBasePath" Nullable="false" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Type="Int64" Name="SecuDataServicePakNo" Nullable="false" />
+          <Property Type="Int64" Name="StatisticServicePakNo" Nullable="false" />
+          <Property Type="Int64" Name="WebShopServicePakNo" Nullable="false" />
+          <Property Type="Int64" Name="RentalServicePakNo" Nullable="false" />
+          <Property Type="Int64" Name="RetailPakNo" Nullable="false" />
+          <Property Type="String" Name="DBName" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Type="Int64" Name="RetailDBVersion" Nullable="false" />
+          <Property Type="String" Name="ServerUrl" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Type="Int64" Name="LastUpdatedPackageNo" />
+          <Property Type="Boolean" Name="NoUpdate" />
+        </EntityType>
+        <EntityType Name="Server">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" />
+          <Property Name="No" Type="Int64" Nullable="false" />
+          <Property Name="Name" Type="String" MaxLength="50" Unicode="true" FixedLength="false" Nullable="false" />
+          <NavigationProperty Name="Customers" Relationship="ControlServiceModel.FK_Customer_Server" FromRole="Server" ToRole="Customer" />
+          <NavigationProperty Name="ServerSettings" Relationship="ControlServiceModel.FK_ServerSettings_Server" FromRole="Server" ToRole="ServerSetting" />
+        </EntityType>
+        <EntityType Name="ServerSetting">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" />
+          <Property Name="ServerId" Type="Int64" Nullable="false" />
+          <Property Name="BackupStoragePath" Type="String" MaxLength="Max" Unicode="true" FixedLength="false" Nullable="false" />
+          <Property Name="UploadStoragePath" Type="String" MaxLength="Max" Unicode="true" FixedLength="false" Nullable="false" />
+          <Property Type="String" Name="Url" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
+          <NavigationProperty Name="Server" Relationship="ControlServiceModel.FK_ServerSettings_Server" FromRole="ServerSetting" ToRole="Server" />
+          <Property Type="String" Name="BaseUpdatePath" Nullable="false" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Type="String" Name="BaseAdvProgramPath" Nullable="false" MaxLength="Max" FixedLength="false" Unicode="true" />
+        </EntityType>
+        <EntityType Name="Cash">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Type="Int64" Name="Id" Nullable="false" annotation:StoreGeneratedPattern="Identity" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" />
+          <Property Type="Int64" Name="No" Nullable="false" />
+          <Property Type="String" Name="Name" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Type="Int64" Name="CustomerId" Nullable="false" />
+          <Property Type="String" Name="CashProgramVersion" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Type="String" Name="DataServiceProgramVersion" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="Customer" Relationship="ControlServiceModel.FK_Cash_Customer" FromRole="Cash" ToRole="Customer" />
+          <Property Type="Int64" Name="StoreNo" Nullable="false" />
+          <Property Type="Int64" Name="CashPackageNo" Nullable="false" />
+          <Property Type="Int64" Name="DataServicePackageNo" Nullable="false" />
+          <Property Type="Boolean" Name="sync" Nullable="false" />
+          <Property Type="DateTime" Name="LastSync" Nullable="false" />
+        </EntityType>
+        <EntityType Name="UpdateProfile">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Type="Int64" Name="Id" Nullable="false" annotation:StoreGeneratedPattern="Identity" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" />
+          <Property Type="Int64" Name="No" Nullable="false" />
+          <Property Type="String" Name="Name" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="Customers" Relationship="ControlServiceModel.FK_Customer_UpdateProfile" FromRole="UpdateProfile" ToRole="Customer" />
+        </EntityType>
+        <Association Name="FK_Cash_Customer">
+          <End Type="ControlServiceModel.Customer" Role="Customer" Multiplicity="1" />
+          <End Type="ControlServiceModel.Cash" Role="Cash" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Customer">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Cash">
+              <PropertyRef Name="CustomerId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Customer_Server">
+          <End Type="ControlServiceModel.Server" Role="Server" Multiplicity="1" />
+          <End Type="ControlServiceModel.Customer" Role="Customer" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Server">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Customer">
+              <PropertyRef Name="ServerId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Customer_UpdateProfile">
+          <End Type="ControlServiceModel.UpdateProfile" Role="UpdateProfile" Multiplicity="1" />
+          <End Type="ControlServiceModel.Customer" Role="Customer" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="UpdateProfile">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Customer">
+              <PropertyRef Name="UpdateProfileId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_ServerSettings_Server">
+          <End Type="ControlServiceModel.Server" Role="Server" Multiplicity="1" />
+          <End Type="ControlServiceModel.ServerSetting" Role="ServerSetting" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Server">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="ServerSetting">
+              <PropertyRef Name="ServerId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="Worker">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Type="Int64" Name="Id" Nullable="false" annotation:StoreGeneratedPattern="Identity" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" />
+          <Property Type="Int32" Name="BaseTyp" Nullable="false" />
+          <Property Type="Int64" Name="BaseTypId" Nullable="false" />
+          <Property Type="DateTime" Name="StartTime" Nullable="false" />
+          <Property Type="Boolean" Name="RepeatOnError" Nullable="false" />
+          <Property Type="Boolean" Name="Successful" Nullable="false" />
+          <Property Type="Int32" Name="ErrorRepeatCount" Nullable="false" />
+          <Property Type="Int32" Name="Operation" Nullable="false" />
+          <Property Type="Int32" Name="Interval" Nullable="false" />
+          <Property Type="Int64" Name="PackageNo" Nullable="false" />
+        </EntityType>
+        <EntityType Name="JobAction">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Type="Int64" Name="Id" Nullable="false" annotation:StoreGeneratedPattern="Identity" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" />
+          <Property Type="String" Name="Status" Nullable="false" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Type="String" Name="Message" Nullable="false" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Type="DateTime" Name="StartTime" Nullable="false" />
+          <Property Type="Int32" Name="Operation" Nullable="false" />
+          <NavigationProperty Name="Logs" Relationship="ControlServiceModel.FK_Log_JobAction" FromRole="JobAction" ToRole="Log" />
+        </EntityType>
+        <EntityType Name="Log">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Type="Int64" Name="Id" Nullable="false" annotation:StoreGeneratedPattern="Identity" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" />
+          <Property Type="DateTime" Name="Date" Nullable="false" />
+          <Property Type="String" Name="Path" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="true" />
+          <Property Type="String" Name="Info" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="true" />
+          <Property Type="String" Name="Exception" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="true" />
+          <Property Type="Boolean" Name="Error" Nullable="false" />
+          <Property Type="String" Name="Description" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="true" />
+          <Property Type="String" Name="CustomerName" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="true" />
+          <Property Type="String" Name="ServerName" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="true" />
+          <Property Type="DateTime" Name="WorkerStartTime" Nullable="false" />
+          <Property Type="Int32" Name="WorkerErrorCount" Nullable="false" />
+          <Property Type="Int64" Name="WorkerPackageNo" Nullable="false" />
+          <Property Type="Boolean" Name="WorkerSuccessful" Nullable="false" />
+          <Property Type="Int64" Name="JobActionId" Nullable="false" />
+          <NavigationProperty Name="JobAction" Relationship="ControlServiceModel.FK_Log_JobAction" FromRole="Log" ToRole="JobAction" />
+        </EntityType>
+        <Association Name="FK_Log_JobAction">
+          <End Type="ControlServiceModel.JobAction" Role="JobAction" Multiplicity="1" />
+          <End Type="ControlServiceModel.Log" Role="Log" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="JobAction">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Log">
+              <PropertyRef Name="JobActionId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+      </Schema>
+    </edmx:ConceptualModels>
+    <!-- C-S mapping content -->
+    <edmx:Mappings>
+      <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+        <EntityContainerMapping StorageEntityContainer="ControlServiceModelStoreContainer" CdmEntityContainer="Entities">
+          <EntitySetMapping Name="CommonSettings"><EntityTypeMapping TypeName="ControlServiceModel.CommonSetting"><MappingFragment StoreEntitySet="CommonSettings">
+            <ScalarProperty Name="LocalUpdatePath" ColumnName="LocalUpdatePath" />
+                <ScalarProperty Name="BackupStoreTimeDays" ColumnName="BackupStoreTimeDays" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+          </MappingFragment></EntityTypeMapping></EntitySetMapping>
+          <EntitySetMapping Name="Customers"><EntityTypeMapping TypeName="ControlServiceModel.Customer"><MappingFragment StoreEntitySet="Customer">
+            <ScalarProperty Name="NoUpdate" ColumnName="NoUpdate" />
+                <ScalarProperty Name="LastUpdatedPackageNo" ColumnName="LastUpdatedPackageNo" />
+                <ScalarProperty Name="ServerUrl" ColumnName="ServerUrl" />
+                <ScalarProperty Name="RetailDBVersion" ColumnName="RetailDBVersion" />
+                <ScalarProperty Name="DBName" ColumnName="DBName" />
+                <ScalarProperty Name="RetailPakNo" ColumnName="RetailPakNo" />
+                <ScalarProperty Name="RentalServicePakNo" ColumnName="RentalServicePakNo" />
+                <ScalarProperty Name="WebShopServicePakNo" ColumnName="WebShopServicePakNo" />
+                <ScalarProperty Name="StatisticServicePakNo" ColumnName="StatisticServicePakNo" />
+                <ScalarProperty Name="SecuDataServicePakNo" ColumnName="SecuDataServicePakNo" />
+                <ScalarProperty Name="ServerBasePath" ColumnName="ServerBasePath" />
+                <ScalarProperty Name="ServerId" ColumnName="ServerId" />
+                <ScalarProperty Name="RetailProgramVersion" ColumnName="RetailProgramVersion" />
+                <ScalarProperty Name="UpdatePackage" ColumnName="UpdatePackage" />
+                <ScalarProperty Name="LastBackupFile" ColumnName="LastBackupFile" />
+                <ScalarProperty Name="LastBackupDate" ColumnName="LastBackupDate" />
+                <ScalarProperty Name="UpdateProfileId" ColumnName="UpdateProfileId" />
+                <ScalarProperty Name="ToUpdate" ColumnName="ToUpdate" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+            <ScalarProperty Name="No" ColumnName="No" />
+            <ScalarProperty Name="Name" ColumnName="Name" />
+            <ScalarProperty Name="ToBackup" ColumnName="ToBackup" />
+          </MappingFragment></EntityTypeMapping></EntitySetMapping>
+          <EntitySetMapping Name="Servers"><EntityTypeMapping TypeName="ControlServiceModel.Server"><MappingFragment StoreEntitySet="Server">
+            <ScalarProperty Name="Id" ColumnName="Id" />
+            <ScalarProperty Name="No" ColumnName="No" />
+            <ScalarProperty Name="Name" ColumnName="Name" />
+          </MappingFragment></EntityTypeMapping></EntitySetMapping>
+          <EntitySetMapping Name="ServerSettings"><EntityTypeMapping TypeName="ControlServiceModel.ServerSetting"><MappingFragment StoreEntitySet="ServerSettings">
+            <ScalarProperty Name="BaseAdvProgramPath" ColumnName="BaseAdvProgramPath" />
+                <ScalarProperty Name="BaseUpdatePath" ColumnName="BaseUpdatePath" />
+                <ScalarProperty Name="Url" ColumnName="Url" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+            <ScalarProperty Name="ServerId" ColumnName="ServerId" />
+            <ScalarProperty Name="BackupStoragePath" ColumnName="BackupStoragePath" />
+            <ScalarProperty Name="UploadStoragePath" ColumnName="UploadStoragePath" />
+          </MappingFragment></EntityTypeMapping></EntitySetMapping>
+          <EntitySetMapping Name="Cashes">
+            <EntityTypeMapping TypeName="ControlServiceModel.Cash">
+              <MappingFragment StoreEntitySet="Cash">
+                <ScalarProperty Name="LastSync" ColumnName="LastSync" />
+                <ScalarProperty Name="sync" ColumnName="sync" />
+                <ScalarProperty Name="DataServicePackageNo" ColumnName="DataServicePackageNo" />
+                <ScalarProperty Name="CashPackageNo" ColumnName="CashPackageNo" />
+                <ScalarProperty Name="StoreNo" ColumnName="StoreNo" />
+                <ScalarProperty Name="DataServiceProgramVersion" ColumnName="DataServiceProgramVersion" />
+                <ScalarProperty Name="CashProgramVersion" ColumnName="CashProgramVersion" />
+                <ScalarProperty Name="CustomerId" ColumnName="CustomerId" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="No" ColumnName="No" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="UpdateProfiles">
+            <EntityTypeMapping TypeName="ControlServiceModel.UpdateProfile">
+              <MappingFragment StoreEntitySet="UpdateProfile">
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="No" ColumnName="No" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Workers">
+            <EntityTypeMapping TypeName="ControlServiceModel.Worker">
+              <MappingFragment StoreEntitySet="Worker">
+                <ScalarProperty Name="PackageNo" ColumnName="PackageNo" />
+                <ScalarProperty Name="Interval" ColumnName="Interval" />
+                <ScalarProperty Name="Operation" ColumnName="Operation" />
+                <ScalarProperty Name="ErrorRepeatCount" ColumnName="ErrorRepeatCount" />
+                <ScalarProperty Name="Successful" ColumnName="Successful" />
+                <ScalarProperty Name="RepeatOnError" ColumnName="RepeatOnError" />
+                <ScalarProperty Name="StartTime" ColumnName="StartTime" />
+                <ScalarProperty Name="BaseTypId" ColumnName="BaseTypId" />
+                <ScalarProperty Name="BaseTyp" ColumnName="BaseTyp" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="JobActions">
+            <EntityTypeMapping TypeName="ControlServiceModel.JobAction">
+              <MappingFragment StoreEntitySet="JobAction">
+                <ScalarProperty Name="Operation" ColumnName="Operation" />
+                <ScalarProperty Name="StartTime" ColumnName="StartTime" />
+                <ScalarProperty Name="Message" ColumnName="Message" />
+                <ScalarProperty Name="Status" ColumnName="Status" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Logs">
+            <EntityTypeMapping TypeName="ControlServiceModel.Log">
+              <MappingFragment StoreEntitySet="Log">
+                <ScalarProperty Name="JobActionId" ColumnName="JobActionId" />
+                <ScalarProperty Name="WorkerSuccessful" ColumnName="WorkerSuccessful" />
+                <ScalarProperty Name="WorkerPackageNo" ColumnName="WorkerPackageNo" />
+                <ScalarProperty Name="WorkerErrorCount" ColumnName="WorkerErrorCount" />
+                <ScalarProperty Name="WorkerStartTime" ColumnName="WorkerStartTime" />
+                <ScalarProperty Name="ServerName" ColumnName="ServerName" />
+                <ScalarProperty Name="CustomerName" ColumnName="CustomerName" />
+                <ScalarProperty Name="Description" ColumnName="Description" />
+                <ScalarProperty Name="Error" ColumnName="Error" />
+                <ScalarProperty Name="Exception" ColumnName="Exception" />
+                <ScalarProperty Name="Info" ColumnName="Info" />
+                <ScalarProperty Name="Path" ColumnName="Path" />
+                <ScalarProperty Name="Date" ColumnName="Date" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+        </EntityContainerMapping>
+      </Mapping>
+    </edmx:Mappings>
+  </edmx:Runtime>
+  <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <Connection>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
+      </DesignerInfoPropertySet>
+    </Connection>
+    <Options>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="ValidateOnBuild" Value="true" />
+        <DesignerProperty Name="EnablePluralization" Value="True" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="True" />
+      </DesignerInfoPropertySet>
+    </Options>
+    <!-- Diagram content (shape and connector positions) -->
+    <Diagrams>
+      <Diagram Name="ControlService" ZoomLevel="83">
+        <EntityTypeShape EntityType="ControlServiceModel.CommonSetting" Width="2.625" PointX="3.875" PointY="0.5" Height="1.59568359375" IsExpanded="true" />
+        <EntityTypeShape EntityType="ControlServiceModel.Customer" Width="2.375" PointX="9.5" PointY="0.5" Height="5.057109375" IsExpanded="true" />
+        <EntityTypeShape EntityType="ControlServiceModel.Server" Width="1.5" PointX="0.5" PointY="0.5" Height="2.1725878906249996" IsExpanded="true" />
+        <EntityTypeShape EntityType="ControlServiceModel.ServerSetting" Width="1.5" PointX="0.5" PointY="3.375" Height="2.5571907552083317" IsExpanded="true" />
+        <EntityTypeShape EntityType="ControlServiceModel.Cash" Width="1.5" PointX="7.25" PointY="0.625" Height="2.5571907552083331" />
+        <EntityTypeShape EntityType="ControlServiceModel.UpdateProfile" Width="1.5" PointX="12.625" PointY="0.5" Height="1.7879850260416674" />
+        <AssociationConnector Association="ControlServiceModel.FK_Cash_Customer">
+          <ConnectorPoint PointX="9.5" PointY="2.4131982421875" />
+          <ConnectorPoint PointX="8.75" PointY="2.4131982421875" />
+        </AssociationConnector>
+        <AssociationConnector Association="ControlServiceModel.FK_Customer_Server">
+          <ConnectorPoint PointX="2" PointY="0.5" />
+          <ConnectorPoint PointX="2.375" PointY="0.125" />
+          <ConnectorPoint PointX="9.1268259230769235" PointY="0.125" />
+          <ConnectorPoint PointX="9.5018259230769235" PointY="0.5" />
+        </AssociationConnector>
+        <AssociationConnector Association="ControlServiceModel.FK_Customer_UpdateProfile">
+          <ConnectorPoint PointX="12.625" PointY="1.3939925130208337" />
+          <ConnectorPoint PointX="11.875" PointY="1.3939925130208337" />
+        </AssociationConnector>
+        <AssociationConnector Association="ControlServiceModel.FK_ServerSettings_Server">
+          <ConnectorPoint PointX="1.25" PointY="2.6725878906249996" />
+          <ConnectorPoint PointX="1.25" PointY="3.375" />
+        </AssociationConnector>
+        <EntityTypeShape EntityType="ControlServiceModel.Worker" Width="1.5" PointX="0.75" PointY="6.75" Height="2.9417936197916674" />
+        <EntityTypeShape EntityType="ControlServiceModel.JobAction" Width="1.5" PointX="3.375" PointY="5.875" Height="2.1725878906249987" />
+        <EntityTypeShape EntityType="ControlServiceModel.Log" Width="1.5" PointX="5.625" PointY="5" Height="3.9033007812500031" />
+        <AssociationConnector Association="ControlServiceModel.FK_Log_JobAction">
+          <ConnectorPoint PointX="4.875" PointY="6.9612939453125" />
+          <ConnectorPoint PointX="5.625" PointY="6.9612939453125" />
+        </AssociationConnector>
+      </Diagram>
+    </Diagrams>
+  </Designer>
+</edmx:Edmx>

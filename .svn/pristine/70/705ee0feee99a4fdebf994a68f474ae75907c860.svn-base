@@ -1,0 +1,81 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using IdeaBlade.Core;
+using System.IO;
+using System.Collections;
+using Ionic.Zip; 
+
+
+namespace Advarics.ControlService.Common
+{
+    public class Zip
+    {
+
+        public static List<string> ZipProcess(string strZipDir, FileInfo fiFileToProcess)
+        {
+            List<string> strOutputFileNames = new List<string>();
+
+            if (System.IO.Directory.Exists(strZipDir) == false)
+                System.IO.Directory.CreateDirectory(strZipDir);
+            try
+            {
+                    using (ZipFile zip = new ZipFile())
+                    {
+                        try
+                        {
+                            zip.AddFile(fiFileToProcess.FullName);
+
+                            foreach (var item in zip.Entries.ToList())
+                                item.FileName = fiFileToProcess.Name;
+                            
+                            zip.Comment = "This zip was created at " + System.DateTime.Now.ToString("G");
+                            zip.MaxOutputSegmentSize = 50000 * 1024;
+                            string _strOutputFileName = fiFileToProcess.Name.Substring(0, fiFileToProcess.Name.Length - 3);
+                            strOutputFileNames.Add(_strOutputFileName);
+                            zip.Save(strZipDir + "\\" + _strOutputFileName + "zip");
+                        }
+                        catch (ZipException zipex)
+                        {
+                         
+                        }
+                    }
+            }
+            catch (Exception ex)
+            {
+              
+            }
+
+            return strOutputFileNames;
+        }
+
+
+		public static void UnZipProcess(string fileToProcess)
+		{
+			using (ZipFile zip1 = ZipFile.Read(fileToProcess))
+			{
+				foreach (ZipEntry e in zip1.ToList())
+				{
+					e.Extract(fileToProcess.Substring(0, fileToProcess.Length - fileToProcess.Substring(fileToProcess.LastIndexOf(@"\")).Length), ExtractExistingFileAction.OverwriteSilently);
+				}
+			}
+		}
+
+
+        public static string ZipRecursive(string sourceDir, string destDir)
+        {
+            if (System.IO.Directory.Exists(destDir) == false)
+                System.IO.Directory.CreateDirectory(destDir);
+
+            using (ZipFile zip = new ZipFile())
+            {
+                zip.ParallelDeflateThreshold = -1;
+                zip.UseZip64WhenSaving = Zip64Option.Always;
+                zip.AddDirectory(@sourceDir);
+                zip.Save(destDir + "\\AdvProgram.zip");
+            }
+            return destDir + "\\AdvProgram.zip";
+        }
+    }
+}

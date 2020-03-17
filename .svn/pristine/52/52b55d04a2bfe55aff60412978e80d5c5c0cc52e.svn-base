@@ -1,0 +1,93 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Collections.ObjectModel;
+using IdeaBlade.Core;
+using IdeaBlade.EntityModel;
+using System.Windows;
+using Advarics.ControlServiceClient.Model;
+using Advarics.ControlServiceClient.View;
+
+namespace Advarics.ControlServiceClient.ViewModel
+{
+    class CustomerInformationViewModel : ViewModelBaseForEntities
+    {
+        public CustomerInformationViewModel()
+        {
+            RefreshData();
+        }
+
+        private ObservableCollection<CustomerViewModel> _CustomerInfos = new ObservableCollection<CustomerViewModel>();
+
+        public ObservableCollection<CustomerViewModel> CustomerInfos
+        {
+            get { return _CustomerInfos; }
+            set
+            {
+                _CustomerInfos = value;
+                SendPropertyChanged("CustomerInfos");
+            }
+        }
+
+        internal void RefreshData()
+        {
+            try
+            {
+                var query = PersistMgr.Customers.Include(x=> x.Cashes).Include(x => x.Server).Include(x => x.UpdateProfile).OrderByDescending(l => l.No).Select(l => l);
+                ObservableCollection<CustomerViewModel> entries = new ObservableCollection<CustomerViewModel>();
+                foreach (var item in query)
+                {
+                    var customerInfo = new CustomerViewModel();
+                    customerInfo.Customer = item;
+					customerInfo.Sync = item.Cashes.Where(x => x.CustomerId == item.Id).Where(x => x.sync == false).Select(x => x.sync).FirstOrDefault();
+                    entries.Add(customerInfo);
+                }
+                CustomerInfos = entries;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Fehler beim Laden des Logs: " + ex.Message);
+            }
+
+        }
+
+        private CustomerViewModel _SelectedCustomer = null;
+
+        public CustomerViewModel SelectedCustomer
+        {
+            get { return _SelectedCustomer; }
+            set
+            {
+                _SelectedCustomer = value;
+                SendPropertyChanged("SelectedCustomer");
+            }
+        }
+
+
+        internal void CreateWork(OperationType operationType)
+        {
+            if (SelectedCustomer == null)
+                return;
+
+            var popUp = new CreateWorkerView(BaseType.Customer, operationType, SelectedCustomer.Customer.Id);
+            popUp.ShowDialog();
+        }
+
+        public void LoadDetails()
+        {
+            if (SelectedCustomer == null)
+                return;
+
+            if (SelectedCustomer.Cashs.Count > 0)
+                return;
+           
+            List<Cash> cashs = PersistMgr.Cashes.OrderBy(o1 => o1.No).With(QueryStrategy.DataSourceOnly).Where(p => p.CustomerId == SelectedCustomer.Customer.Id).ToList();
+
+            foreach (var item in cashs)
+            {
+                SelectedCustomer.Cashs.Add(item);
+            }
+        }
+    }
+}

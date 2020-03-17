@@ -1,0 +1,23 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Runtime.Serialization;
+using System.Xml.Serialization;
+
+namespace Advarics.Retail
+{
+    [XmlRoot("Version")]
+    public class VersionQueryResult
+    {
+        [XmlElement("row")]
+        public List<VersionItemQueryResult> Items { get; set; }
+    }
+
+    [DataContract]
+    public class VersionItemQueryResult
+    {
+        [DataMember]
+        public long PackageNo { get; set; }
+    }
+}

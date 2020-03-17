@@ -1,0 +1,112 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using IdeaBlade.EntityModel;
+using IdeaBlade.Core;
+using System.Collections.ObjectModel;
+using System.Windows;
+using Advarics.ControlServiceClient.Model;
+using Advarics.ControlServiceClient.ViewModel.Common;
+
+namespace Advarics.ControlServiceClient.ViewModel
+{
+    class BackupLogViewModel: ViewModelBaseForEntities
+    {
+        public BackupLogViewModel()
+        {
+            InitEnums();
+        }
+        private void InitEnums()
+        {
+            foreach (var item in EnumHelper.GetValues<OperationType>())
+            {
+                var bm = new OperationTypeVM(item);
+                OperationTypeVMs.Add(bm);
+            }
+        }
+
+        private ObservableCollection<ControlServiceClient.Log> _logEntries = new ObservableCollection<ControlServiceClient.Log>();
+
+        public ObservableCollection<ControlServiceClient.Log> LogEntries
+        {
+            get { return _logEntries; }
+            set
+            {
+                _logEntries = value;
+                SendPropertyChanged("LogEntries");
+            }
+        }
+
+        private int _NumberLogEntries = 100;
+
+        public int NumberLogEntries
+        {
+            get { return _NumberLogEntries; }
+            set
+            {
+                _NumberLogEntries = value;
+                SendPropertyChanged("NumberLogEntries");
+            }
+        }
+
+        private ObservableCollection<OperationTypeVM> _OperationTypeVMs = new ObservableCollection<OperationTypeVM>();
+
+        public ObservableCollection<OperationTypeVM> OperationTypeVMs
+        {
+            get { return _OperationTypeVMs; }
+            set
+            {
+                _OperationTypeVMs = value;
+                SendPropertyChanged("OperationTypeVMs");
+            }
+        }
+
+        private OperationTypeVM _SelectedOperationTypeVM = null;
+
+        public OperationTypeVM SelectedOperationTypeVM
+        {
+            get { return _SelectedOperationTypeVM; }
+            set
+            {
+                _SelectedOperationTypeVM = value;
+                SendPropertyChanged("SelectedOperationTypeVM");
+            }
+        }
+
+        public void RefreshLog()
+        {
+            IsBusy = true;
+
+            LogEntries.Clear();
+            try
+            {
+                List<ControlServiceClient.Log> query = new List<ControlServiceClient.Log>();
+
+                if (SelectedOperationTypeVM != null)
+                    if (SelectedOperationTypeVM.OperationType != OperationType.NA)
+                       query = PersistMgr.Logs.OrderByDescending(l => l.Date).Select(l => l).Take(NumberLogEntries).ToList();
+                    else
+                    {
+                    }
+                else
+                 query = PersistMgr.Logs.OrderByDescending(l => l.Date).Take(NumberLogEntries).Select(l => l).ToList();
+
+
+                ObservableCollection<ControlServiceClient.Log> logEntries = new ObservableCollection<ControlServiceClient.Log>();
+                foreach (var item in query)
+                {
+                    logEntries.Add(item);
+                }
+
+                LogEntries = logEntries;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Fehler beim Laden des Logs: " + ex.Message);
+            }
+            IsBusy = false;
+        }
+
+    }
+}

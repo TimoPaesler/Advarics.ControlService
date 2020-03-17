@@ -1,0 +1,79 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!--
+Diese Datei wird vom Veröffentlichungs-/Packvorgang Ihres Webprojekts verwendet. Sie können das Verhalten dieses Vorgangs anpassen,
+indem Sie diese MSBuild-Datei bearbeiten. Besuchen Sie "http://go.microsoft.com/fwlink/?LinkID=208121", um weitere Informationen zu erhalten. 
+-->
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <TimeStampOfAssociatedLegacyPublishXmlFile>2013-09-02T11:55:16.0000000+02:00</TimeStampOfAssociatedLegacyPublishXmlFile>
+    <_PublishTargetUrl>C:\Publish\ControlService</_PublishTargetUrl>
+  </PropertyGroup>
+  <ItemGroup>
+    <File Include="AdvaricsControlService.svc">
+      <publishTime>09/02/2013 11:55:16</publishTime>
+    </File>
+    <File Include="bin/Advarics.ControlService.dll">
+      <publishTime>02/13/2019 09:37:35</publishTime>
+    </File>
+    <File Include="bin/Advarics.ControlService.pdb">
+      <publishTime>02/13/2019 09:37:35</publishTime>
+    </File>
+    <File Include="bin/IdeaBlade.Core.dll">
+      <publishTime>11/28/2013 13:28:27</publishTime>
+    </File>
+    <File Include="bin/IdeaBlade.EntityModel.Compat.dll">
+      <publishTime>11/28/2013 13:28:29</publishTime>
+    </File>
+    <File Include="bin/IdeaBlade.EntityModel.dll">
+      <publishTime>11/28/2013 13:28:27</publishTime>
+    </File>
+    <File Include="bin/IdeaBlade.EntityModel.Edm.dll">
+      <publishTime>09/02/2013 11:55:16</publishTime>
+    </File>
+    <File Include="bin/IdeaBlade.EntityModel.Edm.EF5.dll">
+      <publishTime>11/28/2013 13:28:30</publishTime>
+    </File>
+    <File Include="bin/IdeaBlade.EntityModel.Edm.EF6.dll">
+      <publishTime>11/28/2013 13:28:30</publishTime>
+    </File>
+    <File Include="bin/IdeaBlade.EntityModel.Server.dll">
+      <publishTime>11/28/2013 13:28:30</publishTime>
+    </File>
+    <File Include="bin/IdeaBlade.EntityModel.Web.dll">
+      <publishTime>11/28/2013 13:28:30</publishTime>
+    </File>
+    <File Include="bin/IdeaBlade.Linq.dll">
+      <publishTime>11/28/2013 13:28:27</publishTime>
+    </File>
+    <File Include="bin/IdeaBlade.Validation.dll">
+      <publishTime>11/28/2013 13:28:27</publishTime>
+    </File>
+    <File Include="bin/Ionic.Zip.dll">
+      <publishTime>09/02/2013 12:04:06</publishTime>
+    </File>
+    <File Include="bin/Microsoft.Azure.KeyVault.Core.dll">
+      <publishTime>07/29/2015 12:56:38</publishTime>
+    </File>
+    <File Include="bin/Microsoft.WindowsAzure.Storage.dll">
+      <publishTime>09/15/2018 01:06:20</publishTime>
+    </File>
+    <File Include="bin/Microsoft.WindowsAzure.Storage.pdb">
+      <publishTime>09/15/2018 00:34:24</publishTime>
+    </File>
+    <File Include="bin/Newtonsoft.Json.dll">
+      <publishTime>04/02/2017 17:46:32</publishTime>
+    </File>
+    <File Include="Global.asax">
+      <publishTime>09/02/2013 11:55:16</publishTime>
+    </File>
+    <File Include="packages.config">
+      <publishTime>11/20/2018 09:38:49</publishTime>
+    </File>
+    <File Include="Retail.edmx.diagram">
+      <publishTime>11/05/2013 11:08:24</publishTime>
+    </File>
+    <File Include="Web.config">
+      <publishTime>02/13/2019 09:38:00</publishTime>
+    </File>
+  </ItemGroup>
+</Project>

@@ -1,0 +1,42 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using Advarics.ControlServiceClient.AdvaricsControlService;
+using System.ServiceModel;
+using Advarics.ControlServiceClient.DataContract;
+using System.IO;
+using Advarics.ControlService.Logging;
+
+namespace Advarics.ControlServiceClient.ServiceHandler
+{
+    class SendFiles
+    {
+        public void UploadFiles(Server item, FileInfo fileName,JobAction jobAction)
+        {
+            string uploadPath = string.Empty;
+
+            AdvaricsControlServiceClient client = new AdvaricsControlServiceClient();
+            uploadPath = item.ServerSettings.Where(x => x.ServerId == item.Id).Select(x => x.BaseUpdatePath).FirstOrDefault();
+            ServiceProxyProvider serviceProxyProvider = new ServiceProxyProvider();
+            DnsEndpointIdentity endpointIdentity = new DnsEndpointIdentity("advarics.net");
+            var uri = new Uri(item.ServerSettings.Where(x => x.ServerId == item.Id).Select(x => x.Url).FirstOrDefault());
+            var endpointAddress = new EndpointAddress(uri, endpointIdentity);
+            client = serviceProxyProvider.GetProxyServer1(endpointAddress);
+
+            var fileToTransfer = new FileTransferInfo();
+
+            System.IO.FileStream stream = new System.IO.FileStream(fileName.FullName, System.IO.FileMode.Open, System.IO.FileAccess.Read);
+            fileToTransfer.FileName = fileName.Name;
+            fileToTransfer.Length = stream.Length;
+            fileToTransfer.FileByteStream = stream;
+			
+            var logs = client.UploadFile(fileToTransfer.FileName, SecurityIdProvider.GetIDToken(), fileToTransfer.Length, uploadPath , fileToTransfer.FileByteStream);
+
+			
+			client.Close();
+
+			LogHandler.JobResponseInsert(logs, jobAction);
+        }
+    }
+}

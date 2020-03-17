@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:ser="http://schemas.microsoft.com/2003/10/Serialization/" xmlns:tns="http://schemas.datacontract.org/2004/07/Advarics.ControlService.DataContracts.DBLeaning" elementFormDefault="qualified" targetNamespace="http://schemas.datacontract.org/2004/07/Advarics.ControlService.DataContracts.DBLeaning" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:import schemaLocation="http://localhost:51336/AdvaricsControlService.svc?xsd=xsd2" namespace="http://schemas.microsoft.com/2003/10/Serialization/" />
+  <xs:complexType name="CleanRequest">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="BaseBackupPath" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="IdToken" type="ser:guid" />
+      <xs:element minOccurs="0" name="backupStoreTimeDays" type="xs:int" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="CleanRequest" nillable="true" type="tns:CleanRequest" />
+</xs:schema>

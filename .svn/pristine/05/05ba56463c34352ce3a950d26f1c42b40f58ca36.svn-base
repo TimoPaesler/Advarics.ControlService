@@ -1,0 +1,157 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using Advarics.ControlService.Logging;
+using IdeaBlade.EntityModel;
+using IdeaBlade.Core;
+using System.IO;
+using Advarics.ControlServiceClient.Model;
+using Advarics.ControlServiceClient.Timer;
+using Advarics.ControlServiceClient.ViewModel;
+using Advarics.ControlServiceClient.DataContract;
+using System.Windows;
+
+namespace Advarics.ControlServiceClient.ServiceHandler
+{
+	class UploadPackage : ViewModelBase
+	{
+		
+		bool isUploading = false;
+		bool error = false;
+
+		public void Start(WorkerItemVM job)
+		{
+			Entities EntityMgr = new Entities();
+
+			if (isUploading == true)
+				return;
+
+			isUploading = true;
+
+			List<Server> Servers = new List<Server>();
+
+			switch ((BaseType)job.Worker.BaseTyp)
+			{
+				case BaseType.NA:
+					break;
+				case BaseType.Customer:
+					Servers = EntityMgr.Customers.Include("Server.ServerSettings").Where(x => x.Id == job.Worker.BaseTypId).Select(c => c.Server).GroupBy(s => s).Select(s => s.Key).ToList();
+					break;
+				case BaseType.Server:
+					Servers = (List<Server>)EntityMgr.Servers.Include("ServerSettings").Where(x => x.Id == job.Worker.BaseTypId).Execute();
+					break;
+				case BaseType.UpdateProfile:
+					Servers = EntityMgr.Customers.Include("Server.ServerSettings").Where(x => x.UpdateProfileId == job.Worker.BaseTypId).Select(c => c.Server).GroupBy(s => s).Select(s => s.Key).ToList();
+					break;
+				case BaseType.AllCustomers:
+					Servers = (List<Server>)EntityMgr.Servers.Include("ServerSettings").Execute();
+					break;
+			}
+			if (Servers.Count > 0)
+				Update(Servers, job);
+			else
+				isUploading = false;
+		}
+
+		//Upload auf jeden Server in den ordner
+		internal void Update(List<Server> Servers, WorkerItemVM job)
+		{
+			try
+			{
+				Entities EntityMgr = new Entities();
+				EntityMgr.AuthorizedThreadId = null;
+
+				string fileName = string.Empty;
+				var localUpdatePath = EntityMgr.CommonSettings.FirstOrDefault().LocalUpdatePath;
+
+				var package = new VersionQueryResult();
+
+				List<VersionItemQueryResult> items = new List<VersionItemQueryResult>();
+				items.Add(new VersionItemQueryResult()
+					{
+						PackageNo = job.Worker.PackageNo
+					});
+
+				package.Items = items;
+
+				var xml = SerializeToXml<VersionQueryResult>(package);
+
+
+				if (File.Exists(@"" + localUpdatePath + "\\" + job.Worker.PackageNo + "\\version.xml"))
+					File.Delete(@"" + localUpdatePath + "\\" + job.Worker.PackageNo + "\\version.xml");
+
+				StreamWriter myWriter = File.CreateText(@"" + localUpdatePath + "\\" + job.Worker.PackageNo + "\\version.xml");
+				myWriter.Write(xml);
+				myWriter.Close();
+
+
+				if (File.Exists(@"" + localUpdatePath + "\\" + job.Worker.PackageNo + ".zip") == false)
+				{
+
+					if (job.Worker.PackageNo != 0)
+						fileName = Zip.ZipRecursive(localUpdatePath, job.Worker.PackageNo);
+					else
+					{
+						DirectoryInfo directoryInfo = new DirectoryInfo(localUpdatePath);
+						var fileInfo = directoryInfo.GetFiles().OrderByDescending(x => x.CreationTime).FirstOrDefault();
+
+						job.Worker.PackageNo = Int64.Parse(fileInfo.Name);
+
+						try
+						{
+							fileName = Zip.ZipRecursive(localUpdatePath, job.Worker.PackageNo);
+						}
+						catch(Exception e)
+						{
+							MessageBox.Show("Error:" + e.ToString());
+						}
+					}
+				}
+				else
+				{
+					fileName = localUpdatePath + "\\" + job.Worker.PackageNo + ".zip";
+
+				}
+
+				foreach (var server in Servers)
+				{
+					try
+					{
+
+						LogHandler.LogEntry(DateTime.Now, fileName,"-", null, "Starte Paket Upload", job.Worker.PackageNo, false, job.Worker.Successful, job.Worker.StartTime,job.Worker.ErrorRepeatCount,"Starte Paket Upload",job.Action,server.Name);
+
+						SendFiles sendFiles = new SendFiles();
+						sendFiles.UploadFiles(server, new FileInfo(fileName),job.Action);
+
+						LogHandler.LogEntry(DateTime.Now, fileName, "-", null, "Paket Upload Erfolgreich", job.Worker.PackageNo, false, job.Worker.Successful, job.Worker.StartTime, job.Worker.ErrorRepeatCount, "Paket Upload Erfolgreich", job.Action, server.Name);
+
+					}
+					catch (Exception e)
+					{
+						LogHandler.LogEntry(DateTime.Now, fileName, e.ToString(), null, "Paket Upload fehler", job.Worker.PackageNo, true, job.Worker.Successful, job.Worker.StartTime, job.Worker.ErrorRepeatCount, "Paket Upload fehler", job.Action, server.Name);
+						error = true;
+					}
+				}
+			}
+			catch (Exception e)
+			{
+				LogHandler.LogEntry(DateTime.Now, "-", e.ToString(), null, "Paket Upload fehler", job.Worker.PackageNo, true, job.Worker.Successful, job.Worker.StartTime, job.Worker.ErrorRepeatCount, "Job nicht korrekt gelaufen", job.Action, "-");
+
+				error = true;
+			}
+
+
+			isUploading = false;
+
+
+			if (error == false)
+				job.Worker.Successful = true;
+			else
+				job.Worker.ErrorRepeatCount++;
+
+			job.Worker.EntityAspect.EntityManager.SaveChanges();
+
+		}
+	}
+}

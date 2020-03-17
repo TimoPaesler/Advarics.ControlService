@@ -1,0 +1,61 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using Ionic.Zip;
+using System.IO;
+
+namespace Advarics.ControlServiceClient.ServiceHandler
+{
+    class Zip
+    {
+        public static void UnZipProcess(string unZipDir, string fileToProcess)
+        {
+            using (ZipFile zip1 = ZipFile.Read(fileToProcess))
+            {
+                foreach (ZipEntry e in zip1)
+                {
+                    e.Extract(unZipDir, ExtractExistingFileAction.OverwriteSilently);
+                }
+            }
+            FileInfo fileInfo = new FileInfo(fileToProcess);
+            fileInfo.Delete();
+        }
+
+        public static void ZipProcess(string zipDir)
+        {
+            var dirInfo = new DirectoryInfo(zipDir);
+            var fileInfos = dirInfo.GetFiles();
+
+            foreach (var item in fileInfos.ToList())
+            {
+                if (item.Name.EndsWith(".zip") == false)
+                {
+                    using (ZipFile zip = new ZipFile())
+                    {
+                        zip.AddFile(item.FullName);
+                        zip.Comment = "This zip was created at " + System.DateTime.Now.ToString("G");
+                        string _strOutputFileName = item.Name.Substring(0, item.Name.Length - 3);
+                        zip.Save(zipDir + "\\" + _strOutputFileName + "zip");
+                    }
+                    item.Delete();
+                }
+            }
+        }
+
+        public static string ZipRecursive(string zipDir,long packageName)
+        {
+            using (ZipFile zip = new ZipFile())
+            {
+                
+               // zip.CompressionLevel = Ionic.Zlib.CompressionLevel.BestCompression;
+                zip.ParallelDeflateThreshold = -1;
+				zip.UseZip64WhenSaving = Zip64Option.Always;
+                zip.AddDirectory(@zipDir+"\\"+packageName, packageName.ToString());
+                zip.Save(zipDir + "\\" + packageName+".zip");
+                
+            }
+            return zipDir + "\\" + packageName + ".zip";
+        }
+    }
+}

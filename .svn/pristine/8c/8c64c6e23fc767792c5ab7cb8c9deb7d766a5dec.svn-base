@@ -1,0 +1,30 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using IdeaBlade.EntityModel;
+
+namespace Advarics.ControlService.Helper
+{
+    public class EntityManagerConfigHelper
+    {
+        private TimeSpan _defaultSaveTimeout = new TimeSpan(0, 30, 0);
+        private TimeSpan _defaultQueryTimeout = new TimeSpan(0, 30, 0);
+
+        public void ConfigureEntityManager(EntityManager entityMgr, TimeSpan? SaveTimeout = null, TimeSpan? QueryTimeout = null)
+        {
+            if (SaveTimeout != null)
+                entityMgr.DefaultSaveOptions.TransactionSettings = new TransactionSettings(entityMgr.DefaultSaveOptions.TransactionSettings.IsolationLevel, (TimeSpan)SaveTimeout);
+            else
+                entityMgr.DefaultSaveOptions.TransactionSettings = new TransactionSettings(entityMgr.DefaultSaveOptions.TransactionSettings.IsolationLevel, _defaultSaveTimeout);
+
+
+            if (QueryTimeout != null)
+                entityMgr.DefaultQueryStrategy = new QueryStrategy(QueryStrategy.DataSourceOnly, new TransactionSettings(entityMgr.DefaultQueryStrategy.TransactionSettings.IsolationLevel, (TimeSpan)QueryTimeout));
+            else
+                entityMgr.DefaultQueryStrategy = new QueryStrategy(QueryStrategy.DataSourceOnly, new TransactionSettings(entityMgr.DefaultQueryStrategy.TransactionSettings.IsolationLevel, _defaultQueryTimeout));
+
+
+        }
+    }
+}

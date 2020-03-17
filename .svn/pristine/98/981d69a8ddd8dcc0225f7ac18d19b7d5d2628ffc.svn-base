@@ -1,0 +1,104 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using Advarics.ControlService.ServiceHandler;
+using System.IO;
+using Advarics.ControlService.Logging;
+using Advarics.ControlServiceClient.Model;
+using IdeaBlade.EntityModel;
+using IdeaBlade.Core;
+using Advarics.ControlServiceClient.Timer;
+
+namespace Advarics.ControlServiceClient.ServiceHandler
+{
+    class BackupAdv
+    {
+        bool isBackuping = false;
+        bool error = false;
+
+
+
+
+        public void Start(WorkerItemVM job)
+        {
+			Entities EntityMgr = new Entities();
+			EntityMgr.AuthorizedThreadId = null;
+
+            if (isBackuping == true)
+                return;
+
+            isBackuping = true;
+
+			List<Server> Servers = new List<Server>();
+
+			switch ((BaseType)job.Worker.BaseTyp)
+			{
+				case BaseType.NA:
+					break;
+				case BaseType.Customer:
+					Servers = EntityMgr.Customers.Include("Server.ServerSettings").Where(x => x.Id == job.Worker.BaseTypId).Select(c => c.Server).GroupBy(s => s).Select(s => s.Key).ToList();
+					break;
+				case BaseType.Server:
+					Servers = (List<Server>)EntityMgr.Servers.Include("ServerSettings").Where(x => x.Id == job.Worker.BaseTypId).Execute();
+					break;
+				case BaseType.UpdateProfile:
+					Servers = EntityMgr.Customers.Include("Server.ServerSettings").Where(x => x.UpdateProfileId == job.Worker.BaseTypId).Select(c => c.Server).GroupBy(s => s).Select(s => s.Key).ToList();
+					break;
+				case BaseType.AllCustomers:
+					Servers = (List<Server>)EntityMgr.Servers.Include("ServerSettings").Execute();
+					break;
+			}
+
+
+			if (Servers.Count > 0)
+				Backup(Servers, job);
+            else
+                isBackuping = false;
+        }
+
+
+
+		private void Backup(List<Server> servers, WorkerItemVM job)
+        {
+
+			LogHandler.LogEntry(DateTime.Now, "", "", null, "Starte Backup AdvProgramms Ordner", job.Worker.PackageNo, false, job.Worker.Successful, job.Worker.StartTime, job.Worker.ErrorRepeatCount, "Starte Backup AdvProgramms Ordner", job.Action, "");
+                try
+                {
+					foreach (var server in servers)
+					{
+						GetAdvFileName file = new GetAdvFileName();
+						//var serverAdvPath = file.GetPath(server.ServerSettings.FirstOrDefault().BaseAdvProgramPath);
+						
+
+						//var destinationPath = serverAdvPath.BackupPath + "\\" + serverAdvPath.pathFileInfo.Name;
+						//GetAdvFiles backup = new GetAdvFiles();
+						//backup.BackupFiles(serverAdvPath.pathFileInfo, destinationPath, serverAdvPath.Url, serverAdvPath.ServerId);
+
+						LogHandler.LogEntry(DateTime.Now, "", "", null, "AdvProgramms Ordner erfolgreich geholt", job.Worker.PackageNo, false, job.Worker.Successful, job.Worker.StartTime, job.Worker.ErrorRepeatCount, "AdvProgramms Ordner erfolgreich geholt", job.Action,server.Name);
+					}
+
+					LogHandler.LogEntry(DateTime.Now, "", "", null, "AdvProgramms Ordner erfolgreich geholt", job.Worker.PackageNo, false, job.Worker.Successful, job.Worker.StartTime, job.Worker.ErrorRepeatCount, "AdvProgramms Ordner erfolgreich geholt", job.Action, "");
+
+                }
+                catch (Exception e)
+                {
+					LogHandler.LogEntry(DateTime.Now, "", e.ToString(), null, "Paket Upload fehler", job.Worker.PackageNo, true, job.Worker.Successful, job.Worker.StartTime, job.Worker.ErrorRepeatCount, "Gesamt Job nicht gelaufen", job.Action, "");
+
+					error = true;
+                }
+            
+            isBackuping = false;
+
+
+			if (error == false)
+				job.Worker.Successful = true;
+			else
+				job.Worker.ErrorRepeatCount++;
+
+
+			job.Worker.EntityAspect.EntityManager.SaveChanges();
+
+        }
+    }
+}

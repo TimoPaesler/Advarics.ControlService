@@ -1,0 +1,18 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using IdeaBlade.EntityModel.Server;
+
+
+namespace Advarics.Cash
+{
+	public class SaveInterceptor : EntityServerSaveInterceptor
+	{
+		protected override bool ValidateSave()
+		{
+			EntityManager.VerifierEngine.DefaultVerifierOptions.ShouldTreatEmptyStringAsNull = false;
+			return base.ValidateSave();
+		}
+	}
+}

@@ -1,0 +1,82 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using IdeaBlade.EntityModel;
+using IdeaBlade.Core;
+using Advarics.ControlService.Logging;
+using Advarics.ControlServiceClient.Model;
+using Advarics.ControlServiceClient.Timer;
+
+namespace Advarics.ControlServiceClient.ServiceHandler
+{
+    class Versions
+    {
+        bool isGetVersion = false;
+        bool error = false;
+
+
+        internal void Start(WorkerItemVM job)
+        {
+			Entities EntityMgr = new Entities();
+			EntityMgr.AuthorizedThreadId = null;
+
+            if (isGetVersion == true)
+                return;
+
+            isGetVersion = true;
+          
+            List<Customer> Customers = new List<Customer>();
+
+            switch ((BaseType)job.Worker.BaseTyp)
+            {
+                case BaseType.NA:
+                    break;
+                case BaseType.Customer:
+					Customers = (List<Customer>)EntityMgr.Customers.Include("Server").Include("Server.ServerSettings").Where(x => x.Id == job.Worker.BaseTypId).Execute();
+                    break;
+                case BaseType.Server:
+					Customers = (List<Customer>)EntityMgr.Customers.Include("Server").Include("Server.ServerSettings").Where(x => x.ServerId == job.Worker.BaseTypId).Execute();
+                    break;
+                case BaseType.AllCustomers:
+                    Customers = (List<Customer>)EntityMgr.Customers.Include("Server").Include("Server.ServerSettings").Execute();
+                    break;
+            }
+            if (Customers.Count > 0)
+                GetVersion(Customers,job);
+            else
+                isGetVersion = false;
+
+        }
+
+        public void GetVersion(List<Customer> customers, WorkerItemVM job)
+        {
+            foreach (var customer in customers)
+            {
+                try
+                {
+				
+                    GetVersions getVersion = new GetVersions();
+                    getVersion.GetVersion(customer,job.Action);
+					
+                }
+                catch (Exception e)
+                {
+					LogHandler.LogEntry(DateTime.Now, "-", customer.Name, e, "Fehler beim Versions Check", 0, true, job.Worker.Successful, job.Worker.StartTime, job.Worker.ErrorRepeatCount, "Fehler beim Versions Check", job.Action, customer.Server.Name);
+					error = true;
+                }
+				
+            }
+
+            isGetVersion = false;
+
+			if (error == false)
+				job.Worker.Successful = true;
+			else
+				job.Worker.ErrorRepeatCount++;
+
+
+			job.Worker.EntityAspect.EntityManager.SaveChanges();
+        }
+    }
+}

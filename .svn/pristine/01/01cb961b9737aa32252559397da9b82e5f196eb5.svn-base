@@ -1,0 +1,78 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<configuration>
+  <configSections>
+    <section name="ideablade.configuration" type="IdeaBlade.Core.Configuration.IdeaBladeSection, IdeaBlade.Core" />
+  </configSections>
+  
+  <!--
+    Eine Beschreibung der Änderungen von 'web.config' für .NET 4.5 finden Sie unter 'http://go.microsoft.com/fwlink/?LinkId=235367'.
+
+    Die folgenden Attribute können für das <httpRuntime>-Tag festgelegt werden.
+      <system.Web>
+        <httpRuntime targetFramework="4.5" />
+      </system.Web>
+  -->
+  <system.web>
+    <compilation debug="true" targetFramework="4.5">
+      <assemblies>
+        <add assembly="System.Data.Entity, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+      </assemblies>
+    </compilation>
+    <httpRuntime maxRequestLength="2147483647" requestLengthDiskThreshold="2147483647" executionTimeout="360000" shutdownTimeout="360000" />
+    <authentication mode="Windows" />
+    <pages controlRenderingCompatibilityVersion="4.0" clientIDMode="AutoID" />
+  </system.web>
+  <system.serviceModel>
+    <serviceHostingEnvironment multipleSiteBindingsEnabled="true" />
+    <bindings>
+      <!--transferMode="Buffered" maxBufferSize="2147483647"-->
+      <wsHttpBinding>
+        <binding name="AdvaricsControlServicesBinding" messageEncoding="Mtom" maxReceivedMessageSize="2147483647" sendTimeout="01:00:00" maxBufferPoolSize="2147483647" closeTimeout="01:00:00" openTimeout="01:00:00" receiveTimeout="01:00:00" textEncoding="utf-8">
+          <readerQuotas maxArrayLength="2147483647" maxBytesPerRead="2147483647" maxDepth="2147483647" maxNameTableCharCount="2147483647" maxStringContentLength="2147483647" />
+          <security mode="Message">
+            <message clientCredentialType="Certificate" />
+          </security>
+        </binding>
+      </wsHttpBinding>
+    </bindings>
+    <services>
+      <service behaviorConfiguration="AdvaricsControlBehaviors" name="Advarics.ControlService.AdvaricsControlService">
+        <endpoint address="mex" binding="wsHttpBinding" bindingConfiguration="AdvaricsControlServicesBinding" contract="Advarics.ControlService.IAdvaricsControlService" />
+      </service>
+    </services>
+    <behaviors>
+      <serviceBehaviors>
+        <behavior name="AdvaricsControlBehaviors">
+          <serviceMetadata httpGetEnabled="true" />
+          <serviceThrottling maxConcurrentCalls="100" maxConcurrentInstances="100" maxConcurrentSessions="100" />
+          <serviceDebug includeExceptionDetailInFaults="true" />
+          <dataContractSerializer maxItemsInObjectGraph="2147483647" />
+          <serviceCredentials>
+            <serviceCertificate findValue="*.advarics.net" x509FindType="FindBySubjectName" storeLocation="LocalMachine" storeName="My" />
+            <clientCertificate>
+              <authentication certificateValidationMode="ChainTrust" revocationMode="Online" />
+            </clientCertificate>
+          </serviceCredentials>
+        </behavior>
+      </serviceBehaviors>
+    </behaviors>
+  </system.serviceModel>
+  <system.webServer>
+    <modules runAllManagedModulesForAllRequests="true" />
+  </system.webServer>
+  <connectionStrings>
+    <!--<add name="RetailEntities" connectionString="metadata=res://*/Retail.csdl|res://*/Retail.ssdl|res://*/Retail.msl;provider=System.Data.SqlClient;provider connection string=&quot;data source=.;initial catalog=Retail_Boehler;integrated security=True;multipleactiveresultsets=True;App=EntityFramework&quot;" providerName="System.Data.EntityClient" />-->
+    <add name="RetailEntities" connectionString="Data Source=.;Initial Catalog=Retail_GretaundLouis;Integrated Security=True;MultipleActiveResultSets=True" />
+    <!--<add name="RetailEntities" connectionString="metadata=res://*/Retail.csdl|res://*/Retail.ssdl|res://*/Retail.msl;provider=System.Data.SqlClient;provider connection string=&quot;data source=TIMO-LAPTOP;initial catalog=Retail_Boehler;integrated security=True;multipleactiveresultsets=True;App=EntityFramework&quot;" providerName="System.Data.EntityClient" />-->
+    <!--<add name="RetailEntities" connectionString="metadata=res://*/Retail.csdl|res://*/Retail.ssdl|res://*/Retail.msl;provider=System.Data.SqlClient;provider connection string=&quot;data source=TIMO-LAPTOP;initial catalog=Retail_GretaundLouis;integrated security=True;multipleactiveresultsets=True;App=EntityFramework&quot;" providerName="System.Data.EntityClient" />-->
+    
+    <add name="RetailEntities" connectionString="metadata=res://*/Retail.csdl|res://*/Retail.ssdl|res://*/Retail.msl;provider=System.Data.SqlClient;provider connection string=&quot;data source=TIMO-LAPTOP;initial catalog=retail_gretaundluis;integrated security=True;MultipleActiveResultSets=True;App=EntityFramework&quot;" providerName="System.Data.EntityClient" />
+  <!-- Remember to add your connection string(s) here --></connectionStrings>
+  
+<ideablade.configuration version="6.00" xmlns="http://schemas.ideablade.com/2010/IdeaBladeConfig">
+
+    <!-- See the DevForce Resource Center for more information on configuration settings:
+	 http://drc.ideablade.com/devforce-2012/bin/view/Documentation/deploy-iis#HConfiguration
+    -->
+
+  </ideablade.configuration></configuration>

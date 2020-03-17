@@ -1,0 +1,28 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+
+namespace Advarics.ControlServiceClient.ViewModel.Log
+{
+	class JobActionVM: ViewModelBase
+	{
+
+		private JobAction _JobAction = null;
+
+		public JobAction JobAction
+		{
+			get { return _JobAction; }
+			set
+			{
+				_JobAction = value;
+				SendPropertyChanged("JobAction");
+			}
+		}
+
+
+
+
+
+	}
+}

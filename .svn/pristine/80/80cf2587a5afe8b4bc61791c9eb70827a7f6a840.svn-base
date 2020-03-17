@@ -1,0 +1,115 @@
+﻿using System;
+using System.Net;
+using System.Windows;
+using System.Windows.Controls;
+using System.Linq;
+using System.Collections.Generic;
+using IdeaBlade.EntityModel;
+using IdeaBlade.Core;
+using System.Collections.ObjectModel;
+using Advarics.ControlServiceClient.View;
+
+namespace Advarics.ControlServiceClient.ViewModel.Operation
+{
+    class WorkOperationViewModel: ViewModelBaseForEntities
+    {
+        public WorkOperationViewModel()
+        {
+            RefreshItems();
+        }
+
+        List<Worker> WorkerList = new List<Worker>();
+        internal void RefreshItems()
+        {
+            WorkerList.Clear();
+            Workers.Clear();
+
+            var query = PersistMgr.Workers
+                .With(QueryStrategy.DataSourceOnly)
+                .Select(c => c);
+
+
+            WorkerList = (List<Worker>)query.Execute();
+
+            foreach (var item in WorkerList)
+          {
+			  var worker = new WorkerViewModel();
+			  worker.Worker = item;
+              Workers.Add(worker);
+          }
+        }
+
+		private ObservableCollection<WorkerViewModel> _Workers = new ObservableCollection<WorkerViewModel>();
+
+		public ObservableCollection<WorkerViewModel> Workers
+        {
+            get { return _Workers; }
+            set
+            {
+                _Workers = value;
+                SendPropertyChanged("Workers");
+            }
+        }
+
+
+        private WorkerViewModel _selectedWorker = null;
+
+		public WorkerViewModel SelectedWorker
+        {
+            get { return _selectedWorker; }
+            set
+            {
+                _selectedWorker = value;
+                SendPropertyChanged("SelectedWorker");
+            }
+        }
+
+
+        private Visibility _editServerVisibilty = Visibility.Collapsed;
+
+        public Visibility EditServerVisibilty
+        {
+            get { return _editServerVisibilty; }
+            set
+            {
+                _editServerVisibilty = value;
+                SendPropertyChanged("EditServerVisibilty");
+            }
+        }
+
+
+        public void AddWorker()
+        {
+            var popUp = new CreateWorkerView();
+            popUp.ShowDialog();
+
+            RefreshItems();
+        }
+
+
+        public void DeleteWorker()
+        {
+            if (SelectedWorker != null)
+            {
+                DeleteWorkerDecided(MessageBoxResult.Yes);
+            }
+        }
+
+        private void DeleteWorkerDecided(MessageBoxResult decision)
+        {
+            if (decision == MessageBoxResult.Yes)
+            {
+                var worker = PersistMgr.Workers
+                  .With(QueryStrategy.DataSourceOnly)
+                  .Where(c => c.Id == SelectedWorker.Worker.Id)
+                  .Execute().FirstOrDefault();
+
+                    worker.EntityAspect.Delete();
+                    Workers.Remove(SelectedWorker);
+                    SelectedWorker = null;
+
+                    PersistMgr.SaveChanges();             
+            }
+        }
+    }
+}

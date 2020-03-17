@@ -1,0 +1,47 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+
+namespace Advarics.ControlServiceClient.Model
+{
+    class OperationTypeHelper
+    {
+        public static string GetName(OperationType status)
+        {
+            string statusName = "N/A";
+
+            switch (status)
+            {
+                case OperationType.NA:
+                    statusName = "N/A";
+                    break;
+                case OperationType.Upload:
+                    statusName = "Paket Uploaden";
+                    break;
+                case OperationType.Backup:
+                    statusName = "Datenbank Sichern";
+                    break;
+                case OperationType.Update:
+                    statusName = "Update";
+                    break;
+                case OperationType.GetVersion:
+                    statusName = "Version holen";
+                    break;
+                case OperationType.CleanLocalDBs:
+                    statusName = "Clean Local Backup DBs";
+                    break;
+                case OperationType.AdvProgramsBackup:
+                    statusName = "AdvProgramms Sichern";
+                    break;
+                default:
+                    statusName = "N/A";
+                    break;
+            }
+
+
+            return statusName;
+        }
+
+    }
+}

@@ -1,0 +1,72 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Data;
+using System.Windows.Documents;
+using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
+using System.Windows.Shapes;
+using Telerik.Windows.Controls.GridView;
+using Telerik.Windows;
+using Advarics.ControlServiceClient.ViewModel.BaseData;
+using Advarics.ControlServiceClient.Model;
+
+namespace Advarics.ControlServiceClient.View
+{
+    /// <summary>
+    /// Interaction logic for ServerView.xaml
+    /// </summary>
+    public partial class ServerView : UserControl
+    {
+        ServerViewModel _viewModel = null;
+
+        public ServerView()
+        {
+            InitializeComponent();
+            _viewModel = new ServerViewModel();
+            this.DataContext = _viewModel;
+
+            _gridView.AddHandler(GridViewCellBase.CellDoubleClickEvent, new EventHandler<RadRoutedEventArgs>(this.OnCellDoubleClick));
+        }
+        private void OnCellDoubleClick(object sender, RadRoutedEventArgs e)
+        {
+            if (e.OriginalSource is GridViewCell)
+                _viewModel.EditServer();
+        }
+
+        private void _refreshButton_Click(object sender, RoutedEventArgs e)
+        {
+            _viewModel.RefreshItems();
+        }
+
+        private void _newButton_Click(object sender, RoutedEventArgs e)
+        {
+            _viewModel.AddServer();
+        }
+
+        private void _delete_MouseLeftButtonUp(object sender, Telerik.Windows.RadRoutedEventArgs e)
+        {
+            _viewModel.DeleteServer();
+        }
+
+        private void _uploadServer_MouseLeftButtonUp(object sender, RadRoutedEventArgs e)
+        {
+            _viewModel.CreateWork(OperationType.Upload);
+        }
+
+        private void _updateServer_MouseLeftButtonUp(object sender, RadRoutedEventArgs e)
+        {
+            _viewModel.CreateWork(OperationType.Update);
+        }
+
+        private void _backupServer_MouseLeftButtonUp(object sender, RadRoutedEventArgs e)
+        {
+  
+        }
+    }
+}

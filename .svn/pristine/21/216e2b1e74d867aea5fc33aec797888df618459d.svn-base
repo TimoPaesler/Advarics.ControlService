@@ -1,0 +1,147 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Windows.Controls;
+using System.Windows;
+using Telerik.Windows.Controls.GridView;
+using Advarics.ControlServiceClient.ViewModel.BaseData;
+
+namespace Advarics.ControlServiceClient.ViewModel
+{
+   public class InfoStyleSelector:StyleSelector
+    {
+            public override Style SelectStyle(object item, DependencyObject container)
+            {
+                if (item is CustomerViewModel)
+                
+                {
+                    CustomerViewModel customer = item as CustomerViewModel;
+
+                    GridViewCell cell = container as GridViewCell;
+
+					if (cell.Column.UniqueName == "Customer.LastBackupDate" || cell.Column.UniqueName == "Customer.LastBackupFile")
+                    if (customer.Customer.LastBackupDate <= DateTime.Now.AddDays(-1))
+                    {
+                        return RedStyle;
+                    }
+                    else
+                    {
+                        return GreenStyle;
+                    }
+                    if (cell.Column.UniqueName == "Customer.RetailPakNo")
+                    if (customer.Customer.LastUpdatedPackageNo > customer.Customer.RetailPakNo)
+                    {
+                        return RedStyle;
+                    }
+                    else
+                    {
+                        return GreenStyle;
+                    }
+                    if (cell.Column.UniqueName == "Customer.RentalServicePakNo")
+						if (customer.Customer.LastUpdatedPackageNo > customer.Customer.RentalServicePakNo)
+                        {
+                            return RedStyle;
+                        }
+                        else
+                        {
+                            return GreenStyle;
+                        }
+                    if (cell.Column.UniqueName == "Customer.SecuDataServicePakNo")
+						if (customer.Customer.LastUpdatedPackageNo > customer.Customer.SecuDataServicePakNo)
+                        {
+                            return RedStyle;
+                        }
+                        else
+                        {
+                            return GreenStyle;
+                        }
+                    if (cell.Column.UniqueName == "Customer.StatisticServicePakNo")
+						if (customer.Customer.LastUpdatedPackageNo > customer.Customer.StatisticServicePakNo)
+                        {
+                            return RedStyle;
+                        }
+                        else
+                        {
+                            return GreenStyle;
+                        }
+                    if (cell.Column.UniqueName == "Customer.WebShopServicePakNo")
+						if (customer.Customer.LastUpdatedPackageNo > customer.Customer.WebShopServicePakNo)
+                        {
+                            return RedStyle;
+                        }
+                        else
+                        {
+                            return GreenStyle;
+                        }
+					if (cell.Column.UniqueName == "Sync")
+						if (customer.Sync == false)
+						{
+							return RedStyle;
+						}
+						else
+						{
+							return GreenStyle;
+						}
+                }
+                if (item is CashViewModel)
+                {
+                    CashViewModel cash = item as CashViewModel;
+
+                    GridViewCell cell = container as GridViewCell;
+
+                    if (cell.Column.UniqueName == "Cash.LastBackupDate" || cell.Column.UniqueName == "Cash.LastBackupFile")
+                        if (cash.Customer.LastBackupDate <= DateTime.Now.AddDays(-1))
+                        {
+                            return RedStyle;
+                        }
+                        else
+                        {
+                            return GreenStyle;
+                        }
+                    if (cell.Column.UniqueName == "Customer.RetailPakNo")
+                        if (cash.Customer.LastUpdatedPackageNo > cash.Customer.RetailPakNo)
+                        {
+                            return RedStyle;
+                        }
+                        else
+                        {
+                            return GreenStyle;
+                        }
+                    if (cell.Column.UniqueName == "Cash.CashPackageNo")
+                        if (cash.Cash.CashPackageNo != cash.Customer.RetailPakNo)
+                        {
+                            return RedStyle;
+                        }
+                        else
+                        {
+                            return GreenStyle;
+                        }
+                    if (cell.Column.UniqueName == "Cash.DataServicePackageNo")
+                        if (cash.Cash.DataServicePackageNo != cash.Customer.RetailPakNo)
+                        {
+                            return RedStyle;
+                        }
+                        else
+                        {
+                            return GreenStyle;
+                        }
+                    if (cell.Column.UniqueName == "Cash.LastSync" || cell.Column.UniqueName == "Cash.LastSync")
+                        if (cash.Cash.LastSync <= DateTime.Now.AddHours(-1))
+                        {
+                            return RedStyle;
+                        }
+                        else
+                        {
+                            return GreenStyle;
+                        }
+                }
+
+
+                return null;
+            }
+            public Style RedStyle { get; set; }
+            public Style GreenStyle { get; set; }
+        }
+    
+}

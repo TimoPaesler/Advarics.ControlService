@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<configuration>
+  <system.serviceModel>
+    <serviceHostingEnvironment aspNetCompatibilityEnabled="true"/>
+    <bindings>
+      <wsHttpBinding>
+        <binding name="WSHttpBinding_IAdvaricsControlService">
+          <security>
+            <message clientCredentialType="Certificate" />
+          </security>
+        </binding>
+      </wsHttpBinding>
+    </bindings>
+    <client>
+      <endpoint address="http://localhost:51336/AdvaricsControlService.svc"
+        binding="wsHttpBinding" bindingConfiguration="WSHttpBinding_IAdvaricsControlService"
+        contract="AdvaricsControlService.IAdvaricsControlService" name="WSHttpBinding_IAdvaricsControlService">
+        <identity>
+          <certificate encodedValue="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" />
+        </identity>
+      </endpoint>
+    </client>
+  </system.serviceModel>
+  
+  
+  <connectionStrings>
+    <add name="Entities" connectionString="metadata=res://*/ControlService.csdl|res://*/ControlService.ssdl|res://*/ControlService.msl;provider=System.Data.SqlClient;provider connection string=&quot;data source=.;initial catalog=Advarics_ControlService;integrated security=True;multipleactiveresultsets=True;App=EntityFramework&quot;" providerName="System.Data.EntityClient"/>
+  </connectionStrings>
+<startup><supportedRuntime version="v4.0" sku=".NETFramework,Version=v4.5"/></startup></configuration>

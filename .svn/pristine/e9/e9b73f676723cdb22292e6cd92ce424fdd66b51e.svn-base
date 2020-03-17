@@ -1,0 +1,49 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Collections.ObjectModel;
+
+namespace Advarics.ControlServiceClient.ViewModel
+{
+   public class CustomerViewModel : ViewModelBase
+    {
+        private Customer _Customer = null;
+
+        public Customer Customer
+        {
+            get { return _Customer; }
+            set
+            {
+                _Customer = value;
+                SendPropertyChanged("Customer");
+            }
+        }
+
+        private ObservableCollection<Cash> _Cashs = new ObservableCollection<Cash>();
+
+        public ObservableCollection<Cash> Cashs
+        {
+            get { return _Cashs; }
+            set
+            {
+                _Cashs = value;
+                SendPropertyChanged("Cashs");
+            }
+        }
+
+		private bool _Sync = true;
+
+		public bool Sync
+		{
+			get { return _Sync; }
+			set
+			{
+				_Sync = value;
+				SendPropertyChanged("Sync");
+			}
+		}
+
+
+    }
+}

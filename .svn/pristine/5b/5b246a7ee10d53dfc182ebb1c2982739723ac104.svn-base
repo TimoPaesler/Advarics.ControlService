@@ -1,0 +1,45 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using Advarics.ControlServiceClient.Model;
+
+namespace Advarics.ControlServiceClient.ViewModel.Common
+{
+    class IntervalTypeVM:ViewModelBase
+    {
+        public IntervalTypeVM(IntervalType methodMode)
+        {
+            IntervalType = methodMode;
+            Name = IntervalTypeHelper.GetName(methodMode);
+        }
+
+        private IntervalType _IntervalType = IntervalType.NA;
+        public IntervalType IntervalType
+        {
+            get { return _IntervalType; }
+            set
+            {
+                _IntervalType = value;
+                SendPropertyChanged("IntervalType");
+            }
+        }
+
+        private string _Name = string.Empty;
+
+        public string Name
+        {
+            get { return _Name; }
+            set
+            {
+                _Name = value;
+                SendPropertyChanged("Name");
+            }
+        }
+
+        public override string ToString()
+        {
+            return Name;
+        }
+    }
+}

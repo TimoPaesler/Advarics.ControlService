@@ -1,0 +1,62 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.ServiceModel;
+using Advarics.ControlService.Logging;
+using Advarics.ControlServiceClient.DataContract;
+using Advarics.ControlServiceClient.AdvaricsControlService;
+
+namespace Advarics.ControlServiceClient.ServiceHandler
+{
+    class GetVersions
+    {
+        public void GetVersion(Customer customer, JobAction jobAction)
+        {
+            AdvaricsControlService.AdvaricsControlServiceClient client = new AdvaricsControlService.AdvaricsControlServiceClient();
+            ServiceProxyProvider serviceProxy = new ServiceProxyProvider();
+            DnsEndpointIdentity endpointIdentity = new DnsEndpointIdentity("advarics.net");
+            var uri = new Uri(customer.Server.ServerSettings.Where(x => x.ServerId == customer.Server.Id).Select(x => x.Url).FirstOrDefault());
+            var baseProgramPath = customer.Server.ServerSettings.Where(x => x.ServerId == customer.Server.Id).Select(x => x.BaseAdvProgramPath).FirstOrDefault();
+            var endpointAddress = new EndpointAddress(uri, endpointIdentity);
+            client = serviceProxy.GetProxyServer1(endpointAddress);
+
+            var response = client.GetVersions(new VersionRequest() { BaseProgramPath = baseProgramPath, Customer = new CustomerInfo() { BaseCustomerPath = customer.ServerBasePath, DBName = customer.DBName, Name = customer.Name, No = customer.No }, IdToken = SecurityIdProvider.GetIDToken() });
+
+			if(response.RentalServicePakNo != null)
+				customer.RentalServicePakNo = response.RentalServicePakNo;
+			else
+				customer.RentalServicePakNo = 0;
+
+			if (response.RetailPakNo != null)
+            customer.RetailPakNo = response.RetailPakNo;
+			else
+				customer.RetailPakNo = 0;
+
+			if (response.RetailProgramVersion != null)
+            customer.RetailProgramVersion = response.RetailProgramVersion;
+			else
+				customer.RetailProgramVersion = "0";
+
+			if (response.SecuDataServicePakNo != null)
+            customer.SecuDataServicePakNo = response.SecuDataServicePakNo;
+			else
+				customer.SecuDataServicePakNo = 0;
+
+			if (response.StatisticServicePakNo != null)
+            customer.StatisticServicePakNo = response.StatisticServicePakNo;
+			else
+				customer.StatisticServicePakNo = 0;
+
+			if (response.WebShopServicePakNo != null)
+            customer.WebShopServicePakNo = response.WebShopServicePakNo;
+			else
+				customer.WebShopServicePakNo = 0;
+
+			customer.RetailDBVersion = response.RetailDBVersion;
+
+			customer.EntityAspect.EntityManager.SaveChanges();
+			LogHandler.JobResponseInsert(response.Logs, jobAction);
+        }
+    }
+}

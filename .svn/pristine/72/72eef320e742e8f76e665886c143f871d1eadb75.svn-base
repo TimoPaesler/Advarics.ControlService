@@ -1,0 +1,82 @@
+﻿<UserControl x:Class="Advarics.ControlServiceClient.View.CustomerInformationView"
+ xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" 
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" 
+	xmlns:rad="http://schemas.telerik.com/2008/xaml/presentation"
+    
+    xmlns:my="clr-namespace:Advarics.ControlServiceClient.ViewModel"        
+>
+    <UserControl.Resources>
+        <my:InfoStyleSelector x:Key="cellStyle">
+            <my:InfoStyleSelector.RedStyle>
+                <Style TargetType="rad:GridViewCell">
+                    <Setter Property="Background" Value="DarkRed"/>
+                </Style>
+            </my:InfoStyleSelector.RedStyle>
+            <my:InfoStyleSelector.GreenStyle>
+                <Style TargetType="rad:GridViewCell">
+                    <Setter Property="Background" Value="DarkGreen" />
+                </Style>
+            </my:InfoStyleSelector.GreenStyle>
+        </my:InfoStyleSelector>
+        <my:CustomerInformationViewModel x:Key="CustomerInformationViewModel"/>
+    </UserControl.Resources>
+
+
+
+    <rad:RadBusyIndicator IsBusy="{Binding IsBusy}" x:Name="_busyIndicator" >
+        <rad:RadBusyIndicator.BusyContent>
+            <TextBlock Text="Einen Moment bitte ..."/>
+        </rad:RadBusyIndicator.BusyContent>
+
+        <Grid x:Name="LayoutRoot" Background="Transparent">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"></RowDefinition>
+                <RowDefinition Height="50"></RowDefinition>
+            </Grid.RowDefinitions>
+
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+
+            <!--Übersicht-->
+
+            <rad:RadGridView Grid.Column="0" IsFilteringAllowed="True" FilteringMode="FilterRow" Grid.Row="0" HorizontalAlignment="Stretch" Margin="0" Name="customerInfoGrid" VerticalAlignment="Stretch"  Grid.ColumnSpan="2" ItemsSource="{Binding CustomerInfos,Mode=TwoWay}"   AutoGenerateColumns="False" IsReadOnly="True" SelectedItem="{Binding SelectedCustomer,Mode=TwoWay}" ShowColumnFooters="True"  >
+                <rad:RadGridView.Columns>
+                    <rad:GridViewDataColumn Width="*" DataMemberBinding="{ Binding Path=Customer.Name}" SortingState="Ascending" Header="Kunden Name">
+                        <rad:GridViewDataColumn.AggregateFunctions>
+                            <rad:CountFunction ResultFormatString="{}{0:0}"  Caption="Anzahl:" />
+                        </rad:GridViewDataColumn.AggregateFunctions>
+                    </rad:GridViewDataColumn>
+                    <rad:GridViewDataColumn Width="*" DataMemberBinding="{ Binding Path=Customer.LastUpdatedPackageNo}" Header="Avisierte Paket Nr."/>
+                    <rad:GridViewDataColumn Width="*" DataMemberBinding="{ Binding Path=Customer.RetailProgramVersion}" Header="Retail Programm Version"/>
+					<rad:GridViewDataColumn Width="*" DataMemberBinding="{ Binding Path=Customer.RetailDBVersion}" Header="Retail Datenbank Version"/>
+                    <rad:GridViewDataColumn Width="80" DataMemberBinding="{ Binding Path=Customer.RetailPakNo}" Header="Retail Paket Nr." CellStyleSelector="{StaticResource cellStyle}"/>
+                    <rad:GridViewDataColumn Width="80" DataMemberBinding="{ Binding Path=Customer.SecuDataServicePakNo}" Header="SecuDataService Paket Nr." CellStyleSelector="{StaticResource cellStyle}"/>
+                    <rad:GridViewDataColumn Width="80" DataMemberBinding="{ Binding Path=Customer.WebShopServicePakNo}" Header="WebShopService Paket Nr." CellStyleSelector="{StaticResource cellStyle}"/>
+                    <rad:GridViewDataColumn Width="80" DataMemberBinding="{ Binding Path=Customer.RentalServicePakNo}" Header="RentalService Paket Nr." CellStyleSelector="{StaticResource cellStyle}"/>
+                    <rad:GridViewDataColumn Width="*" DataMemberBinding="{ Binding Path=Customer.Server.Name}" Header="Server Name"/>
+                </rad:RadGridView.Columns>
+           
+                <rad:RadContextMenu.ContextMenu>
+                    <rad:RadContextMenu x:Name="_contextMenu" Background="{StaticResource MainBrush}">
+                        <rad:RadMenuItem Header="Update Programs" Click="_contextMenuUpdate_Click">
+                            <rad:RadMenuItem.Icon>
+                                <Image Source="../../Images/upload.png"></Image>
+                            </rad:RadMenuItem.Icon>
+                        </rad:RadMenuItem>
+
+                        <rad:RadMenuItem Header="Upload Package to Server" Click="_contextMenuUpload_Click"/>
+                        
+                    </rad:RadContextMenu>
+                </rad:RadContextMenu.ContextMenu>
+            </rad:RadGridView>
+
+
+                
+				<StackPanel Grid.Row="1"  Orientation="Horizontal">
+                    <Button TabIndex="1"  Content="Aktualisieren" Name="_refreshButton" Width="150" Click="_refreshButton_Click" Style="{StaticResource MainButtonStyle}" Margin="5" />
+                </StackPanel>
+            
+        </Grid>
+    </rad:RadBusyIndicator>
+</UserControl>

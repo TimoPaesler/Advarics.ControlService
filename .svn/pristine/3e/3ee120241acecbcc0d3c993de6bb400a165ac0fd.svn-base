@@ -1,0 +1,117 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using Advarics.ControlService.ServiceHandler;
+using System.ServiceModel;
+using Advarics.ControlServiceClient.AdvaricsControlService;
+using Advarics.ControlService.Logging;
+using IdeaBlade.EntityModel;
+using IdeaBlade.Core;
+using System.IO;
+using Advarics.ControlServiceClient.Model;
+using Advarics.ControlServiceClient.Timer;
+
+namespace Advarics.ControlServiceClient.ServiceHandler
+{
+    class BackupDBs
+    {
+        bool isBackuping = false;
+        bool error = false;
+        
+
+		public void Start(WorkerItemVM job)
+        {
+			Entities EntityMgr = new Entities();
+			EntityMgr.AuthorizedThreadId = null;
+
+
+            if (isBackuping == true)
+                return;
+
+            isBackuping = true;
+            
+            List<Customer> Customers = new List<Customer>();
+
+            switch ((BaseType)job.Worker.BaseTyp)
+            {
+                case BaseType.NA:
+                    break;
+                case BaseType.Customer:
+					Customers = (List<Customer>)EntityMgr.Customers.Include("Server").Include("Server.ServerSettings").Where(x => x.Id == job.Worker.BaseTypId).Execute();
+                    break;
+                case BaseType.Server:
+					Customers = (List<Customer>)EntityMgr.Customers.Include("Server").Include("Server.ServerSettings").Where(x => x.ServerId == job.Worker.BaseTypId).Execute();
+                    break;
+                case BaseType.UpdateProfile:
+					Customers = (List<Customer>)EntityMgr.Customers.Include("Server").Include("Server.ServerSettings").Where(x => x.UpdateProfileId == job.Worker.BaseTypId).Execute();
+                    break;
+                case BaseType.AllCustomers:
+                    Customers = (List<Customer>)EntityMgr.Customers.Include("Server").Include("Server.ServerSettings").Execute();
+                    break;
+            }
+            if (Customers.Count > 0)
+                Backup(Customers,job);
+            else
+                isBackuping = false;
+        }
+       
+
+
+        private void Backup(List<Customer> customers,WorkerItemVM job)
+        {
+            foreach (var customer in customers)
+            {
+				LogHandler.LogEntry(DateTime.Now, "", customer.Name, null, "Starte Backup", 0, false, job.Worker.Successful, job.Worker.StartTime, job.Worker.ErrorRepeatCount, "Starte Backup", job.Action, customer.Server.Name);
+
+                try
+                {
+                    GetFileName file = new GetFileName();
+                    var serverPaths = file.GetPath(customer);
+
+                    foreach (var serverPath in serverPaths)
+                    {
+                        var destinationPath = serverPath.BackupPath + "\\" + serverPath.pathFileInfo.Name;
+						GetFiles backup = new GetFiles();
+						backup.BackupFiles(serverPath.pathFileInfo, destinationPath, serverPath.Url, serverPath.ServerId);
+						customer.LastBackupFile = serverPath.pathFileInfo.Name;
+						try
+						{
+							Zip.UnZipProcess(serverPath.BackupPath, destinationPath);
+						}
+						catch
+						{
+
+						}
+                    }
+
+                    DataCleaning.CleaningZip(new DirectoryInfo(customer.Server.ServerSettings.Select(x => x.BackupStoragePath).FirstOrDefault()));
+                    Zip.ZipProcess(customer.Server.ServerSettings.Select(x => x.BackupStoragePath).FirstOrDefault());
+
+                    customer.LastBackupDate = DateTime.Now;
+					customer.EntityAspect.EntityManager.SaveChanges();
+
+					LogHandler.LogEntry(DateTime.Now, customer.LastBackupFile, customer.Name, null, "Backup Erfolgreich", 0, false, job.Worker.Successful, job.Worker.StartTime, job.Worker.ErrorRepeatCount, "Backup Erfolgreich", job.Action, customer.Server.Name);
+					
+                }
+                catch(Exception e)
+                {
+					LogHandler.LogEntry(DateTime.Now, "", customer.Name, e, "Fehler beim Backupen des Kunden", 0, true, job.Worker.Successful, job.Worker.StartTime, job.Worker.ErrorRepeatCount, "Fehler beim Backup des Kunden" + customer.Name, job.Action, customer.Server.Name);
+					error = true;
+
+                }
+            }
+            isBackuping = false;
+
+
+			if (error == false)
+				job.Worker.Successful = true;
+			else
+				job.Worker.ErrorRepeatCount++;
+
+			job.Worker.EntityAspect.EntityManager.SaveChanges();
+            
+        }
+
+    }
+}

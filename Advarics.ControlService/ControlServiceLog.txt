@@ -1,0 +1,113 @@
+26.10.2012 11:36:50		OK	Starte Versions Nr. holen :Inferno	-	
+26.10.2012 11:38:38		OK	Starte Versions Nr. holen :Inferno	-	
+26.10.2012 11:43:11		OK	Fehler beim Versions Nr. holen	-	IdeaBlade.EntityModel.EntityServerException: Fehler beim Ausführen der Befehlsdefinition. Weitere Informationen finden Sie in der internen Ausnahme. ---> System.Data.EntityCommandExecutionException: Fehler beim Ausführen der Befehlsdefinition. Weitere Informationen finden Sie in der internen Ausnahme. ---> System.Data.SqlClient.SqlException: Invalid column name 'UpdatePackageCashPoint'.
+Invalid column name 'UpdatePackageSyncService'.
+Invalid column name 'ItemSyncTimeStamp'.
+Invalid column name 'ItemSyncMaxId'.
+Invalid column name 'CustomerSyncTimeStamp'.
+Invalid column name 'CustomerSyncMaxId'.
+Invalid column name 'VoucherSyncTimeStamp'.
+Invalid column name 'VoucherSyncMaxId'.
+Invalid column name 'CustomerSalesSyncTimeStamp'.
+Invalid column name 'CustomerSalesSyncMaxId'.
+Invalid column name 'SalesOnApprovalSyncTimeStamp'.
+Invalid column name 'SalesOnApprovalSyncMaxId'.
+Invalid column name 'StartNoBilling'.
+Invalid column name 'EndNoBilling'.
+Invalid column name 'StartNoCustomer'.
+Invalid column name 'EndNoCustomer'.
+Invalid column name 'VoucherDeletedSyncTimeStamp'.
+Invalid column name 'VoucherDeletedSyncMaxId'.
+Invalid column name 'BillingSyncTimeStamp'.
+Invalid column name 'BillingSyncMaxId'.
+Invalid column name 'Password1'.
+Invalid column name 'Password2'.
+Invalid column name 'SlowSpeedSync'.
+Invalid column name 'StartNoBillingOffer'.
+Invalid column name 'EndNoBillingOffer'.
+Invalid column name 'StartNoBillingOrder'.
+Invalid column name 'EndNoBillingOrder'.
+Invalid column name 'DeliveryAddressId'.
+Invalid column name 'MainFon'.
+Invalid column name 'MainFax'.
+Invalid column name 'Email'.
+Invalid column name 'WebSite'.
+Invalid column name 'MobileFon'.
+Invalid column name 'ReceiptFooterPicturePath'.
+Invalid column name 'ReceiptFooterAsText'.
+   bei System.Data.SqlClient.SqlConnection.OnError(SqlException exception, Boolean breakConnection)
+   bei System.Data.SqlClient.SqlInternalConnection.OnError(SqlException exception, Boolean breakConnection)
+   bei System.Data.SqlClient.TdsParser.ThrowExceptionAndWarning()
+   bei System.Data.SqlClient.TdsParser.Run(RunBehavior runBehavior, SqlCommand cmdHandler, SqlDataReader dataStream, BulkCopySimpleResultSet bulkCopyHandler, TdsParserStateObject stateObj)
+   bei System.Data.SqlClient.SqlDataReader.ConsumeMetaData()
+   bei System.Data.SqlClient.SqlDataReader.get_MetaData()
+   bei System.Data.SqlClient.SqlCommand.FinishExecuteReader(SqlDataReader ds, RunBehavior runBehavior, String resetOptionsString)
+   bei System.Data.SqlClient.SqlCommand.RunExecuteReaderTds(CommandBehavior cmdBehavior, RunBehavior runBehavior, Boolean returnStream, Boolean async)
+   bei System.Data.SqlClient.SqlCommand.RunExecuteReader(CommandBehavior cmdBehavior, RunBehavior runBehavior, Boolean returnStream, String method, DbAsyncResult result)
+   bei System.Data.SqlClient.SqlCommand.RunExecuteReader(CommandBehavior cmdBehavior, RunBehavior runBehavior, Boolean returnStream, String method)
+   bei System.Data.SqlClient.SqlCommand.ExecuteReader(CommandBehavior behavior, String method)
+   bei System.Data.SqlClient.SqlCommand.ExecuteDbDataReader(CommandBehavior behavior)
+   bei System.Data.Common.DbCommand.ExecuteReader(CommandBehavior behavior)
+   bei System.Data.EntityClient.EntityCommandDefinition.ExecuteStoreCommands(EntityCommand entityCommand, CommandBehavior behavior)
+   --- Ende der internen Ausnahmestapelüberwachung ---
+   bei IdeaBlade.EntityModel.EntityServerProxy.CheckConnection(Exception e)
+   bei IdeaBlade.EntityModel.EntityServerProxy.ExecFunc[T](Func`1 func, Boolean funcWillHandleException)
+   bei IdeaBlade.EntityModel.EntityServerProxy.ExecuteOnServer[T](Func`1 func, Boolean funcWillHandleException)
+   bei IdeaBlade.EntityModel.EntityServerProxy.Fetch(SessionBundle bundle, IEntityQuerySurrogate query)
+   bei IdeaBlade.EntityModel.EntityManager.ExecuteServerQuery(IEntityQuerySurrogate entityQuery)
+   --- Ende der internen Ausnahmestapelüberwachung ---
+   bei IdeaBlade.EntityModel.EntityManager.HandleEntityServerException(Exception ex, Boolean tryToHandle, PersistenceOperation operation, Boolean throwOnError)
+   bei IdeaBlade.EntityModel.EntityManager.ExecuteServerQuery(IEntityQuerySurrogate entityQuery)
+   bei IdeaBlade.EntityModel.EntityManager.ExecuteFetch(IEntityFinder finder)
+   bei IdeaBlade.EntityModel.EntityQueryFinder.Execute()
+   bei IdeaBlade.EntityModel.EntityManager.ExecuteQueryCore(IEntityQuery query, Boolean isAsync)
+   bei IdeaBlade.EntityModel.EntityManager.ExecuteQuery[T](IEntityQuery`1 query)
+   bei IdeaBlade.EntityModel.EntityQueryExtensions.Execute[T](IEntityQuery`1 query)
+   bei Advarics.ControlService.AdvaricsControlService.GetVersions(VersionRequest request) in C:\Projects\Advarics.ControlService\Advarics.ControlService\AdvaricsControlService.svc.cs:Zeile 192.
+26.10.2012 11:45:39		OK	Starte Versions Nr. holen :Inferno	-	
+26.10.2012 11:46:27		OK	Versions Nr. holen ErfolgreichInferno	-	
+26.10.2012 11:59:36		OK	Starte Versions Nr. holen :	-	
+26.10.2012 12:00:10		OK	Versions Nr. holen Erfolgreich	-	
+26.10.2012 12:05:24		OK	Starte Versions Nr. holen :	-	
+26.10.2012 12:05:25		OK	Versions Nr. holen Erfolgreich	-	
+26.10.2012 12:10:32		OK	Starte Versions Nr. holen :	-	
+26.10.2012 12:10:32		OK	Versions Nr. holen Erfolgreich	-	
+26.10.2012 12:17:31		OK	Starte Versions Nr. holen :	-	
+26.10.2012 12:17:31		OK	Versions Nr. holen Erfolgreich	-	
+26.10.2012 12:22:36		OK	Starte Versions Nr. holen :	-	
+26.10.2012 12:22:36		OK	Versions Nr. holen Erfolgreich	-	
+26.10.2012 12:33:12		OK	Starte Versions Nr. holen :	-	
+26.10.2012 12:33:12		OK	Versions Nr. holen Erfolgreich	-	
+26.10.2012 12:34:50		OK	Starte Versions Nr. holen :	-	
+26.10.2012 12:34:50		OK	Versions Nr. holen Erfolgreich	-	
+26.10.2012 12:37:15		OK	Starte Versions Nr. holen :	-	
+26.10.2012 12:37:15		OK	Versions Nr. holen Erfolgreich	-	
+26.10.2012 12:40:20		OK	Starte Versions Nr. holen :	-	
+26.10.2012 12:40:20		OK	Versions Nr. holen Erfolgreich	-	
+26.10.2012 12:42:46		OK	Starte Versions Nr. holen :	-	
+26.10.2012 12:42:46		OK	Versions Nr. holen Erfolgreich	-	
+26.10.2012 12:53:33		OK	Starte Versions Nr. holen :	-	
+26.10.2012 12:53:33		OK	Versions Nr. holen Erfolgreich	-	
+20.11.2018 17:01:30		OK	Starte Upload am Server File :483	-	
+20.11.2018 17:04:23		OK	Fehler beim Upload/Entpacken am Server	-	Microsoft.WindowsAzure.Storage.StorageException: Auf eine geschlossene Datei kann nicht zugegriffen werden. ---> System.ObjectDisposedException: Auf eine geschlossene Datei kann nicht zugegriffen werden.
+   bei System.IO.__Error.FileNotOpen()
+   bei System.IO.FileStream.Write(Byte[] array, Int32 offset, Int32 count)
+   bei Microsoft.WindowsAzure.Storage.Core.Util.StreamExtensions.WriteToSync[T](Stream stream, Stream toStream, Nullable`1 copyLength, Nullable`1 maxLength, Boolean calculateMd5, Boolean syncRead, ExecutionState`1 executionState, StreamDescriptor streamCopyState) in c:\Program Files (x86)\Jenkins\workspace\release_dotnet_master\Lib\Common\Core\Util\StreamExtensions.cs:Zeile 169.
+   bei Microsoft.WindowsAzure.Storage.Core.Executor.Executor.ExecuteSync[T](RESTCommand`1 cmd, IRetryPolicy policy, OperationContext operationContext) in c:\Program Files (x86)\Jenkins\workspace\release_dotnet_master\Lib\ClassLibraryCommon\Core\Executor\Executor.cs:Zeile 781.
+   --- Ende der internen Ausnahmestapelüberwachung ---
+   bei Microsoft.WindowsAzure.Storage.Core.Executor.Executor.ExecuteSync[T](RESTCommand`1 cmd, IRetryPolicy policy, OperationContext operationContext) in c:\Program Files (x86)\Jenkins\workspace\release_dotnet_master\Lib\ClassLibraryCommon\Core\Executor\Executor.cs:Zeile 649.
+   bei Microsoft.WindowsAzure.Storage.Blob.CloudBlob.DownloadRangeToStream(Stream target, Nullable`1 offset, Nullable`1 length, AccessCondition accessCondition, BlobRequestOptions options, OperationContext operationContext) in c:\Program Files (x86)\Jenkins\workspace\release_dotnet_master\Lib\ClassLibraryCommon\Blob\CloudBlob.cs:Zeile 1107.
+   bei Microsoft.WindowsAzure.Storage.Blob.CloudBlob.DownloadToStream(Stream target, AccessCondition accessCondition, BlobRequestOptions options, OperationContext operationContext) in c:\Program Files (x86)\Jenkins\workspace\release_dotnet_master\Lib\ClassLibraryCommon\Blob\CloudBlob.cs:Zeile 234.
+   bei Microsoft.WindowsAzure.Storage.Blob.CloudBlob.DownloadToFile(String path, FileMode mode, AccessCondition accessCondition, BlobRequestOptions options, OperationContext operationContext) in c:\Program Files (x86)\Jenkins\workspace\release_dotnet_master\Lib\ClassLibraryCommon\Blob\CloudBlob.cs:Zeile 636.
+   bei Advarics.ControlService.AdvaricsControlService.DownLoadRec(CloudBlobDirectory InputFiles) in C:\Projects\Advarics.ControlService\Advarics.ControlService\AdvaricsControlService.svc.cs:Zeile 111.
+   bei Advarics.ControlService.AdvaricsControlService.DownLoadRec(CloudBlobDirectory InputFiles) in C:\Projects\Advarics.ControlService\Advarics.ControlService\AdvaricsControlService.svc.cs:Zeile 100.
+   bei Advarics.ControlService.AdvaricsControlService.DownLoadRec(CloudBlobDirectory InputFiles) in C:\Projects\Advarics.ControlService\Advarics.ControlService\AdvaricsControlService.svc.cs:Zeile 100.
+   bei Advarics.ControlService.AdvaricsControlService.DownLoadRec(CloudBlobDirectory InputFiles) in C:\Projects\Advarics.ControlService\Advarics.ControlService\AdvaricsControlService.svc.cs:Zeile 100.
+   bei Advarics.ControlService.AdvaricsControlService.DownLoadRec(CloudBlobDirectory InputFiles) in C:\Projects\Advarics.ControlService\Advarics.ControlService\AdvaricsControlService.svc.cs:Zeile 100.
+   bei Advarics.ControlService.AdvaricsControlService.UploadFile(UploadFileRequest request) in C:\Projects\Advarics.ControlService\Advarics.ControlService\AdvaricsControlService.svc.cs:Zeile 69.
+Request Information
+RequestID:e1df89d3-601e-0048-0aea-80bfed000000
+RequestDate:Tue, 20 Nov 2018 16:04:23 GMT
+StatusMessage:Partial Content
+ErrorCode:
+

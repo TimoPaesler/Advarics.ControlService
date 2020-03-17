@@ -1,0 +1,30 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+
+namespace Advarics.ControlServiceClient.ViewModel
+{
+   public class ViewModelBaseForEntities: ViewModelBase
+    {
+        public ViewModelBaseForEntities()
+        {
+            Initialize();
+        }
+
+        private Entities _persistMgr = null;
+
+        public Entities PersistMgr
+        {
+            get { return _persistMgr; }
+            set { _persistMgr = value; }
+        }
+
+        public void Initialize()
+        {
+            PersistMgr = new Entities();
+			PersistMgr.VerifierEngine.DefaultVerifierOptions.ShouldTreatEmptyStringAsNull = false;
+        }
+
+    }
+}

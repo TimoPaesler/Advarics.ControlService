@@ -1,0 +1,262 @@
+﻿using System;
+using System.Net;
+using System.Windows;
+using System.Windows.Controls;
+using System.Linq;
+using System.Collections.Generic;
+using IdeaBlade.EntityModel;
+using IdeaBlade.Core;
+using System.Collections.ObjectModel;
+using System.ComponentModel.DataAnnotations;
+using IdeaBlade.EntityModel.Compat;
+
+namespace Advarics.ControlServiceClient.ViewModel
+{
+    public class CustomersItemViewModel : ViewModelBaseForEntities
+    {
+        public CustomersItemViewModel(CustomersViewModel parentModel, bool isNew)
+        {
+            ParentModel = parentModel;
+            IsNew = isNew;
+
+            if (IsNew == false)
+                LoadCustomer();
+            else
+                CreateCustomer();
+        }
+
+        private void LoadCustomer()
+        {
+            PersistMgr.Customers
+                .Include("Server")
+                .Include("UpdateProfile")
+                .With(QueryStrategy.DataSourceOnly)
+                .Where(c => c.Id == ParentModel.SelectedCustomer.Customer.Id)
+                .Take(1).ExecuteAsync(op =>
+                {
+                    Customer = op.Results.FirstOrDefault();
+                    InitCustomer();
+                });
+        }
+
+        private void CreateCustomer()
+        {
+
+            Customer = new Customer();
+            PersistMgr.AddEntity(Customer);
+
+            PersistMgr.Customers.With(QueryStrategy.DataSourceOnly)
+                .OrderByDescending(o => o.No)
+                .Select(c => c.No )
+                .Take(1)
+                .ExecuteAsync(op =>
+                {
+                    var maxNoCustomer = op.Results.FirstOrDefault();
+                    if (maxNoCustomer == null)
+                        Customer.No = 1;
+                    else
+                        Customer.No = maxNoCustomer + 1;
+
+
+					Customer.LastBackupFile = "-";
+					Customer.RetailProgramVersion = "0"; 
+                });
+
+
+
+
+
+            InitCustomer();
+        }
+
+        private void InitCustomer()
+        {
+            SelectedUpdateProfile = ParentModel.UpdateProfiles.Where(x => x.Id == Customer.UpdateProfileId).FirstOrDefault();
+            SelectedServer = ParentModel.Servers.Where(x => x.Id == Customer.ServerId).FirstOrDefault();
+        }
+
+        private Customer _customer = null;
+
+        public Customer Customer
+        {
+            get { return _customer; }
+            set
+            {
+                _customer = value;
+                SendPropertyChanged("Customer");
+            }
+        }
+
+
+        private CustomersViewModel _parentModel = null;
+
+        public CustomersViewModel ParentModel
+        {
+            get { return _parentModel; }
+            set
+            {
+                _parentModel = value;
+                SendPropertyChanged("ParentModel");
+            }
+        }
+
+        private int _SelectedTabIndex = 0;
+
+        public int SelectedTabIndex
+        {
+            get { return _SelectedTabIndex; }
+            set
+            {
+                _SelectedTabIndex = value;
+                SendPropertyChanged("SelectedTabIndex");
+            }
+        }
+
+        private bool _isNew = false;
+
+        public bool IsNew
+        {
+            get { return _isNew; }
+            set
+            {
+                _isNew = value;
+                SetIsNotNewVisibility();
+                SendPropertyChanged("IsNew");
+            }
+        }
+
+        private void SetIsNotNewVisibility()
+        {
+            if (IsNew == true)
+                IsNotNewVisibility = Visibility.Collapsed;
+            else
+                IsNotNewVisibility = Visibility.Visible;
+        }
+
+        private Visibility _IsNotNewVisibility = Visibility.Collapsed;
+
+        public Visibility IsNotNewVisibility
+        {
+            get { return _IsNotNewVisibility; }
+            set
+            {
+                _IsNotNewVisibility = value;
+                SendPropertyChanged("IsNewVisibility");
+            }
+        }
+
+        private Server _SelectedServer = null;
+
+        public Server SelectedServer
+        {
+            get { return _SelectedServer; }
+            set
+            {
+                _SelectedServer = value;
+                if (_SelectedServer == null)
+                    Customer.Server = null;
+                else
+                    Customer.ServerId = _SelectedServer.Id;
+
+                SendPropertyChanged("SelectedServer");
+            }
+        }
+        private UpdateProfile _SelectedUpdateProfile = null;
+
+        public UpdateProfile SelectedUpdateProfile
+        {
+            get { return _SelectedUpdateProfile; }
+            set
+            {
+                _SelectedUpdateProfile = value;
+                if (_SelectedUpdateProfile == null)
+                    Customer.UpdateProfile = null;
+                else
+                    Customer.UpdateProfileId = _SelectedUpdateProfile.Id;
+
+                SendPropertyChanged("SelectedUpdateProfile");
+            }
+        }
+
+        private void ValidateData()
+        {
+            // Daten checken
+            if (SelectedServer == null)
+                throw new ValidationException("Es ist kein Server definiert!");
+
+            if (SelectedUpdateProfile == null)
+                throw new ValidationException("Es ist kein Update Profile zugeordnet!");
+
+            InternalSave();
+        }
+
+        private bool _makeNewAfterSave = false;
+
+        internal void SaveAndNew()
+        {
+            _makeNewAfterSave = true;
+
+            if (PersistMgr.HasChanges() == true)
+                Save();
+            else
+                ParentModel.AddCustomer();
+        }
+
+        public void Save()
+        {
+            try
+            {
+                ValidateData();
+            }
+            catch (System.Exception ex)
+            {
+                _makeNewAfterSave = false;
+                return;
+            }
+        }
+
+        private void InternalSave()
+        {
+			try
+			{
+				PersistMgr.SaveChanges();
+			}
+			catch (Exception e)
+			{
+
+
+			}
+            AfterSaveAction();
+        }
+
+        private void AfterSaveAction()
+        {
+            // Daten im Parent aktualisieren bzw. ergänzen
+            CustomerViewModel overviewCustomer = null;
+            if (IsNew == true)
+            {
+                overviewCustomer = new CustomerViewModel() { Customer = Customer };
+                ParentModel.Customers.Add(overviewCustomer);
+            }
+            else
+            {
+                overviewCustomer = ParentModel.SelectedCustomer;
+            }
+
+            overviewCustomer.Customer.No = Customer.No;
+            overviewCustomer.Customer.Name = Customer.Name;
+
+            ParentModel.SelectedCustomer = overviewCustomer;
+
+            if (_makeNewAfterSave == true)
+                ParentModel.AddCustomer();
+            else
+                Cancel();
+        }
+
+        public void Cancel()
+        {
+            ParentModel.EditedCustomer = null;
+        }
+    }
+}

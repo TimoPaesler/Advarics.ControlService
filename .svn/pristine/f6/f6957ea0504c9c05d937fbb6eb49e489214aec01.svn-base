@@ -1,0 +1,77 @@
+﻿<UserControl x:Class="Advarics.ControlServiceClient.View.Log.CashInformationView"
+ xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" 
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" 
+	xmlns:rad="http://schemas.telerik.com/2008/xaml/presentation"
+    xmlns:extToolkit="clr-namespace:Microsoft.Windows.Controls;assembly=WPFToolkit.Extended"
+    xmlns:my="clr-namespace:Advarics.ControlServiceClient.ViewModel"        
+>
+    <UserControl.Resources>
+        <my:InfoStyleSelector x:Key="cellStyle">
+            <my:InfoStyleSelector.RedStyle>
+                <Style TargetType="rad:GridViewCell">
+                    <Setter Property="Background" Value="DarkRed"/>
+                </Style>
+            </my:InfoStyleSelector.RedStyle>
+            <my:InfoStyleSelector.GreenStyle>
+                <Style TargetType="rad:GridViewCell">
+                    <Setter Property="Background" Value="DarkGreen" />
+                </Style>
+            </my:InfoStyleSelector.GreenStyle>
+        </my:InfoStyleSelector>
+        <my:CashInformationViewModel x:Key="CashInformationViewModel"/>
+    </UserControl.Resources>
+
+
+
+    <extToolkit:BusyIndicator IsBusy="{Binding IsBusy}" x:Name="_busyIndicator" >
+        <extToolkit:BusyIndicator.BusyContent>
+            <TextBlock Text="Einen Moment bitte ..."/>
+        </extToolkit:BusyIndicator.BusyContent>
+
+        <Grid x:Name="LayoutRoot" Background="Transparent">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"></RowDefinition>
+                <RowDefinition Height="50"></RowDefinition>
+            </Grid.RowDefinitions>
+
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+
+            <!--Übersicht-->
+
+            <rad:RadGridView Grid.Column="0" Grid.Row="0" HorizontalAlignment="Stretch" Margin="5" Name="customerInfoGrid" VerticalAlignment="Stretch"  Grid.ColumnSpan="2" ItemsSource="{Binding CashInfos,Mode=TwoWay}"  AutoGenerateColumns="False" IsReadOnly="True" SelectedItem="{Binding SelectedCash,Mode=TwoWay}" ShowColumnFooters="True"  >
+                <rad:RadGridView.Columns>
+                    <rad:GridViewDataColumn Width="*" DataMemberBinding="{ Binding Path=Cash.StoreNo}" SortingState="Ascending"  Header="Filial Nr.">
+                        <rad:GridViewDataColumn.AggregateFunctions>
+                            <rad:CountFunction Caption="Ges.:" />
+                        </rad:GridViewDataColumn.AggregateFunctions>
+                    </rad:GridViewDataColumn>
+                    <rad:GridViewDataColumn Width="*" DataMemberBinding="{ Binding Path=Cash.No}" SortingState="Ascending"  Header="Kassen Nr."/>
+                    <rad:GridViewDataColumn Width="*" DataMemberBinding="{ Binding Path=Cash.Name}" Header="Kassen Bez."/>
+                    <rad:GridViewDataColumn Width="*" DataMemberBinding="{ Binding Path=Customer.Name}" Header="Kunden Name"/>
+                    
+                    <rad:GridViewDataColumn Width="*" DataMemberBinding="{ Binding Path=Cash.LastBackupDate}" Header="Letztes Backup am"  CellStyleSelector="{StaticResource cellStyle}" />
+                    <rad:GridViewDataColumn Width="*" DataMemberBinding="{ Binding Path=Cash.LastBackupFile}" Header="Letztes Backup"  CellStyleSelector="{StaticResource cellStyle}" />
+                    <rad:GridViewDataColumn Width="*" DataMemberBinding="{ Binding Path=Customer.LastUpdatedPackageNo}" Header="Avisierte Paket Nr."/>
+                    <rad:GridViewDataColumn Width="*" DataMemberBinding="{ Binding Path=Customer.RetailProgramVersion}" Header="Retail Programm Version"/>
+                    <rad:GridViewDataColumn Width="*" DataMemberBinding="{ Binding Path=Cash.CashDBVersion}" Header="Cash Datenbank Version"/>
+                    <rad:GridViewDataColumn Width="*" DataMemberBinding="{ Binding Path=Customer.RetailPakNo}" Header="Retail Paket Nr." />
+                    <rad:GridViewDataColumn Width="*" DataMemberBinding="{ Binding Path=Cash.CashPackageNo}" Header="Aktuelle Paket Nr." CellStyleSelector="{StaticResource cellStyle}"/>
+                    <rad:GridViewDataColumn Width="*" DataMemberBinding="{ Binding Path=Cash.availablePakNo}" Header="Zum Update bereitstehende Paket Nr." CellStyleSelector="{StaticResource cellStyle}"/>
+                    <rad:GridViewDataColumn Width="*" DataMemberBinding="{ Binding Path=Cash.DataServicePackageNo}" Header="DataProvider Paket Nr." CellStyleSelector="{StaticResource cellStyle}"/>
+                    <rad:GridViewDataColumn Width="*" DataMemberBinding="{ Binding Path=Cash.LastSync}" Header="Letzter Sync" CellStyleSelector="{StaticResource cellStyle}"/>
+                    <rad:GridViewDataColumn Width="*" DataMemberBinding="{ Binding Path=Cash.sync}" Header="Sync Aktiv"/>
+
+                </rad:RadGridView.Columns>
+            </rad:RadGridView>
+
+
+
+            <StackPanel Grid.Row="1"  Orientation="Horizontal">
+                <Button TabIndex="1"  Content="Aktualisieren" Name="_refreshButton" Width="150" Click="_refreshButton_Click" Style="{StaticResource MainButtonStyle}" Margin="5" />
+            </StackPanel>
+
+        </Grid>
+    </extToolkit:BusyIndicator>
+</UserControl>

@@ -1,0 +1,196 @@
+﻿using System;
+using System.Net;
+using System.Windows;
+using System.Windows.Controls;
+using System.Linq;
+using System.Collections.Generic;
+using IdeaBlade.EntityModel;
+using IdeaBlade.Core;
+using System.Collections.ObjectModel;
+using Advarics.ControlServiceClient.Model;
+using Advarics.ControlServiceClient.View;
+
+namespace Advarics.ControlServiceClient.ViewModel.BaseData
+{
+   public class ServerViewModel: ViewModelBaseForEntities
+    {
+        public ServerViewModel()
+        {
+            RefreshItems();
+        }
+
+        List<Server> ServerList = new List<Server>();
+        internal void RefreshItems()
+        {
+            ServerList.Clear();
+            Servers.Clear();
+
+            var query = PersistMgr.Servers
+                .With(QueryStrategy.DataSourceOnly)
+                .Include("ServerSettings")
+                .Select(c => c);
+
+            if (SearchName != string.Empty)
+                query = query.Where(x => x.Name.Contains(SearchName) == true);
+
+            if (SearchFromNo != 0)
+                query = query.Where(x => x.No >= SearchFromNo);
+
+            if (SearchToNo != 0)
+                query = query.Where(x => x.No <= SearchToNo);
+
+            ServerList = (List<Server>)query.Execute();
+
+            foreach (var item in ServerList)
+          {
+              Servers.Add(item);
+          }
+        }
+
+        private ObservableCollection<Server> _Servers = new ObservableCollection<Server>();
+
+        public ObservableCollection<Server> Servers
+        {
+            get { return _Servers; }
+            set
+            {
+                _Servers = value;
+                SendPropertyChanged("Servers");
+            }
+        }
+
+
+        private Server _selectedServer = null;
+
+        public Server SelectedServer
+        {
+            get { return _selectedServer; }
+            set
+            {
+                _selectedServer = value;
+                SendPropertyChanged("SelectedServer");
+            }
+        }
+
+
+        private Visibility _editServerVisibilty = Visibility.Collapsed;
+
+        public Visibility EditServerVisibilty
+        {
+            get { return _editServerVisibilty; }
+            set
+            {
+                _editServerVisibilty = value;
+                SendPropertyChanged("EditServerVisibilty");
+            }
+        }
+
+
+        private ServerItemViewModel _editedServer = null;
+
+        public ServerItemViewModel EditedServer
+        {
+            get { return _editedServer; }
+            set
+            {
+                _editedServer= value;
+                SetEditedServerVisibility();
+                SendPropertyChanged("EditedServer");
+            }
+        }
+
+        private void SetEditedServerVisibility()
+        {
+            if (EditedServer != null)
+                EditServerVisibilty = Visibility.Visible;
+            else
+                EditServerVisibilty = Visibility.Collapsed;
+        }
+
+        public void AddServer()
+        {
+            EditedServer = new ServerItemViewModel(this, true);
+        }
+
+        public void EditServer()
+        {
+            if (SelectedServer != null)
+                EditedServer = new ServerItemViewModel(this, false);
+        }
+
+        public void DeleteServer()
+        {
+            if (SelectedServer != null)
+            {
+                DeleteServerDecided(MessageBoxResult.Yes);
+            }
+        }
+
+        private void DeleteServerDecided(MessageBoxResult decision)
+        {
+            if (decision == MessageBoxResult.Yes)
+            {
+                var server = PersistMgr.Servers
+                  .Include(x => x.ServerSettings)
+                  .With(QueryStrategy.DataSourceOnly)
+                  .Where(c => c.Id == SelectedServer.Id)
+                  .Execute().FirstOrDefault();
+                
+                if(server.ServerSettings.Count != 0)
+                    server.ServerSettings.FirstOrDefault().EntityAspect.Delete();
+
+                    server.EntityAspect.Delete();
+                    Servers.Remove(SelectedServer);
+                    SelectedServer = null;
+
+                    PersistMgr.SaveChanges();             
+            }
+        }
+
+        private string _SearchName = string.Empty;
+
+        public string SearchName
+        {
+            get { return _SearchName; }
+            set
+            {
+                _SearchName = value;
+                SendPropertyChanged("SearchName");
+            }
+        }
+
+        private long _SearchFromNo = 0;
+        
+        public long SearchFromNo
+        {
+            get { return _SearchFromNo; }
+            set
+            {
+                _SearchFromNo = value;
+                SendPropertyChanged("SearchFromNo");
+            }
+        }
+
+        private long _SearchToNo = 0;
+      
+        public long SearchToNo
+        {
+            get { return _SearchToNo; }
+            set
+            {
+                _SearchToNo = value;
+                SendPropertyChanged("SearchToNo");
+            }
+        }
+
+        internal void CreateWork(OperationType operationType)
+        {
+            if (SelectedServer == null)
+                return;
+
+            var popUp = new CreateWorkerView(BaseType.Server, operationType, SelectedServer.Id);
+            popUp.ShowDialog();
+        }
+
+    }
+}

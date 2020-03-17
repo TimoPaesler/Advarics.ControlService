@@ -1,0 +1,55 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using IdeaBlade.EntityModel;
+using IdeaBlade.Core;
+using IdeaBlade.EntityModel.Compat;
+
+namespace Advarics.ControlServiceClient.ViewModel.Setting
+{
+    class SettingsViewModel:ViewModelBaseForEntities
+    {
+        public SettingsViewModel()
+        {
+                LoadCustomer();
+        }
+
+        private void LoadCustomer()
+        {
+            PersistMgr.CommonSettings
+                .With(QueryStrategy.DataSourceOnly)
+
+                .Take(1).ExecuteAsync(op =>
+                {
+                    Setting = op.Results.FirstOrDefault();
+                });
+        }
+
+        private CommonSetting _setting = null;
+
+        public CommonSetting Setting
+        {
+            get { return _setting; }
+            set
+            {
+                _setting = value;
+                SendPropertyChanged("Setting");
+            }
+        }
+
+
+
+        public void Save()
+        {
+            try
+            {
+                PersistMgr.SaveChanges();
+            }
+            catch (System.Exception ex)
+            {
+                return;
+            }
+        }
+    }
+}

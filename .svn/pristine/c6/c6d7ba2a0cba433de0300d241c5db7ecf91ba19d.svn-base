@@ -1,0 +1,59 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using Advarics.ControlServiceClient.AdvaricsControlService;
+
+namespace Advarics.ControlServiceClient.DataContract
+{
+    public class ServerPathDto
+    {
+
+        private string _BackupPath = string.Empty;
+
+        public string BackupPath
+        {
+            get { return _BackupPath; }
+            set
+            {
+                _BackupPath = value;
+            }
+        }
+
+        private PathFileInfo _pathFileInfo = null;
+
+        public PathFileInfo pathFileInfo
+        {
+            get { return _pathFileInfo; }
+            set
+            {
+                _pathFileInfo = value;
+             
+            }
+        }
+
+        private string _Url = string.Empty;
+
+        public string Url
+        {
+            get { return _Url; }
+            set
+            {
+                _Url = value;
+            }
+        }
+
+        private long _ServerId = 0;
+
+        public long ServerId
+        {
+            get { return _ServerId; }
+            set
+            {
+                _ServerId = value;
+            }
+        }
+
+
+    }
+}

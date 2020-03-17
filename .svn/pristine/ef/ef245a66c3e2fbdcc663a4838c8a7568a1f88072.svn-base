@@ -1,0 +1,45 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using Advarics.ControlServiceClient.AdvaricsControlService;
+using Advarics.ControlServiceClient.DataContract;
+using System.ServiceModel;
+
+namespace Advarics.ControlServiceClient.ServiceHandler
+{
+    class GetAdvFileName
+    {
+        public ServerPathDto GetPath(Customer item)
+        {
+            ServerPathDto serverPath =new ServerPathDto();
+            string AdvuploadPath = item.Server.ServerSettings.Where(x => x.ServerId == item.Server.Id).Select(x => x.BaseAdvProgramPath).FirstOrDefault();
+            string UploadPath = item.Server.ServerSettings.Where(x => x.ServerId == item.Server.Id).Select(x => x.BaseUpdatePath).FirstOrDefault();
+            string backupPath = item.Server.ServerSettings.Where(x => x.ServerId == item.Server.Id).Select(x => x.BackupStoragePath).FirstOrDefault();
+
+            // start service client
+            AdvaricsControlServiceClient client = new AdvaricsControlServiceClient();
+
+            //Je Server abfragen
+            ServiceProxyProvider serviceProxyProvider = new ServiceProxyProvider();
+            DnsEndpointIdentity endpointIdentity = new DnsEndpointIdentity("advarics.net");
+            var uri = new Uri(item.Server.ServerSettings.Where(x => x.ServerId == item.Server.Id).Select(x => x.Url).FirstOrDefault());
+            var endpointAddress = new EndpointAddress(uri, endpointIdentity);
+            client = serviceProxyProvider.GetProxyServer1(endpointAddress);
+
+            var paths = client.GetAdvFilePath(new BasePathRequest() { CustomerBaseFilePath = AdvuploadPath, BaseFilePath = UploadPath, IdToken = SecurityIdProvider.GetIDToken() });
+            foreach (var itemPath in paths.FileInfos)
+            {
+                ServerPathDto serverpathItem = new ServerPathDto()
+                {
+                    BackupPath = backupPath,
+                    pathFileInfo = itemPath,
+                    Url = item.Server.ServerSettings.Where(x => x.ServerId == item.Server.Id).Select(x => x.Url).FirstOrDefault(),
+                    ServerId = item.Id
+                };
+               serverPath = serverpathItem;
+            }
+            return serverPath;
+        }
+    }
+}

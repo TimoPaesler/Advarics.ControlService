@@ -1,0 +1,17 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using System.Runtime.Serialization;
+using System.ServiceModel;
+
+namespace Advarics.ControlService.DataContracts.FileTransfer
+{
+	[MessageContract]
+	public class UploadInfoResponse
+	{
+		[MessageHeader(MustUnderstand = true)]
+		public LogResponse[] Logs;
+
+	}
+}

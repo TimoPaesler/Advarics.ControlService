@@ -1,0 +1,65 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Data.EntityClient;
+using System.Configuration;
+
+namespace Advarics.ControlService.Helper
+{
+    public class EntityConnectionInfo
+    {
+        static readonly EntityConnectionInfo _instance = new EntityConnectionInfo();
+
+        // Explicit static constructor to tell C# compiler
+        // not to mark type as beforefieldinit
+        static EntityConnectionInfo()
+        {
+        }
+
+        EntityConnectionInfo()
+        {
+        }
+
+        public static EntityConnectionInfo Instance
+        {
+            get
+            {
+                return _instance;
+            }
+        }
+
+        private static EntityConnection _entityConnection = null;
+
+        //public static EntityConnection GetRetailEntityConnection()
+        //{
+        //    if (_entityConnection == null)
+        //    {
+        //        EntityConnectionStringBuilder entityBuilder = new EntityConnectionStringBuilder();
+        //        string connection = ConfigurationManager.ConnectionStrings["RetailEntities"].ConnectionString;
+        //        entityBuilder.ProviderConnectionString = connection;
+        //        entityBuilder.Metadata = "res://*/";
+        //        entityBuilder.Provider = "System.Data.SqlClient";
+        //        _entityConnection = new EntityConnection(entityBuilder.ToString());
+        //    }
+
+        //    return _entityConnection;
+        //}
+
+        public static EntityConnection GetLogEntityConnection()
+        {
+            if (_entityConnection == null)
+            {
+                EntityConnectionStringBuilder entityBuilder = new EntityConnectionStringBuilder();
+                string connection = ConfigurationManager.ConnectionStrings["LogEntities"].ConnectionString;
+                entityBuilder.ProviderConnectionString = connection;
+                entityBuilder.Metadata = "res://*/";
+                entityBuilder.Provider = "System.Data.SqlClient";
+                _entityConnection = new EntityConnection(entityBuilder.ToString());
+            }
+
+            return _entityConnection;
+        }
+
+    }
+}

@@ -1,0 +1,79 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Documents;
+using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Animation;
+using System.Windows.Shapes;
+using Telerik.Windows.Controls;
+using Advarics.ControlServiceClient.ViewModel;
+
+namespace Advarics.ControlServiceClient.View
+{
+    public partial class MainPage : Window
+    {
+        MainViewModel _viewModel = new MainViewModel();
+
+        public MainPage()
+        {
+            InitializeComponent();
+            this.DataContext = _viewModel;
+			_viewModel.PropertyChanged += new System.ComponentModel.PropertyChangedEventHandler(_viewModel_PropertyChanged);
+        }
+
+		public MainViewModel ViewModel
+		{
+			get
+			{
+				return _viewModel;
+			}
+		}
+
+
+		void _viewModel_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+		{
+			if(e.PropertyName == "MainContentUIElement")
+				_mainContentBorder.Child = ViewModel.MainContentUIElement;
+		}
+
+		private void _treeView_Selected(object sender, Telerik.Windows.RadRoutedEventArgs e)
+		{
+			SetContenItemFromSelectedTreeViewItem(sender);
+		}
+        private void SetContenItemFromSelectedTreeViewItem(object treeViewSender)
+        {
+            RadTreeView treeView = treeViewSender as RadTreeView;
+            if (treeView != null)
+            {
+                ActiveTreeView = treeView;
+                ViewModel.SetContentItem(treeView.SelectedItem);
+            }
+        }
+
+        private RadTreeView _activeTreeView = null;
+        private RadTreeView ActiveTreeView
+        {
+            get
+            {
+                return _activeTreeView;
+            }
+            set
+            {
+                _activeTreeView = value;
+            }
+        }
+
+        private void _mainBar_SelectionChanged(object sender, RoutedEventArgs e)
+        {
+            if (ActiveTreeView != null)
+            {
+                ActiveTreeView.ClearValue(RadTreeView.SelectedItemProperty);
+            }
+            ViewModel.SetContentItem(null);
+        }
+	}
+}

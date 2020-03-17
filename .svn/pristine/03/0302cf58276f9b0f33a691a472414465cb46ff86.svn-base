@@ -1,0 +1,53 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using Advarics.ControlServiceClient.AdvaricsControlService;
+using System.ServiceModel;
+using Advarics.ControlService.Logging;
+using Advarics.ControlServiceClient.DataContract;
+
+namespace Advarics.ControlServiceClient.ServiceHandler
+{
+    public class GetFiles
+    {
+		public void BackupFiles(PathFileInfo pathFileInfo, string destFileName, string url, long ServerId)
+        {
+            AdvaricsControlService.AdvaricsControlServiceClient client = new AdvaricsControlService.AdvaricsControlServiceClient();
+            ServiceProxyProvider serviceProxy = new ServiceProxyProvider();
+            DnsEndpointIdentity endpointIdentity = new DnsEndpointIdentity("advarics.net");
+            var uri = new Uri(url);
+            var endpointAddress = new EndpointAddress(uri, endpointIdentity);
+            client = serviceProxy.GetProxyServer1(endpointAddress);
+
+            // kill target file, if already exists
+            if (System.IO.File.Exists(destFileName)) 
+                System.IO.File.Delete(destFileName);
+            // get stream from server
+            System.IO.Stream inputStream;
+            long length = 0;
+            Guid idToken = SecurityIdProvider.GetIDToken();
+			string updateOrdner = string.Empty;
+            // var response = client.DownloadFile(pathFileInfo, ref SecurityIdProvider.GetIDToken(), out length, out inputStream);
+            var response = client.DownloadFile(pathFileInfo, ref idToken, out length,out updateOrdner, out inputStream);
+            // write server stream to disk
+            using (System.IO.FileStream writeStream = new System.IO.FileStream(destFileName, System.IO.FileMode.CreateNew, System.IO.FileAccess.Write))
+            {
+                int chunkSize = 4096;
+                byte[] buffer = new byte[chunkSize];
+                do
+                {
+                    // read bytes from input stream
+                    int bytesRead = inputStream.Read(buffer, 0, chunkSize);
+                    if (bytesRead == 0) break;
+                    // write bytes to output stream
+                    writeStream.Write(buffer, 0, bytesRead);
+                }while (true);
+                writeStream.Close();
+            }
+            inputStream.Dispose();
+            client.Close();
+			//LogHandler.JobResponseInsert(response.Logs, jobAction);
+        }				
+    }
+}

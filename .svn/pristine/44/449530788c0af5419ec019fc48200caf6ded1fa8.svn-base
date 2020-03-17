@@ -1,0 +1,182 @@
+﻿using System;
+using System.Net;
+using System.Windows;
+using System.Windows.Controls;
+using System.Linq;
+using System.Collections.Generic;
+using IdeaBlade.EntityModel;
+using IdeaBlade.Core;
+using System.Collections.ObjectModel;
+using Advarics.ControlServiceClient.Model;
+using Advarics.ControlServiceClient.View;
+
+namespace Advarics.ControlServiceClient.ViewModel.BaseData
+{
+   public class UpdateProfileViewModel: ViewModelBaseForEntities
+    {
+        public UpdateProfileViewModel()
+        {
+            RefreshItems();
+        }
+
+        List<UpdateProfile> UpdateProfileList = new List<UpdateProfile>();
+        internal void RefreshItems()
+        {
+            UpdateProfileList.Clear();
+            UpdateProfiles.Clear();
+
+            var query = PersistMgr.UpdateProfiles
+                .With(QueryStrategy.DataSourceOnly)
+                .Select(c => c);
+
+            UpdateProfileList = (List<UpdateProfile>)query.Execute();
+
+            foreach (var item in UpdateProfileList)
+          {
+              UpdateProfiles.Add(item);
+          }
+        }
+
+        private ObservableCollection<UpdateProfile> _UpdateProfiles = new ObservableCollection<UpdateProfile>();
+
+        public ObservableCollection<UpdateProfile> UpdateProfiles
+        {
+            get { return _UpdateProfiles; }
+            set
+            {
+                _UpdateProfiles = value;
+                SendPropertyChanged("UpdateProfiles");
+            }
+        }
+
+
+        private UpdateProfile _selectedUpdateProfile = null;
+
+        public UpdateProfile SelectedUpdateProfile
+        {
+            get { return _selectedUpdateProfile; }
+            set
+            {
+                _selectedUpdateProfile = value;
+                SendPropertyChanged("SelectedUpdateProfile");
+            }
+        }
+
+
+        private Visibility _editUpdateProfileVisibilty = Visibility.Collapsed;
+
+        public Visibility EditUpdateProfileVisibilty
+        {
+            get { return _editUpdateProfileVisibilty; }
+            set
+            {
+                _editUpdateProfileVisibilty = value;
+                SendPropertyChanged("EditUpdateProfileVisibilty");
+            }
+        }
+
+
+        private UpdateProfileItemViewModel _editedUpdateProfile = null;
+
+        public UpdateProfileItemViewModel EditedUpdateProfile
+        {
+            get { return _editedUpdateProfile; }
+            set
+            {
+                _editedUpdateProfile= value;
+                SetEditedUpdateProfileVisibility();
+                SendPropertyChanged("EditedUpdateProfile");
+            }
+        }
+
+        private void SetEditedUpdateProfileVisibility()
+        {
+            if (EditedUpdateProfile != null)
+                EditUpdateProfileVisibilty = Visibility.Visible;
+            else
+                EditUpdateProfileVisibilty = Visibility.Collapsed;
+        }
+
+        public void AddUpdateProfile()
+        {
+            EditedUpdateProfile = new UpdateProfileItemViewModel(this, true);
+        }
+
+        public void EditUpdateProfile()
+        {
+            if (SelectedUpdateProfile != null)
+                EditedUpdateProfile = new UpdateProfileItemViewModel(this, false);
+        }
+
+        public void DeleteUpdateProfile()
+        {
+            if (SelectedUpdateProfile != null)
+            {
+                DeleteUpdateProfileDecided(MessageBoxResult.Yes);
+            }
+        }
+
+        private void DeleteUpdateProfileDecided(MessageBoxResult decision)
+        {
+            if (decision == MessageBoxResult.Yes)
+            {
+                var UpdateProfile = PersistMgr.UpdateProfiles
+                  .With(QueryStrategy.DataSourceOnly)
+                  .Where(c => c.Id == SelectedUpdateProfile.Id)
+                  .Execute().FirstOrDefault();
+                
+                    UpdateProfile.EntityAspect.Delete();
+                    UpdateProfiles.Remove(SelectedUpdateProfile);
+                    SelectedUpdateProfile = null;
+
+                    PersistMgr.SaveChanges();             
+            }
+        }
+
+        private string _SearchName = string.Empty;
+
+        public string SearchName
+        {
+            get { return _SearchName; }
+            set
+            {
+                _SearchName = value;
+                SendPropertyChanged("SearchName");
+            }
+        }
+
+        private long _SearchFromNo = 0;
+        
+        public long SearchFromNo
+        {
+            get { return _SearchFromNo; }
+            set
+            {
+                _SearchFromNo = value;
+                SendPropertyChanged("SearchFromNo");
+            }
+        }
+
+        private long _SearchToNo = 0;
+      
+        public long SearchToNo
+        {
+            get { return _SearchToNo; }
+            set
+            {
+                _SearchToNo = value;
+                SendPropertyChanged("SearchToNo");
+            }
+        }
+
+        internal void CreateWork(OperationType operationType)
+        {
+            if (SelectedUpdateProfile == null)
+                return;
+
+            var popUp = new CreateWorkerView(BaseType.UpdateProfile, operationType, SelectedUpdateProfile.Id);
+            popUp.ShowDialog();
+        }
+
+    }
+}

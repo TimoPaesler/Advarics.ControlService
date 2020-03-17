@@ -1,0 +1,98 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using Advarics.ControlServiceClient;
+using Advarics.ControlServiceClient.ViewModel;
+using System.Windows;
+using Advarics.ControlServiceClient.AdvaricsControlService;
+
+namespace Advarics.ControlService.Logging
+{
+    public class LogHandler
+    {
+
+		public static void LogEntry(DateTime date, string path, string customerName, Exception exception, string info, long workerPackageNo, bool error, bool workerSuccessful, DateTime workerStartTime, int workerErrorCount, string description, JobAction jobAction, string serverName)
+        {			
+            try
+            {
+                Entities entitiyMgr= new Entities();
+                Log logEntry = new Log();
+                logEntry.Date = date;
+				if (path != "")
+					logEntry.Path = path;
+				else
+					logEntry.Path = string.Empty;
+			
+                logEntry.Error = error;
+
+				if (info != "")
+					logEntry.Info = info;
+				else
+					logEntry.Info = string.Empty;
+
+				if (description != "")
+				logEntry.Description = description;
+				else
+					logEntry.Description = string.Empty;
+
+				logEntry.JobActionId = jobAction.Id;
+
+				if (customerName != "")
+					logEntry.CustomerName = customerName;
+				else
+					logEntry.CustomerName = string.Empty;
+
+				if (serverName != "")
+					logEntry.ServerName = serverName;
+				else
+					logEntry.ServerName = string.Empty;
+
+				logEntry.WorkerErrorCount = workerErrorCount;				
+                logEntry.WorkerPackageNo=workerPackageNo;			
+                logEntry.WorkerStartTime=workerStartTime;			
+                logEntry.WorkerSuccessful=workerSuccessful;
+
+				if (exception != null)
+					logEntry.Exception = exception.ToString();
+				else
+					logEntry.Exception = "";
+                
+                entitiyMgr.AddEntity(logEntry);
+                entitiyMgr.SaveChanges();
+            }
+            catch (Exception e) 
+            { 
+            MessageBox.Show(" Fehler Log eintrag kann nicht geschrieben werden" + e.ToString());
+            }
+        }
+
+		public static JobAction JobActionEntry(DateTime startTime,string status, string message, int operation)
+		{
+			Entities entitiyMgr = new Entities();
+			JobAction logEntry = new JobAction();
+			try
+			{
+				logEntry.Message = message;
+				logEntry.StartTime = startTime;
+				logEntry.Status = status;
+				logEntry.Operation = operation;
+				entitiyMgr.AddEntity(logEntry);
+				entitiyMgr.SaveChanges();
+			}
+			catch (Exception e)
+			{
+				MessageBox.Show("Fehler Job eintrag kann nicht geschrieben werden" + e.ToString());
+			}
+			return logEntry;
+		}
+
+		public static void JobResponseInsert(LogResponse[] logs, JobAction jobAction)
+		{
+			foreach (var item in logs)
+			{
+				LogEntry(item.Date,item.Path, item.CustomerName, item.Exception, item.Info, item.workerPackageNo, item.Error, item.WorkerSuccessful, item.WorkerStartTime, item.WorkerErrorCount, item.Description, jobAction,item.ServerName);
+			}
+		}
+    }
+}

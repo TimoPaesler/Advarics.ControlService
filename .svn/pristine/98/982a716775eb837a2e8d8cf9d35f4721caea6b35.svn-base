@@ -1,0 +1,47 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+
+namespace Advarics.ControlServiceClient.Model
+{
+    class IntervalTypeHelper
+    {
+        public static string GetName(IntervalType status)
+        {
+            string statusName = "N/A";
+
+            switch (status)
+            {
+                case IntervalType.NA:
+                    statusName = "N/A";
+                    break;
+                case IntervalType.Täglich:
+                    statusName = "Täglich";
+                    break;
+                case IntervalType.Stündlich:
+                    statusName = "Stündlich";
+                    break;
+                case IntervalType.Minütlich:
+                    statusName = "Minütlich";
+                    break;
+                case IntervalType.Sofort:
+                    statusName = "Sofort";
+                    break;
+                case IntervalType.Monatlich:
+                    statusName = "Monatlich";
+                    break;
+                case IntervalType.Einmalig:
+                    statusName = "Einmalig";
+                    break;
+                default:
+                    statusName = "N/A";
+                    break;
+            }
+
+
+
+            return statusName;
+        }
+    }
+}

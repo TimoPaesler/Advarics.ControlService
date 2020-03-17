@@ -1,0 +1,407 @@
+﻿using Advarics.ControlService.Common;
+using Advarics.ControlService.DataContracts.FileTransfer;
+using Advarics.ControlService.DataContracts.UpdateInfo;
+using Advarics.ControlService.DataContracts.VersionInfo;
+using Advarics.Retail;
+using IdeaBlade.EntityModel;
+using Microsoft.WindowsAzure.Storage;
+using Microsoft.WindowsAzure.Storage.Blob;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
+using System.Linq;
+using System.ServiceModel;
+
+namespace Advarics.ControlService
+{
+    // NOTE: You can use the "Rename" command on the "Refactor" menu to change the class name "Service1" in code, svc and config file together.
+    [ServiceBehavior(InstanceContextMode = InstanceContextMode.PerCall, AddressFilterMode = AddressFilterMode.Any)]
+    public class AdvaricsControlService : IAdvaricsControlService
+    {
+        private const string _bgwConfigFileName = "BkWkCtrlConfig.xml";
+        private const string _bgwConsoleName = "Advarics.Retail.BackgroundWork.Console";
+        string prefix = "packages/";
+        string localDownloadPath = "";
+        BlobRequestOptions blobRequestOptions = new BlobRequestOptions();
+
+        #region IAdvaricsControlService Members
+
+        public UploadInfoResponse UploadFile(UploadFileRequest request)
+        {
+            UploadInfoResponse response = new UploadInfoResponse();
+            List<LogResponse> logResponse = new List<LogResponse>();
+
+            if (request.IdToken == SecurityIdProvider.GetIDToken())
+            {
+                logResponse.Add(Log.LogEntry(DateTime.Now, "-", "-", null, "Starte Upload am Server File :" + request.FileName, 0, false, false, DateTime.Now, 0, "Server", "-", Log.LogStatus.OK));
+
+                try
+                {
+                    if (System.IO.Directory.Exists(request.UpdateOrdner) == false)
+                        System.IO.Directory.CreateDirectory(request.UpdateOrdner);
+
+                    localDownloadPath = request.UpdateOrdner;
+                    string azureConnectionstring = "DefaultEndpointsProtocol=https;AccountName=advaricsupdate;AccountKey=XkS6E20un4n/xQGqTU/S5580ZQf+qSgyCR8PDquwxFOs1NXGD0dKOmr1K0tsnUhQCT0hxGd+sVqxC90jv9Rx1g==";
+                    CloudStorageAccount storageAccount = CloudStorageAccount.Parse(azureConnectionstring);
+                    // Create the blob client.
+                    CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
+                    // Retrieve a reference to a container.
+                    CloudBlobContainer container = blobClient.GetContainerReference("update");
+                    blobRequestOptions.MaximumExecutionTime = new TimeSpan(3, 0, 0);
+                    blobRequestOptions.ServerTimeout = new TimeSpan(1, 0, 0);
+                    blobRequestOptions.RetryPolicy = new Microsoft.WindowsAzure.Storage.RetryPolicies.ExponentialRetry(new TimeSpan(0, 0, 30), 100);
+
+                    var files = container.ListBlobs(prefix, false);
+
+                    foreach (CloudBlobDirectory path in files.Where(x => x.GetType() == typeof(CloudBlobDirectory)))
+                    {
+                        DownLoadRec(path);
+                    }
+
+                    logResponse.Add(Log.LogEntry(DateTime.Now, "-", "-", null, "Upload am Server Erfolgreich File :" + request.FileName, 0, false, false, DateTime.Now, 0, "Server", "-", Log.LogStatus.OK));
+
+                }
+                catch (Exception e)
+                {
+                    logResponse.Add(Log.LogEntry(DateTime.Now, "-", "-", e, "Fehler beim Upload/Entpacken am Server", 0, true, false, DateTime.Now, 0, "Server", "-", Log.LogStatus.OK));
+                }
+
+            }
+            response.Logs = logResponse.ToArray();
+            return response;
+        }
+
+
+        public void DownLoadRec(CloudBlobDirectory InputFiles)
+        {
+            var files = InputFiles.ListBlobs(false);
+
+            foreach (var path in files)
+            {
+                if (path.GetType() == typeof(CloudBlobDirectory))
+                {
+                    DownLoadRec((CloudBlobDirectory)path);
+                }
+                else if (path.GetType() == typeof(CloudBlockBlob))
+                {
+                    var fileName = Path.Combine(localDownloadPath, ((CloudBlockBlob)path).Name.Replace(prefix, ""));
+
+                    if (Directory.Exists(Path.GetDirectoryName(fileName)) == false)
+                        Directory.CreateDirectory(Path.GetDirectoryName(fileName));
+
+                    if (File.Exists(fileName) == false)
+                    {
+                        ((CloudBlockBlob)path).DownloadToFileAsync(Path.Combine(localDownloadPath, fileName), FileMode.Create, null, blobRequestOptions, null);
+                    }
+                    else if (((CloudBlockBlob)path).Properties.Length != new FileInfo(fileName).Length)
+                    {
+                        ((CloudBlockBlob)path).DownloadToFile(Path.Combine(localDownloadPath, fileName), FileMode.Create, null, null);
+                    }
+                    else if (((CloudBlockBlob)path).Properties.LastModified.Value.LocalDateTime >= new FileInfo(fileName).CreationTime)
+                    {
+                        ((CloudBlockBlob)path).DownloadToFile(Path.Combine(localDownloadPath, fileName), FileMode.Create, null, null);
+                    }
+                }
+            }
+        }
+
+        public VersionInfoResponse GetVersions(VersionRequest request)
+        {
+            VersionInfoResponse response = new VersionInfoResponse();
+            List<LogResponse> logResponse = new List<LogResponse>();
+
+
+            if (request.IdToken == SecurityIdProvider.GetIDToken())
+            {
+                logResponse.Add(Log.LogEntry(DateTime.Now, "-", request.Customer.Name, null, "Starte Versions Nr. holen :", 0, false, false, DateTime.Now, 0, "Server", "-", Log.LogStatus.OK));
+                EntityConnectionProvider.GetRetailEntityConnection(request.Customer.DBName);
+                RetailEntities entMgr = new RetailEntities(dataSourceExtension: request.Customer.DBName);
+
+
+                List<CashVersion> cashVersions = new List<CashVersion>();
+
+                try
+                {
+                    var updateStatus = entMgr.UpdateStatus.Execute().FirstOrDefault();
+
+                    if (updateStatus != null)
+                    {
+                        response.RetailPakNo = updateStatus.CurrentUpdatePackage;
+                        response.RetailProgramVersion = updateStatus.CurrentProgramVersion;
+                        response.RetailDBVersion = entMgr.DbVersions.Execute().FirstOrDefault().VersionNo;
+                    }
+                    try
+                    {
+
+                        string xmlRental = FileProcess.Read(request.BaseProgramPath + "\\" + request.Customer.BaseCustomerPath + "\\Advarics.RentalService\\version.xml");
+                        string xmlSecuDataService = FileProcess.Read(request.BaseProgramPath + "\\" + request.Customer.BaseCustomerPath + "\\Advarics.SecuDataService\\version.xml");
+                        string xmlStatisticService = FileProcess.Read(request.BaseProgramPath + "\\" + request.Customer.BaseCustomerPath + "\\Advarics.StatisticService\\version.xml");
+                        string xmlWebShopService = FileProcess.Read(request.BaseProgramPath + "\\" + request.Customer.BaseCustomerPath + "\\Advarics.WebShopService\\version.xml");
+                        string xmlBackgroundWorkerService = FileProcess.Read(request.BaseProgramPath + "\\" + request.Customer.BaseCustomerPath + "\\Advarics.Retail.BackgroundWork\\version.xml");
+
+
+
+                        if (xmlRental != string.Empty)
+                        {
+                            var rentalServicePakNos = Serialize.DeSerializeFromXml<VersionQueryResult>(xmlRental);
+                            foreach (var item in rentalServicePakNos.Items.Take(1))
+                            {
+                                response.RentalServicePakNo = item.PackageNo;
+                            }
+                        }
+                        if (xmlSecuDataService != string.Empty)
+                        {
+                            var secuDataServicePakNos = Serialize.DeSerializeFromXml<VersionQueryResult>(xmlSecuDataService);
+                            foreach (var item in secuDataServicePakNos.Items.Take(1))
+                            {
+                                response.SecuDataServicePakNo = item.PackageNo;
+                            }
+                        }
+                        if (xmlStatisticService != string.Empty)
+                        {
+                            var statisticServicePakNos = Serialize.DeSerializeFromXml<VersionQueryResult>(xmlStatisticService);
+                            foreach (var item in statisticServicePakNos.Items.Take(1))
+                            {
+                                response.StatisticServicePakNo = item.PackageNo;
+                            }
+                        }
+                        if (xmlWebShopService != string.Empty)
+                        {
+                            var webShopServicePakNos = Serialize.DeSerializeFromXml<VersionQueryResult>(xmlWebShopService);
+                            foreach (var item in webShopServicePakNos.Items.Take(1))
+                            {
+                                response.WebShopServicePakNo = item.PackageNo;
+                            }
+                        }
+                    }
+                    catch
+                    { }
+
+
+                }
+                catch (Exception e)
+                {
+                    logResponse.Add(Log.LogEntry(DateTime.Now, "-", request.Customer.Name, e, "Fehler beim Versions Nr. holen", 0, true, false, DateTime.Now, 0, "Server", "-", Log.LogStatus.OK));
+                }
+            }
+
+            response.Logs = logResponse.ToArray();
+            return response;
+        }
+
+        public UpdateInfoResponse UpdateCustomer(UpdateRequest request)
+        {
+            UpdateInfoResponse response = new UpdateInfoResponse();
+            List<LogResponse> logResponse = new List<LogResponse>();
+
+            // Alle Service/Retail Updaten daten aus d:/Update kopieren 
+            if (request.IdToken == SecurityIdProvider.GetIDToken())
+            {
+                logResponse.Add(Log.LogEntry(DateTime.Now, "-", "-", null, "Starte Update for : " + request.Customer.Name + " Package No " + request.PackageNo, 0, false, false, DateTime.Now, 0, "Server", "-", Log.LogStatus.OK));
+
+                try
+                {
+                    EntityConnectionProvider.GetRetailEntityConnection(request.Customer.DBName);
+                    RetailEntities entMgr = new RetailEntities(dataSourceExtension: request.Customer.DBName);
+
+
+
+
+                    // WebApp Ordner vor dem Kopieren immer leeren damit keine alten JS Datein über bleiben
+
+
+                    try
+                    {
+                        logResponse.Add(Log.LogEntry(DateTime.Now, "-", "-", null, "Starte Delete WebApp Files Paket No: " + request.PackageNo, 0, false, false, DateTime.Now, 0, "Server", "-", Log.LogStatus.OK));
+
+                        DeleteOldDlls.DeleteJS(request.AdvProgramPath + "\\" + request.Customer.BaseCustomerPath + "\\Advarics.Retail\\webapp");
+
+
+                    }
+                    catch (Exception e)
+                    {
+                        logResponse.Add(Log.LogEntry(DateTime.Now, "-", "-", null, "Error while deleting WebApp Files" + e.Message + e.InnerException.ToString(), 0, false, false, DateTime.Now, 0, "Server", "-", Log.LogStatus.ERROR));
+                    }
+
+
+                    //
+
+                    //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>  Copy Retail <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+                    try
+                    {
+                        logResponse.Add(Log.LogEntry(DateTime.Now, "-", "-", null, "Starte Copy Files Paket No:" + request.PackageNo, 0, false, false, DateTime.Now, 0, "Server", "-", Log.LogStatus.OK));
+
+                        // Copy Retail
+                        Copy.CopyDirectoryWithIncludedFiles(request.UpdateServerPath + "\\" + request.PackageNo, request.AdvProgramPath + "\\" + request.Customer.BaseCustomerPath, true);
+                    }
+                    catch (Exception e)
+                    {
+                        logResponse.Add(Log.LogEntry(DateTime.Now, "-", "-", null, "Error while copying Files" + e.Message + e.InnerException.ToString(), 0, false, false, DateTime.Now, 0, "Server", "-", Log.LogStatus.ERROR));
+                    }
+
+                    logResponse.Add(Log.LogEntry(DateTime.Now, "-", "-", null, "Retail-Fiels are ready", 0, false, true, DateTime.Now, 0, "Server", "-", Log.LogStatus.OK));
+
+
+                    // Starte den updater
+                    try
+                    {
+
+                        logResponse.Add(Log.LogEntry(DateTime.Now, "-", "-", null, "Starte DB Updater", 0, false, false, DateTime.Now, 0, "Server", "-", Log.LogStatus.OK));
+
+                        Process P = new Process();
+                        P.StartInfo.CreateNoWindow = true;
+                        P.StartInfo.FileName = request.AdvProgramPath + "\\" + request.Customer.BaseCustomerPath + "\\Advarics.Retail\\bin\\Advarics.Retail.DbUpdater.exe";
+                        P.StartInfo.Arguments = "true " + request.PackageNo;
+                        P.Start();
+
+                    }
+                    catch (Exception e)
+                    {
+                        logResponse.Add(Log.LogEntry(DateTime.Now, "-", "-", null, "Error while Starting Updater" + e.ToString(), 0, false, false, DateTime.Now, 0, "Server", "-", Log.LogStatus.ERROR));
+                    }
+
+
+                    //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>  Copy BGW.xsd <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+                    try
+                    {
+
+                        string bgwPath = GetBgwPath(request.AdvProgramPath);
+
+                        // Copy method für BGW xsd's, hier reicht aber eine Datei: BkWkCrtlConfig.xsd
+                        Copy.CopyOneFile(request.UpdateServerPath + "\\" + request.PackageNo + "\\Advarics.Retail.BackgroundWork\\XsdValidation\\BkWkCtrlConfig.xsd", bgwPath + "\\XsdValidation\\BkWkCtrlConfig.xsd");
+                    }
+                    catch (Exception e)
+                    {
+                        logResponse.Add(Log.LogEntry(DateTime.Now, "-", "-", null, "Error while Copping xsd-File" + e.ToString(), 0, false, false, DateTime.Now, 0, "Server", "-", Log.LogStatus.ERROR));
+                    }
+
+                    logResponse.Add(Log.LogEntry(DateTime.Now, "-", "-", null, "xsd-Fiels are ready", 0, false, true, DateTime.Now, 0, "Server", "-", Log.LogStatus.OK));
+
+
+
+
+
+
+
+                    // Delete old dlls auskommentiert am 29.05.2019 wird nicht mehr benötigt und führt zu Fehlern im Log
+                    //try
+                    //{
+                    //    logResponse.Add(Log.LogEntry(DateTime.Now, "-", "-", null, "Start Delete Old Dll Files from" + request.Customer.Name, 0, false, false, DateTime.Now, 0, "Server", "-", Log.LogStatus.OK));
+
+                    //   DeleteOldDlls.Delete(request.AdvProgramPath + "\\" + request.Customer.BaseCustomerPath);
+
+                    //    Copy.CopyDirectoryWithIncludedFiles(request.UpdateServerPath + "\\" + request.PackageNo, request.AdvProgramPath + "\\" + request.Customer.BaseCustomerPath, true);
+
+                    //}
+                    //catch (Exception e)
+                    //{
+                    //    logResponse.Add(Log.LogEntry(DateTime.Now, "-", "-", null, "Error while Deleting old DLLS " + e.ToString(), 0, false, false, DateTime.Now, 0, "Server", "", Log.LogStatus.ERROR));
+
+                    //}
+
+                    //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>  Copy BGW  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+                    //>>>>das hier als letztes, damit der BGW nicht von dem Updater gestartet werden kann!<<<<
+                    try
+                    {
+                        string bgwPath = GetBgwPath(request.AdvProgramPath);
+
+                        // Copy method für BGW, nur dann wenn nicht schon gestartet ist
+                        if (BgwIsRunning(bgwPath + "\\BGW" + request.PackageNo, logResponse))
+                        {
+                            // Wenn schon gestartet, dann auch die Config löschen, damit neue Einträge vom BGW aus der zentalen Config gelesen werden!!}
+                            if (File.Exists(Path.Combine(bgwPath + "\\BGW" + request.PackageNo, _bgwConfigFileName)))
+                                File.Delete(Path.Combine(bgwPath + "\\BGW" + request.PackageNo, _bgwConfigFileName));
+                        }
+                        else
+                        {
+                            Copy.CopyDirectoryWithIncludedFilesAll(request.UpdateServerPath + "\\" + request.PackageNo + "\\Advarics.Retail.BackgroundWork\\", bgwPath + "\\BGW" + request.PackageNo);
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        logResponse.Add(Log.LogEntry(DateTime.Now, "-", "-", null, "Error while Copping BGW-Files" + e.ToString(), 0, false, false, DateTime.Now, 0, "Server", "-", Log.LogStatus.ERROR));
+                    }
+
+                    //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>  Copy PowerShell  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+                    try
+                    {
+                        string bgwPath = GetBgwPath(request.AdvProgramPath);
+
+
+                        Copy.CopyDirectoryWithIncludedFilesAll(request.UpdateServerPath + "\\" + request.PackageNo + "\\Advarics.PowerShell\\", bgwPath + "\\PowerShell");
+
+                    }
+                    catch (Exception e)
+                    {
+                        logResponse.Add(Log.LogEntry(DateTime.Now, "-", "-", null, "Error while Copping PowerShell" + e.ToString(), 0, false, false, DateTime.Now, 0, "Server", "-", Log.LogStatus.ERROR));
+                    }
+
+
+                }
+                catch (Exception e)
+                {
+                    logResponse.Add(Log.LogEntry(DateTime.Now, "-", "-", null, "Error update" + e.ToString(), 0, false, false, DateTime.Now, 0, "Server", "", Log.LogStatus.ERROR));
+                }
+            }
+            logResponse.Add(Log.LogEntry(DateTime.Now, "-", "-", null, "Update Erfolgreich", 0, false, false, DateTime.Now, 0, "Server", "-", Log.LogStatus.OK));
+
+            response.Logs = logResponse.ToArray();
+            return response;
+        }
+
+        private bool BgwIsRunning(string bgwPath, List<LogResponse> logResponse)
+        {
+            //die Abfrage über den Prozess ergibt momentan einen Zugriffsfehler, da der Benutzter ISS APPPOOL\Controlservice keine Berechtigung hat
+            //hier reicht aber auch einfach die Abfrage, ob das Verzeichnis vorhanden ist..
+
+            bool isRunning = false;
+            if (Directory.Exists(bgwPath))
+                isRunning = true;
+
+            //Process[] processlist = Process.GetProcesses();
+
+            //foreach (var item in processlist)
+            //{
+            //    try
+            //    {
+            //        logResponse.Add(Log.LogEntry(DateTime.Now, "-", "-", null, "Process:" + item.ProcessName, 0, false, false, DateTime.Now, 0, "Server", "-", Log.LogStatus.OK));
+
+            //        if (item.ProcessName.Trim().ToLowerInvariant() == _bgwConsoleName.ToLowerInvariant())
+            //        {
+            //            for (int i = 0; i < item.Modules.Count - 1; i++)
+            //            {
+            //                logResponse.Add(Log.LogEntry(DateTime.Now, "-", "-", null, "Process found Processpath:" + Path.GetDirectoryName(item.Modules[i].FileName), 0, false, false, DateTime.Now, 0, "Server", "-", Log.LogStatus.OK));
+            //                if (Path.GetDirectoryName(item.Modules[i].FileName) == bgwPath)
+            //                    isRunning = true;
+
+            //            }
+            //        }
+            //    }
+            //    catch (Exception e)
+            //    {
+            //        logResponse.Add(Log.LogEntry(DateTime.Now, "-", "-", null, "Error update" + e.ToString(), 0, false, false, DateTime.Now, 0, "Server", "", Log.LogStatus.ERROR));
+            //    }
+            //}
+
+            return isRunning;
+        }
+
+        private string GetBgwPath(string AdvProgramPath)
+        {
+            string bgwPath = string.Empty;
+            string[] bgwPathSearch = Directory.GetDirectories(AdvProgramPath, "Advarics*Common");
+            foreach (var path in bgwPathSearch)
+            {
+                bgwPath = path;
+                break;
+            }
+
+            return bgwPath;
+        }
+
+
+        #endregion
+    }
+}

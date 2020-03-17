@@ -1,0 +1,72 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Collections.ObjectModel;
+using IdeaBlade.EntityModel;
+
+namespace Advarics.ControlServiceClient.ViewModel.Log
+{
+	class TimeLineItemVM:ViewModelBase
+	{
+
+		public TimeLineItemVM(TimeLineVM parentVM)
+		{
+			ParentVM = parentVM;
+
+			LoadDetails();
+		}
+
+		private TimeLineVM _ParentVM = null;
+
+		public TimeLineVM ParentVM
+		{
+		get { return _ParentVM;}
+		set { 
+				_ParentVM = value;
+				SendPropertyChanged("ParentVM");
+			}
+		}
+
+
+		private ObservableCollection<LogVM> _Logs = new ObservableCollection<LogVM>();
+
+		public ObservableCollection<LogVM> Logs
+		{
+			get { return _Logs; }
+			set
+			{
+				_Logs = value;
+				SendPropertyChanged("Logs");
+			}
+		}
+
+		private LogVM _SelectedLog = null;
+
+		public LogVM SelectedLog
+		{
+			get { return _SelectedLog; }
+			set
+			{
+				_SelectedLog = value;
+				SendPropertyChanged("SelectedLog");
+			}
+		}
+
+		private void LoadDetails()
+		{
+			if (ParentVM == null)
+				return;
+
+			var logList = ParentVM.PersistMgr.Logs.With(QueryStrategy.DataSourceOnly).OrderByDescending(x => x.Date).Where(x => x.JobActionId == ParentVM.SelectedJobAction.JobAction.Id).Execute();
+
+			foreach (var item in logList)
+			{
+				Logs.Add(new LogVM { Log = item });
+			}
+
+		}
+
+
+	}
+}

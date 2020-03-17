@@ -1,0 +1,237 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using Advarics.ControlService.Logging;
+using IdeaBlade.EntityModel;
+using IdeaBlade.Core;
+using System.IO;
+using Advarics.ControlServiceClient.Model;
+using Advarics.ControlServiceClient.Timer;
+using Advarics.ControlServiceClient.ViewModel;
+using Advarics.ControlServiceClient.DataContract;
+using System.Windows;
+using Microsoft.WindowsAzure.Storage;
+using Microsoft.WindowsAzure.Storage.Blob;
+using System.Threading.Tasks;
+using Advarics.ControlServiceClient.AdvaricsControlService;
+using System.ServiceModel;
+
+namespace Advarics.ControlServiceClient.ServiceHandler
+{
+    class UploadPackage : ViewModelBase
+    {
+
+        bool isUploading = false;
+        bool error = false;
+
+        CloudBlobContainer _container = null;
+
+
+        public void Start(WorkerItemVM job)
+        {
+            Entities EntityMgr = new Entities();
+
+            if (isUploading == true)
+                return;
+
+            isUploading = true;
+
+            var localUpdatePath = EntityMgr.CommonSettings.FirstOrDefault().LocalUpdatePath;
+            Upload(@"" + localUpdatePath + "\\" + job.Worker.PackageNo, job);
+
+        }
+
+        //Upload auf jeden Server in den ordner
+        internal void Upload(string localDownloadPath, WorkerItemVM job)
+        {
+            try
+            {
+                LogHandler.LogEntry(DateTime.Now, localDownloadPath, "-", null, "Starte Paket Upload", job.Worker.PackageNo, false, job.Worker.Successful, job.Worker.StartTime, job.Worker.ErrorRepeatCount, "Starte Paket Upload", job.Action, "Azure");
+
+
+                Entities EntityMgr = new Entities();
+                EntityMgr.AuthorizedThreadId = null;
+
+
+                var package = new VersionQueryResult();
+
+                List<VersionItemQueryResult> items = new List<VersionItemQueryResult>();
+                items.Add(new VersionItemQueryResult()
+                {
+                    PackageNo = job.Worker.PackageNo
+                });
+
+                package.Items = items;
+
+
+                var xml = SerializeToXml<VersionQueryResult>(package);
+
+
+                if (File.Exists(@"" + localDownloadPath + "\\version.xml"))
+                    File.Delete(@"" + localDownloadPath + "\\version.xml");
+
+                StreamWriter myWriter = File.CreateText(@"" + localDownloadPath + "\\version.xml");
+                myWriter.Write(xml);
+                myWriter.Close();
+
+                string[] subDirectories = Directory.GetDirectories(@"" + localDownloadPath);
+
+                foreach (var item in subDirectories)
+                {
+                    try
+                    {
+                        File.Copy(@"" + localDownloadPath + "\\version.xml", item + "\\version.xml", true);
+                    }
+                    catch (Exception e)
+                    {
+                        MessageBox.Show("Error:" + e.ToString());
+                    }
+                }
+
+                string azureConnectionstring = "DefaultEndpointsProtocol=https;AccountName=advaricsupdate;AccountKey=XkS6E20un4n/xQGqTU/S5580ZQf+qSgyCR8PDquwxFOs1NXGD0dKOmr1K0tsnUhQCT0hxGd+sVqxC90jv9Rx1g==";
+
+                CloudStorageAccount storageAccount = CloudStorageAccount.Parse(azureConnectionstring);
+
+                // Create the blob client.
+                CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
+
+                // Retrieve a reference to a container.
+                _container = blobClient.GetContainerReference("update\\packages\\" + job.Worker.PackageNo);
+
+
+                UploadDirectoryToBlobStorage(localDownloadPath, null);
+
+                //Starte Download an allen Servern
+                List<Server> Servers = (List<Server>)EntityMgr.Servers.Include("ServerSettings").Execute();
+
+                UploadToAllServers(Servers, job);
+
+                LogHandler.LogEntry(DateTime.Now, localDownloadPath, "-", null, "Paket Upload Erfolgreich", job.Worker.PackageNo, false, job.Worker.Successful, job.Worker.StartTime, job.Worker.ErrorRepeatCount, "Paket Upload Erfolgreich", job.Action, "Azure");
+
+            }
+            catch (Exception e)
+            {
+                LogHandler.LogEntry(DateTime.Now, "-", "-", e, "Paket Upload fehler", job.Worker.PackageNo, true, job.Worker.Successful, job.Worker.StartTime, job.Worker.ErrorRepeatCount, "Job nicht korrekt gelaufen", job.Action, "-");
+                error = true;
+            }
+
+
+            isUploading = false;
+
+
+            if (error == false)
+                job.Worker.Successful = true;
+            else
+                job.Worker.ErrorRepeatCount++;
+
+            job.Worker.EntityAspect.EntityManager.SaveChanges();
+
+        }
+
+
+        public void UploadDirectoryToBlobStorage(String directory, CloudBlobDirectory virtualDirectory = null)
+        {
+            var directoryInfo = new DirectoryInfo(directory);
+
+            var blobReferenceBuilder = (virtualDirectory == null) ?
+                (Func<String, CloudBlockBlob>)(n => _container.GetBlockBlobReference(n)) :
+                (Func<String, CloudBlockBlob>)(n => virtualDirectory.GetBlockBlobReference(n));
+
+            var files = directoryInfo.GetFiles();
+            Array.ForEach(files, f =>
+            {
+                var name = Path.GetFileName(f.FullName);
+                var extension = Path.GetExtension(f.FullName).Substring(1).ToLower();
+
+                var blob = blobReferenceBuilder(name);
+
+                using (var stream = new MemoryStream(File.ReadAllBytes(f.FullName)))
+                {
+                    stream.Seek(0, SeekOrigin.Begin);
+                    blob.UploadFromStream(stream);
+                    stream.Close();
+                }
+            });
+
+            var directoryReferenceBuilder = (virtualDirectory == null) ?
+                (Func<String, CloudBlobDirectory>)(n => _container.GetDirectoryReference(n)) :
+                (Func<String, CloudBlobDirectory>)(n => virtualDirectory.GetDirectoryReference(n));
+
+            var directories = directoryInfo.GetDirectories();
+            Array.ForEach(directories, d =>
+            {
+                var subDirectory = directoryReferenceBuilder(d.Name);
+                UploadDirectoryToBlobStorage(d.FullName, subDirectory);
+            });
+        }
+
+
+        //Upload auf jeden Server in den ordner
+        internal void UploadToAllServers(List<Server> Servers, WorkerItemVM job)
+        {
+
+            Entities EntityMgr = new Entities();
+            EntityMgr.AuthorizedThreadId = null;
+
+            Parallel.ForEach(Servers, currentElement =>
+                {
+                    try
+                    {
+                        LogHandler.LogEntry(DateTime.Now, "", "-", null, "Starte Paket Upload", job.Worker.PackageNo, false, job.Worker.Successful, job.Worker.StartTime, job.Worker.ErrorRepeatCount, "Starte Paket Upload", job.Action, currentElement.Name);
+
+                        
+                        DownloadToServer(currentElement, job.Action, job.Worker.PackageNo.ToString());
+                        LogHandler.LogEntry(DateTime.Now, "", "-", null, "Paket Upload Erfolgreich", job.Worker.PackageNo, false, job.Worker.Successful, job.Worker.StartTime, job.Worker.ErrorRepeatCount, "Paket Upload Erfolgreich", job.Action, currentElement.Name);
+
+                    }
+                    catch (Exception e)
+                    {
+                        LogHandler.LogEntry(DateTime.Now, "", "-", e, "Paket Upload fehler", job.Worker.PackageNo, true, job.Worker.Successful, job.Worker.StartTime, job.Worker.ErrorRepeatCount, "Paket Upload fehler", job.Action, currentElement.Name);
+                        error = true;
+                    }
+                });
+
+
+            isUploading = false;
+
+            if (error == false)
+                job.Worker.Successful = true;
+            else
+                job.Worker.ErrorRepeatCount++;
+
+            job.Worker.EntityAspect.EntityManager.SaveChanges();
+
+        }
+
+
+        public void DownloadToServer(Server item, JobAction jobAction, String PackageNo)
+        {
+            string uploadPath = string.Empty;
+            uploadPath = item.ServerSettings.Where(x => x.ServerId == item.Id).Select(x => x.BaseUpdatePath).FirstOrDefault();
+
+            AdvaricsControlServiceClient client = new AdvaricsControlServiceClient();
+            ServiceProxyProvider serviceProxyProvider = new ServiceProxyProvider();
+            DnsEndpointIdentity endpointIdentity = new DnsEndpointIdentity("advarics.net");
+
+
+
+            var uri = new Uri(item.ServerSettings.Where(x => x.ServerId == item.Id).Select(x => x.Url).FirstOrDefault());
+            var endpointAddress = new EndpointAddress(uri, endpointIdentity);
+            client = serviceProxyProvider.GetProxyServer1(endpointAddress);
+
+
+            UploadFileRequest request = new UploadFileRequest();
+
+            request.FileName = PackageNo;
+            request.IdToken = SecurityIdProvider.GetIDToken();
+            request.UpdateOrdner = uploadPath;
+
+
+            var response = client.UploadFile(request);
+            client.Close();
+            LogHandler.JobResponseInsert(response.Logs, jobAction);
+        }
+
+    }
+}

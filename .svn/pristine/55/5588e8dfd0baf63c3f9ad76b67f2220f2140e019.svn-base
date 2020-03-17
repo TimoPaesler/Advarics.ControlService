@@ -1,0 +1,94 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.IO;
+using IdeaBlade.EntityModel;
+using IdeaBlade.Core;
+using Advarics.ControlService.Logging;
+using Advarics.ControlServiceClient.Timer;
+
+namespace Advarics.ControlServiceClient.ServiceHandler
+{
+    class DataCleaning
+    {
+        bool isCleaning = false;
+        bool error = false;
+        public void CleaningStart(WorkerItemVM job)
+        {
+            if (isCleaning == true)
+                return;
+
+            isCleaning = true;
+
+
+
+            Entities EntityMgr = new Entities();
+			EntityMgr.AuthorizedThreadId = null;
+
+            List<Server> Servers = (List<Server>)EntityMgr.Servers.Include(x => x.ServerSettings).Execute();
+            int BackupStoreTimeDays = EntityMgr.CommonSettings.Select(x => x.BackupStoreTimeDays).FirstOrDefault();
+
+            foreach (var server in Servers)
+            {
+				try
+				{
+					//Online Löschen
+					LogHandler.LogEntry(DateTime.Now, "-", "-", null, "Starte Cleaning der Online DBs", job.Worker.PackageNo, false, job.Worker.Successful, job.Worker.StartTime, job.Worker.ErrorRepeatCount, "Starte Cleaning der Online DBS", job.Action, server.Name);
+
+					StartCleaning startCleaning = new StartCleaning();
+					startCleaning.CleanDB(server.ServerSettings.FirstOrDefault().Url, server.Id, BackupStoreTimeDays, server.ServerSettings.FirstOrDefault().UploadStoragePath,job.Action);
+
+					LogHandler.LogEntry(DateTime.Now, "-", "-", null, "Cleaning der Online DBs Erfolgreich", job.Worker.PackageNo, false, job.Worker.Successful, job.Worker.StartTime, job.Worker.ErrorRepeatCount, "Starte Cleaning der Online DBS", job.Action, server.Name);
+
+
+					//Lokal Löschen
+					LogHandler.LogEntry(DateTime.Now, "-", "-", null, "Starte Cleaning der lokalen DBs", job.Worker.PackageNo, false, job.Worker.Successful, job.Worker.StartTime, job.Worker.ErrorRepeatCount, "Starte Cleaning der Online DBs", job.Action, server.Name);
+					var files = System.IO.Directory.GetFiles(server.ServerSettings.Where(x => x.ServerId == server.Id).Select(x => x.BackupStoragePath).FirstOrDefault());
+
+					foreach (var file in files)
+					{
+
+						DateTime fileDate = File.GetLastWriteTime(file);
+
+						if (fileDate <= DateTime.Now.AddDays(-BackupStoreTimeDays) && fileDate.Day != 1)
+						{
+							System.IO.File.Delete(@file);
+							LogHandler.LogEntry(DateTime.Now,file, "-", null, "Lösche Datei", job.Worker.PackageNo, false, job.Worker.Successful, job.Worker.StartTime, job.Worker.ErrorRepeatCount, "Lösche Datei", job.Action, server.Name);
+						}
+					}
+
+					LogHandler.LogEntry(DateTime.Now, "-", "-", null, "Cleaning der lokalen DBs Erfolgreich", job.Worker.PackageNo, false, job.Worker.Successful, job.Worker.StartTime, job.Worker.ErrorRepeatCount, "Starte Cleaning der lokalen DBs", job.Action, server.Name);
+
+				}
+				catch( Exception e)
+				{
+
+					LogHandler.LogEntry(DateTime.Now, "-", "-", e, "Fehler beim Cleaning der Dbs", job.Worker.PackageNo, true, job.Worker.Successful, job.Worker.StartTime, job.Worker.ErrorRepeatCount, "Fehler beim Cleaning der Dbs", job.Action, server.Name);
+					error = true;
+				}
+            }
+
+			isCleaning = false;
+
+			if (error == false)
+				job.Worker.Successful = true;
+			else
+				job.Worker.ErrorRepeatCount++;
+
+			job.Worker.EntityAspect.EntityManager.SaveChanges();
+           
+        }
+
+        public static void CleaningZip(DirectoryInfo dirInfo)
+        {
+            var files = dirInfo.GetFiles();
+
+            foreach (var item in files.ToList())
+            {
+                if (item.Name.Contains(".z") && item.Name.EndsWith(".zip") == false)
+                    item.Delete();
+            }
+        }
+    }
+}

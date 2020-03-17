@@ -1,0 +1,32 @@
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Web;
+
+namespace Advarics.ControlService.Common
+{
+    public class DeleteOldDlls
+    {
+
+        public static void Delete(string customerBaseDir)
+        {
+
+
+            var binDir = Directory.GetDirectories(customerBaseDir);
+
+
+            foreach (string fileSource in binDir)
+            {
+                if (fileSource.Contains("v12.2") || fileSource.Contains("IdeaBlade.EntityModel.Edm.dll"))
+                {
+                    Log.LogEntry(DateTime.Now, "-", "-", null, "Delete Old File: "+fileSource, 0, false, false, DateTime.Now, 0, "Server", "-", Log.LogStatus.OK);
+                    File.Delete(fileSource);
+                }
+            }
+
+        }
+
+
+    }
+}

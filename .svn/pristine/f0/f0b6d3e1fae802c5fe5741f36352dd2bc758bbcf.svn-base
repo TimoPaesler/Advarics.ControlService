@@ -1,0 +1,40 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using Advarics.ControlServiceClient.AdvaricsControlService;
+using System.ServiceModel;
+using Advarics.ControlServiceClient.DataContract;
+using System.IO;
+using Advarics.ControlService.Logging;
+
+namespace Advarics.ControlServiceClient.ServiceHandler
+{
+    class SendFiles
+    {
+        public void UploadFiles(Server item,JobAction jobAction,String PackageNo)
+        {
+            string uploadPath = string.Empty;
+
+            AdvaricsControlServiceClient client = new AdvaricsControlServiceClient();
+            uploadPath = item.ServerSettings.Where(x => x.ServerId == item.Id).Select(x => x.BaseUpdatePath).FirstOrDefault();
+            ServiceProxyProvider serviceProxyProvider = new ServiceProxyProvider();
+            DnsEndpointIdentity endpointIdentity = new DnsEndpointIdentity("advarics.net");
+            var uri = new Uri(item.ServerSettings.Where(x => x.ServerId == item.Id).Select(x => x.Url).FirstOrDefault());
+            var endpointAddress = new EndpointAddress(uri, endpointIdentity);
+            client = serviceProxyProvider.GetProxyServer1(endpointAddress);
+
+
+            UploadFileRequest request = new UploadFileRequest();
+
+            request.FileName = PackageNo;
+            request.IdToken = SecurityIdProvider.GetIDToken();
+            request.UpdateOrdner = uploadPath;
+            
+           
+            var response = client.UploadFile(request);			
+			client.Close();
+			LogHandler.JobResponseInsert(response.Logs, jobAction);
+        }
+    }
+}

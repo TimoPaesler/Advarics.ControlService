@@ -1,0 +1,207 @@
+﻿using System;
+using System.Net;
+using System.Windows;
+using System.Windows.Controls;
+using System.Linq;
+using System.Collections.Generic;
+using IdeaBlade.EntityModel;
+using IdeaBlade.Core;
+using System.Collections.ObjectModel;
+using IdeaBlade.EntityModel.Compat;
+
+
+namespace Advarics.ControlServiceClient.ViewModel.BaseData
+{
+   public class UpdateProfileItemViewModel: ViewModelBaseForEntities
+    {
+        public UpdateProfileItemViewModel(UpdateProfileViewModel parentModel, bool isNew)
+        {
+            ParentModel = parentModel;
+            IsNew = isNew;
+
+            if (IsNew == false)
+                LoadUpdateProfile();
+            else
+                CreateUpdateProfile();
+        }
+
+        private void LoadUpdateProfile()
+        {
+            PersistMgr.UpdateProfiles
+                .With(QueryStrategy.DataSourceOnly)
+                .Where(c => c.Id == ParentModel.SelectedUpdateProfile.Id)
+                .Take(1).ExecuteAsync(op =>
+                {
+                    UpdateProfile = op.Results.FirstOrDefault();
+                });
+
+
+        }
+
+        private void CreateUpdateProfile()
+        {
+
+            UpdateProfile = new UpdateProfile();
+            PersistMgr.AddEntity(UpdateProfile);
+
+
+            PersistMgr.UpdateProfiles.With(QueryStrategy.DataSourceOnly)
+                .OrderByDescending(o => o.No)
+                .Select(c => c.No )
+                .Take(1)
+                .ExecuteAsync(op =>
+                {
+                    var maxNoUpdateProfile = op.Results.FirstOrDefault();
+                    if (maxNoUpdateProfile == null)
+                        UpdateProfile.No = 1;
+                    else
+                        UpdateProfile.No = maxNoUpdateProfile + 1;
+
+                   
+                });
+        }
+
+
+
+        private UpdateProfile _UpdateProfile = null;
+
+        public UpdateProfile UpdateProfile
+        {
+            get { return _UpdateProfile; }
+            set
+            {
+                _UpdateProfile = value;
+                SendPropertyChanged("UpdateProfile");
+            }
+        }
+
+
+        private UpdateProfileViewModel _parentModel = null;
+
+        public UpdateProfileViewModel ParentModel
+        {
+            get { return _parentModel; }
+            set
+            {
+                _parentModel = value;
+                SendPropertyChanged("ParentModel");
+            }
+        }
+
+        private int _SelectedTabIndex = 0;
+
+        public int SelectedTabIndex
+        {
+            get { return _SelectedTabIndex; }
+            set
+            {
+                _SelectedTabIndex = value;
+                SendPropertyChanged("SelectedTabIndex");
+            }
+        }
+
+        private bool _isNew = false;
+
+        public bool IsNew
+        {
+            get { return _isNew; }
+            set
+            {
+                _isNew = value;
+                SetIsNotNewVisibility();
+                SendPropertyChanged("IsNew");
+            }
+        }
+
+        private void SetIsNotNewVisibility()
+        {
+            if (IsNew == true)
+                IsNotNewVisibility = Visibility.Collapsed;
+            else
+                IsNotNewVisibility = Visibility.Visible;
+        }
+
+        private Visibility _IsNotNewVisibility = Visibility.Collapsed;
+
+        public Visibility IsNotNewVisibility
+        {
+            get { return _IsNotNewVisibility; }
+            set
+            {
+                _IsNotNewVisibility = value;
+                SendPropertyChanged("IsNewVisibility");
+            }
+        }
+
+
+
+
+        private void ValidateData()
+        {
+            // Daten checken
+            InternalSave();
+        }
+
+        private bool _makeNewAfterSave = false;
+
+        internal void SaveAndNew()
+        {
+            _makeNewAfterSave = true;
+
+            if (PersistMgr.HasChanges() == true)
+                Save();
+            else
+                ParentModel.AddUpdateProfile();
+        }
+
+        public void Save()
+        {
+            try
+            {
+                ValidateData();
+            }
+            catch (System.Exception ex)
+            {
+                _makeNewAfterSave = false;
+                return;
+            }
+        }
+
+        private void InternalSave()
+        {
+
+            PersistMgr.SaveChanges();
+            AfterSaveAction();
+        }
+
+        private void AfterSaveAction()
+        {
+            // Daten im Parent aktualisieren bzw. ergänzen
+            UpdateProfile overviewUpdateProfile = null;
+            if (IsNew == true)
+            {
+                ParentModel.UpdateProfiles.Add(UpdateProfile);
+                overviewUpdateProfile = UpdateProfile;
+            }
+            else
+            {
+                overviewUpdateProfile = ParentModel.SelectedUpdateProfile;
+            }
+
+            overviewUpdateProfile.No = UpdateProfile.No;
+            overviewUpdateProfile.Name = UpdateProfile.Name;
+
+            ParentModel.SelectedUpdateProfile = overviewUpdateProfile;
+
+            if (_makeNewAfterSave == true)
+                ParentModel.AddUpdateProfile();
+            else
+                Cancel();
+        }
+
+        public void Cancel()
+        {
+            ParentModel.EditedUpdateProfile = null;
+        }
+    }
+}

@@ -1,0 +1,105 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using Advarics.ControlServiceClient.Model;
+using IdeaBlade.EntityModel;
+using IdeaBlade.Core;
+using Advarics.ControlServiceClient.AdvaricsControlService;
+using Advarics.ControlServiceClient.DataContract;
+using Advarics.ControlService.Logging;
+using Advarics.ControlServiceClient.Timer;
+
+
+namespace Advarics.ControlServiceClient.ServiceHandler
+{
+    class StartUpdate
+    {
+        bool isUpdateing = false;
+        bool error = false;
+       
+		internal void Start(WorkerItemVM job)
+        {
+			Entities EntityMgr = new Entities();
+			EntityMgr.AuthorizedThreadId = null;
+
+            if (isUpdateing == true)
+                return;
+
+            isUpdateing = true;
+
+            List<Customer> Customers = new List<Customer>();
+
+            switch ((BaseType)job.Worker.BaseTyp)
+            {
+                case BaseType.NA:
+                    break;
+                case BaseType.Customer:
+					Customers = (List<Customer>)EntityMgr.Customers.Include("Server").Include("Server.ServerSettings").Where(x => x.Id == job.Worker.BaseTypId).Execute();
+                    break;
+                case BaseType.Server:
+					Customers = (List<Customer>)EntityMgr.Customers.Include("Server").Include("Server.ServerSettings").Where(x => x.ServerId == job.Worker.BaseTypId).Execute();
+                    break;
+                case BaseType.AllCustomers:
+                    Customers = (List<Customer>)EntityMgr.Customers.Include("Server").Include("Server.ServerSettings").Execute();
+                    break;
+            }
+            if (Customers.Count > 0)
+				Update(Customers, job);
+            else
+                isUpdateing = false;
+
+        }
+
+        private void Update(List<Customer> customers, WorkerItemVM job)
+        {
+
+            foreach (var customer in customers)
+            {
+				if (customer.NoUpdate == true)
+				{
+					LogHandler.LogEntry(DateTime.Now, "-", customer.Name, null, "Kunde darf nicht geupdatet werden", job.Worker.PackageNo, false, job.Worker.Successful, job.Worker.StartTime, job.Worker.ErrorRepeatCount, "Kunde darf nicht geupdatet werden", job.Action, customer.Server.Name);
+					continue;
+				}
+
+
+                try
+                {
+                    UpdateRequest updateRequest = new UpdateRequest();
+
+                    updateRequest.AdvProgramPath = customer.Server.ServerSettings.Select(x => x.BaseAdvProgramPath).FirstOrDefault();
+                    updateRequest.Customer = new CustomerInfo() { BaseCustomerPath = customer.ServerBasePath, DBName = customer.DBName, Name = customer.Name, No = customer.No };
+                    updateRequest.IdToken = SecurityIdProvider.GetIDToken();
+					updateRequest.PackageNo = job.Worker.PackageNo;
+                    updateRequest.UpdateServerPath = customer.Server.ServerSettings.Select(x => x.BaseUpdatePath).FirstOrDefault();
+
+					LogHandler.LogEntry(DateTime.Now, "-", customer.Name, null, "Kunde wird geupdatet", job.Worker.PackageNo, false, job.Worker.Successful, job.Worker.StartTime, job.Worker.ErrorRepeatCount, "Kunde wird geupdatet", job.Action, customer.Server.Name);
+
+					customer.LastUpdatedPackageNo = job.Worker.PackageNo;
+					customer.EntityAspect.EntityManager.SaveChanges();
+
+                    SetUpdate setUpdate = new SetUpdate();
+                    setUpdate.Update(updateRequest, customer.Server.ServerSettings.Select(x => x.Url).FirstOrDefault().Replace("/mex", ""), job.Action);
+
+					LogHandler.LogEntry(DateTime.Now, "-", customer.Name, null, "Update erfolgreich ausgeführt", job.Worker.PackageNo, false, job.Worker.Successful, job.Worker.StartTime, job.Worker.ErrorRepeatCount, "Update erfolgreich ausgeführt", job.Action, customer.Server.Name);
+
+                }
+                catch (Exception e)
+                {
+
+					LogHandler.LogEntry(DateTime.Now, "-", customer.Name, e, "Fehler beim starten des Updates", job.Worker.PackageNo, true, job.Worker.Successful, job.Worker.StartTime, job.Worker.ErrorRepeatCount, "Fehler beim starten des Updates", job.Action, customer.Server.Name);
+                    error = true;
+                }
+            }
+            isUpdateing = false;
+
+			if (error == false)
+				job.Worker.Successful = true;
+			else
+				job.Worker.ErrorRepeatCount++;
+
+			job.Worker.EntityAspect.EntityManager.SaveChanges();
+
+        }
+    }
+}

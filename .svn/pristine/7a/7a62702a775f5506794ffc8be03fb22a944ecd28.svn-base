@@ -1,0 +1,35 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using Advarics.ControlServiceClient.ViewModel;
+
+namespace Advarics.ControlServiceClient.Timer
+{
+	class WorkerItemVM:ViewModelBase
+	{
+		private Worker _Worker = null;
+
+		public Worker Worker
+		{
+			get { return _Worker; }
+			set
+			{
+				_Worker = value;
+				SendPropertyChanged("Worker");
+			}
+		}
+
+		private JobAction _Action = null;
+
+		public JobAction Action
+		{
+			get { return _Action; }
+			set
+			{
+				_Action = value;
+				SendPropertyChanged("Action");
+			}
+		}
+	}
+}

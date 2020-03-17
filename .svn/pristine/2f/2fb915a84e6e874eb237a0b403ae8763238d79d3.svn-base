@@ -1,0 +1,72 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Timers;
+using Advarics.ControlServiceClient.ServiceHandler;
+using IdeaBlade.EntityModel;
+using IdeaBlade.Core;
+using Advarics.ControlService.Logging;
+using System.Windows;
+using Advarics.ControlServiceClient.ViewModel;
+
+
+namespace Advarics.ControlServiceClient.Timer
+{
+    class Timer
+    {
+		public void Start()
+		{
+            System.Timers.Timer globalQueWorkTimer = new System.Timers.Timer();
+            globalQueWorkTimer.Elapsed += new ElapsedEventHandler(OnTimedQueEvent);
+            // Set the Interval to 30 sekunden
+            globalQueWorkTimer.Interval = 30000;
+            globalQueWorkTimer.Enabled = true;
+
+			System.Timers.Timer globalSearchWorkTimer = new System.Timers.Timer();
+			globalSearchWorkTimer.Elapsed += new ElapsedEventHandler(OnTimedEvent);
+			// Set the Interval to 60 sekunden
+			globalSearchWorkTimer.Interval = 60000;
+			globalSearchWorkTimer.Enabled = true;
+		}
+
+        void OnTimedEvent(object sender, EventArgs e)
+		{
+			try
+			{
+				Worker.DoWork();
+			}
+			catch (System.Exception ex)
+			{
+				LogHandler.JobActionEntry(DateTime.Now, "Do Work", "Kann keine Jobs ausführen Error: "+ex, 0);
+			}
+
+		}
+
+        void OnTimedQueEvent(object sender, EventArgs e)
+        {
+            try
+            {
+                Worker.DoAddQueWork();
+            }
+            catch (System.Exception ex)
+            {
+				LogHandler.JobActionEntry(DateTime.Now, "Do AdWork", "Kann keine Jobs hinzufügen", 0);
+            }
+        }
+
+        private WorkerVM _worker = new WorkerVM();
+
+        public WorkerVM Worker
+        {
+            get
+            {
+                return _worker;
+            }
+            set
+            {
+                _worker = value;
+            }
+        }
+    }
+}

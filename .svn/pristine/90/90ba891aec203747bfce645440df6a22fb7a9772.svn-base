@@ -1,0 +1,16 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+
+namespace Advarics.ControlServiceClient.Model
+{
+    public enum BaseType : int
+    {
+        NA = 0,
+        Customer = 1,
+        Server = 2,
+        AllCustomers
+
+    }
+}

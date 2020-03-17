@@ -1,0 +1,227 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using IdeaBlade.EntityModel;
+using IdeaBlade.Core;
+using System.Windows;
+using IdeaBlade.EntityModel.Compat;
+
+namespace Advarics.ControlServiceClient.ViewModel.BaseData
+{
+   public class ServerItemViewModel : ViewModelBaseForEntities
+    {
+        public ServerItemViewModel(ServerViewModel parentModel, bool isNew)
+        {
+            ParentModel = parentModel;
+            IsNew = isNew;
+
+            if (IsNew == false)
+                LoadServer();
+            else
+                CreateServer();
+        }
+
+        private void LoadServer()
+        {
+            PersistMgr.Servers
+                .Include(x => x.ServerSettings)
+                .With(QueryStrategy.DataSourceOnly)
+                .Where(c => c.Id == ParentModel.SelectedServer.Id)
+                .Take(1).ExecuteAsync(op =>
+                {
+                    Server = op.Results.FirstOrDefault();
+                    ServerSetting = Server.ServerSettings.FirstOrDefault();
+                });
+
+
+        }
+
+        private void CreateServer()
+        {
+
+            Server = new Server();
+            ServerSetting = new ControlServiceClient.ServerSetting();
+            PersistMgr.AddEntity(ServerSetting);
+            PersistMgr.AddEntity(Server);
+
+            Server.ServerSettings.Add(ServerSetting);
+
+            PersistMgr.Servers.With(QueryStrategy.DataSourceOnly)
+                .OrderByDescending(o => o.No)
+                .Select(c => c.No )
+                .Take(1)
+                .ExecuteAsync(op =>
+                {
+                    var maxNoServer = op.Results.FirstOrDefault();
+                    if (maxNoServer == null)
+                        Server.No = 1;
+                    else
+                        Server.No = maxNoServer + 1;
+
+                   
+                });
+        }
+
+
+
+        private Server _Server = null;
+
+        public Server Server
+        {
+            get { return _Server; }
+            set
+            {
+                _Server = value;
+                SendPropertyChanged("Server");
+            }
+        }
+
+        private ServerSetting _ServerSetting = null;
+
+        public ServerSetting ServerSetting
+        {
+            get { return _ServerSetting; }
+            set
+            {
+                _ServerSetting = value;
+                SendPropertyChanged("ServerSetting");
+            }
+        }
+
+
+        private ServerViewModel _parentModel = null;
+
+        public ServerViewModel ParentModel
+        {
+            get { return _parentModel; }
+            set
+            {
+                _parentModel = value;
+                SendPropertyChanged("ParentModel");
+            }
+        }
+
+        private int _SelectedTabIndex = 0;
+
+        public int SelectedTabIndex
+        {
+            get { return _SelectedTabIndex; }
+            set
+            {
+                _SelectedTabIndex = value;
+                SendPropertyChanged("SelectedTabIndex");
+            }
+        }
+
+        private bool _isNew = false;
+
+        public bool IsNew
+        {
+            get { return _isNew; }
+            set
+            {
+                _isNew = value;
+                SetIsNotNewVisibility();
+                SendPropertyChanged("IsNew");
+            }
+        }
+
+        private void SetIsNotNewVisibility()
+        {
+            if (IsNew == true)
+                IsNotNewVisibility = Visibility.Collapsed;
+            else
+                IsNotNewVisibility = Visibility.Visible;
+        }
+
+        private Visibility _IsNotNewVisibility = Visibility.Collapsed;
+
+        public Visibility IsNotNewVisibility
+        {
+            get { return _IsNotNewVisibility; }
+            set
+            {
+                _IsNotNewVisibility = value;
+                SendPropertyChanged("IsNewVisibility");
+            }
+        }
+
+
+
+
+        private void ValidateData()
+        {
+            // Daten checken
+            InternalSave();
+        }
+
+        private bool _makeNewAfterSave = false;
+
+        internal void SaveAndNew()
+        {
+            _makeNewAfterSave = true;
+
+            if (PersistMgr.HasChanges() == true)
+                Save();
+            else
+                ParentModel.AddServer();
+        }
+
+        public void Save()
+        {
+            try
+            {
+                ValidateData();
+            }
+            catch (System.Exception ex)
+            {
+                _makeNewAfterSave = false;
+                return;
+            }
+        }
+
+        private void InternalSave()
+        {
+            if (IsNew == true)
+            {
+                Server.ServerSettings.Add(ServerSetting);
+
+            }
+
+
+            PersistMgr.SaveChanges();
+            AfterSaveAction();
+        }
+
+        private void AfterSaveAction()
+        {
+            // Daten im Parent aktualisieren bzw. ergänzen
+            Server overviewServer = null;
+            if (IsNew == true)
+            {
+                ParentModel.Servers.Add(Server);
+                overviewServer = Server;
+            }
+            else
+            {
+                overviewServer = ParentModel.SelectedServer;
+            }
+
+            overviewServer.No = Server.No;
+            overviewServer.Name = Server.Name;
+
+            ParentModel.SelectedServer = overviewServer;
+
+            if (_makeNewAfterSave == true)
+                ParentModel.AddServer();
+            else
+                Cancel();
+        }
+
+        public void Cancel()
+        {
+            ParentModel.EditedServer = null;
+        }
+    }
+}

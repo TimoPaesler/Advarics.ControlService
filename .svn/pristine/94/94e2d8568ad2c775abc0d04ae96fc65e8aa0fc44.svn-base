@@ -1,0 +1,71 @@
+﻿using System;
+using System.Net;
+using System.Windows;
+using System.Windows.Controls;
+using System.ComponentModel;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Windows.Media;
+
+namespace Advarics.ControlServiceClient.Model.Common
+{
+    public class ContentItem : INotifyPropertyChanged
+    {
+		public string Name { get; set; }
+		public string CategoryHeadline { get; set; }
+		public ContentCategory ContentCategory { get; set; }
+		public Type ContentType { get; set; }
+        public ImageSource ImgSource { get; set; }
+
+		private ObservableCollection<ContentItem> _children = new ObservableCollection<ContentItem>();
+
+		public ObservableCollection<ContentItem> Children
+		{
+			get { return _children; }
+			set
+			{
+				_children = value;
+				SendPropertyChanged("Children");
+			}
+		}
+
+		public IContentItemActionHandler ActionHandler { get; set; }
+
+
+		/// <summary>
+		/// Make a copy without the children
+		/// </summary>
+		/// <returns></returns>
+		public ContentItem GetCopy()
+		{
+			var ci = new ContentItem()
+			{
+				Name = this.Name,
+				CategoryHeadline = this.CategoryHeadline,
+				ContentCategory = this.ContentCategory,
+				ContentType = this.ContentType,
+				ImgSource = this.ImgSource,
+				ActionHandler = this.ActionHandler
+			};
+			return ci;
+		}
+		
+		#region INotifyPropertyChanged Members
+
+		public event PropertyChangedEventHandler PropertyChanged;
+
+		private void SendPropertyChanged(string property)
+		{
+			if (this.PropertyChanged != null)
+			{
+				try
+				{
+					this.PropertyChanged(this, new PropertyChangedEventArgs(property));
+				}
+				catch { }
+			}
+		}
+
+		#endregion
+    }
+}

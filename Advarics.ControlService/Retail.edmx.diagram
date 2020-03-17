@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+  <edmx:Designer>
+    <edmx:Diagrams>
+      <edmx:Diagram Name="Retail" ZoomLevel="69">
+        <edmx:EntityTypeShape EntityType="RetailEntitiesModel.CashPoint" Width="1.5" PointX="0.75" PointY="0.75" Height="3.1340950520833335" IsExpanded="true" />
+        <edmx:EntityTypeShape EntityType="RetailEntitiesModel.UpdateStatu" Width="1.5" PointX="2.75" PointY="0.75" Height="1.5956835937499996" IsExpanded="true" />
+        <edmx:EntityTypeShape EntityType="RetailEntitiesModel.Store" Width="2.5" PointX="2.625" PointY="3.125" Height="5.4417122395833317" />
+        <edmx:AssociationConnector Association="RetailEntitiesModel.FK_CashPoint_Store">
+          <edmx:ConnectorPoint PointX="2.625" PointY="5.5237125651041659" />
+          <edmx:ConnectorPoint PointX="2.25" PointY="5.5237125651041659" />
+        </edmx:AssociationConnector>
+        <edmx:EntityTypeShape EntityType="RetailEntitiesModel.DbVersion" Width="1.5" PointX="5.375" PointY="0.75" Height="1.4033821614583335" />
+        <edmx:EntityTypeShape EntityType="RetailEntitiesModel.LogCommon" Width="1.5" PointX="5.375" PointY="3.75" Height="1.9802864583333317" />
+        <edmx:EntityTypeShape EntityType="RetailEntitiesModel.BackgroundWorkerStatu" Width="1.5" PointX="5.375" PointY="6.75" Height="1.4033821614583317" />
+        <edmx:AssociationConnector Association="RetailEntitiesModel.FK_Store_Store" />
+      </edmx:Diagram>
+    </edmx:Diagrams>
+  </edmx:Designer>
+</edmx:Edmx>

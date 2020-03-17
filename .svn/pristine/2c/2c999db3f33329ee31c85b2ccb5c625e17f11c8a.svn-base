@@ -1,0 +1,16 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+
+namespace Advarics.ControlServiceClient.Model
+{
+    public enum IntervalType : int
+    {
+        NA = 0,
+        Stündlich = 2,
+        Sofort = 4,
+        Einmalig = 6
+
+    }
+}

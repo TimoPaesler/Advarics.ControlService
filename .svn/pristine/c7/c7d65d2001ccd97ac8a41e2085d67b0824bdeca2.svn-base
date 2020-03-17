@@ -1,0 +1,487 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+  <!-- EF Runtime content -->
+  <edmx:Runtime>
+    <!-- SSDL content -->
+    <edmx:StorageModels>
+    <Schema Namespace="RetailEntitiesModel.Store" Alias="Self" Provider="System.Data.SqlClient" ProviderManifestToken="2008" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityContainer Name="RetailEntitiesModelStoreContainer">
+          <EntitySet Name="BackgroundWorkerStatus" EntityType="RetailEntitiesModel.Store.BackgroundWorkerStatus" store:Type="Tables" Schema="dbo" />
+          <EntitySet Name="CashPoint" EntityType="RetailEntitiesModel.Store.CashPoint" store:Type="Tables" Schema="dbo" />
+          <EntitySet Name="DbVersion" EntityType="RetailEntitiesModel.Store.DbVersion" store:Type="Tables" Schema="dbo" />
+          <EntitySet Name="LogCommon" EntityType="RetailEntitiesModel.Store.LogCommon" store:Type="Tables" Schema="dbo" />
+          <EntitySet Name="Store" EntityType="RetailEntitiesModel.Store.Store" store:Type="Tables" Schema="dbo" />
+          <EntitySet Name="UpdateStatus" EntityType="RetailEntitiesModel.Store.UpdateStatus" store:Type="Tables" Schema="dbo" />
+          <AssociationSet Name="FK_CashPoint_Store" Association="RetailEntitiesModel.Store.FK_CashPoint_Store">
+            <End Role="Store" EntitySet="Store" />
+            <End Role="CashPoint" EntitySet="CashPoint" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Store_Store" Association="RetailEntitiesModel.Store.FK_Store_Store">
+            <End Role="Store" EntitySet="Store" />
+            <End Role="Store1" EntitySet="Store" />
+          </AssociationSet>
+        </EntityContainer>
+        <EntityType Name="BackgroundWorkerStatus">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="bigint" Nullable="false" StoreGeneratedPattern="Identity" />
+          <Property Name="PID" Type="int" Nullable="false" />
+          <Property Name="Status" Type="int" Nullable="false" />
+          <Property Name="LastLifeSign" Type="datetime" />
+          <Property Name="BaseDirectory" Type="nvarchar" Nullable="false" MaxLength="255" />
+        </EntityType>
+        <EntityType Name="CashPoint">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="bigint" Nullable="false" StoreGeneratedPattern="Identity" />
+          <Property Name="No" Type="bigint" Nullable="false" />
+          <Property Name="StoreId" Type="bigint" Nullable="false" />
+          <Property Name="Name" Type="nvarchar" Nullable="false" MaxLength="50" />
+          <Property Name="DoSynchronize" Type="bit" Nullable="false" />
+          <Property Name="MacAddress" Type="nvarchar" Nullable="false" MaxLength="20" />
+          <Property Name="SyncName" Type="nvarchar" Nullable="false" MaxLength="50" />
+          <Property Name="CashConfigId" Type="bigint" />
+          <Property Name="LastSync" Type="datetime" Nullable="false" />
+          <Property Name="UpdatePackageCashPoint" Type="bigint" Nullable="false" />
+          <Property Name="UpdatePackageSyncService" Type="bigint" Nullable="false" />
+          <Property Name="ItemSyncTimeStamp" Type="datetime" Nullable="false" />
+          <Property Name="ItemSyncMaxId" Type="bigint" Nullable="false" />
+          <Property Name="CustomerSyncTimeStamp" Type="datetime" Nullable="false" />
+          <Property Name="CustomerSyncMaxId" Type="bigint" Nullable="false" />
+          <Property Name="VoucherSyncTimeStamp" Type="datetime" Nullable="false" />
+          <Property Name="VoucherSyncMaxId" Type="bigint" Nullable="false" />
+          <Property Name="CustomerSalesSyncTimeStamp" Type="datetime" Nullable="false" />
+          <Property Name="CustomerSalesSyncMaxId" Type="bigint" Nullable="false" />
+          <Property Name="SalesOnApprovalSyncTimeStamp" Type="datetime" Nullable="false" />
+          <Property Name="SalesOnApprovalSyncMaxId" Type="bigint" Nullable="false" />
+          <Property Name="StartNoBilling" Type="bigint" Nullable="false" />
+          <Property Name="EndNoBilling" Type="bigint" Nullable="false" />
+          <Property Name="StartNoCustomer" Type="bigint" Nullable="false" />
+          <Property Name="EndNoCustomer" Type="bigint" Nullable="false" />
+          <Property Name="VoucherDeletedSyncTimeStamp" Type="datetime" Nullable="false" />
+          <Property Name="VoucherDeletedSyncMaxId" Type="bigint" Nullable="false" />
+          <Property Name="BillingSyncTimeStamp" Type="datetime" Nullable="false" />
+          <Property Name="BillingSyncMaxId" Type="bigint" Nullable="false" />
+          <Property Name="Password1" Type="nvarchar" Nullable="false" MaxLength="50" />
+          <Property Name="Password2" Type="nvarchar" Nullable="false" MaxLength="50" />
+          <Property Name="SlowSpeedSync" Type="bit" Nullable="false" />
+          <Property Name="Culture" Type="nvarchar" MaxLength="10" />
+          <Property Name="CustomerMergeTimeStamp" Type="datetime" Nullable="false" />
+          <Property Name="CustomerMergeSyncMaxId" Type="bigint" Nullable="false" />
+          <Property Name="ItemMergeTimeStamp" Type="datetime" Nullable="false" />
+          <Property Name="ItemMergeSyncMaxId" Type="bigint" Nullable="false" />
+        </EntityType>
+        <EntityType Name="DbVersion">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="bigint" Nullable="false" StoreGeneratedPattern="Identity" />
+          <Property Name="VersionNo" Type="bigint" Nullable="false" />
+        </EntityType>
+        <EntityType Name="LogCommon">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="bigint" Nullable="false" StoreGeneratedPattern="Identity" />
+          <Property Name="Date" Type="datetime" Nullable="false" />
+          <Property Name="Category" Type="nvarchar" Nullable="false" MaxLength="50" />
+          <Property Name="Status" Type="nvarchar" Nullable="false" MaxLength="10" />
+          <Property Name="Message" Type="nvarchar" Nullable="false" MaxLength="1000" />
+        </EntityType>
+        <EntityType Name="Store">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="bigint" Nullable="false" StoreGeneratedPattern="Identity" />
+          <Property Name="No" Type="int" Nullable="false" />
+          <Property Name="Name" Type="nvarchar" Nullable="false" MaxLength="250" />
+          <Property Name="MainGln" Type="nvarchar" Nullable="false" MaxLength="50" />
+          <Property Name="NosEnabled" Type="bit" Nullable="false" />
+          <Property Name="StartNoOrder" Type="bigint" Nullable="false" />
+          <Property Name="EndNoOrder" Type="bigint" Nullable="false" />
+          <Property Name="AssociationClientId" Type="nvarchar" Nullable="false" MaxLength="50" />
+          <Property Name="ShortName" Type="nvarchar" Nullable="false" MaxLength="50" />
+          <Property Name="VatSetId" Type="bigint" Nullable="false" />
+          <Property Name="AddressId" Type="bigint" Nullable="false" />
+          <Property Name="StoreGroupId" Type="bigint" Nullable="false" />
+          <Property Name="CurrencyId" Type="bigint" Nullable="false" />
+          <Property Name="StoreVatNo" Type="nvarchar" Nullable="false" MaxLength="50" />
+          <Property Name="LogoPath" Type="nvarchar" MaxLength="500" />
+          <Property Name="ChangedAt" Type="datetime" Nullable="false" />
+          <Property Name="InvoiceAddressId" Type="bigint" />
+          <Property Name="StartNoBilling" Type="bigint" Nullable="false" />
+          <Property Name="EndNoBilling" Type="bigint" Nullable="false" />
+          <Property Name="StartNoCreditNote" Type="bigint" Nullable="false" />
+          <Property Name="EndNoCreditNote" Type="bigint" Nullable="false" />
+          <Property Name="StartNoBillingOffer" Type="bigint" Nullable="false" />
+          <Property Name="EndNoBillingOffer" Type="bigint" Nullable="false" />
+          <Property Name="StartNoBillingOrder" Type="bigint" Nullable="false" />
+          <Property Name="EndNoBillingOrder" Type="bigint" Nullable="false" />
+          <Property Name="DeliveryAddressId" Type="bigint" />
+          <Property Name="MainFon" Type="nvarchar" Nullable="false" MaxLength="50" />
+          <Property Name="MainFax" Type="nvarchar" Nullable="false" MaxLength="50" />
+          <Property Name="Email" Type="nvarchar" Nullable="false" MaxLength="100" />
+          <Property Name="WebSite" Type="nvarchar" Nullable="false" MaxLength="150" />
+          <Property Name="MobileFon" Type="nvarchar" Nullable="false" MaxLength="50" />
+          <Property Name="ReceiptFooterPicturePath" Type="nvarchar" Nullable="false" MaxLength="500" />
+          <Property Name="ReceiptFooterAsText" Type="bit" Nullable="false" />
+          <Property Name="ReceiptFooterRtf" Type="nvarchar(max)" Nullable="false" />
+          <Property Name="FiscalYearStartMonth" Type="int" Nullable="false" />
+          <Property Name="HouseType" Type="nvarchar" Nullable="false" MaxLength="50" />
+          <Property Name="TransportStoreId" Type="bigint" />
+          <Property Name="StartNoReturns" Type="bigint" Nullable="false" />
+          <Property Name="EndNoReturns" Type="bigint" Nullable="false" />
+          <Property Name="ReturnsNo" Type="bigint" Nullable="false" />
+        </EntityType>
+        <EntityType Name="UpdateStatus">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="bigint" Nullable="false" StoreGeneratedPattern="Identity" />
+          <Property Name="CurrentProgramVersion" Type="nvarchar" Nullable="false" MaxLength="50" />
+          <Property Name="CurrentUpdatePackage" Type="bigint" Nullable="false" />
+        </EntityType>
+        <Association Name="FK_CashPoint_Store">
+          <End Role="Store" Type="RetailEntitiesModel.Store.Store" Multiplicity="1" />
+          <End Role="CashPoint" Type="RetailEntitiesModel.Store.CashPoint" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Store">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="CashPoint">
+              <PropertyRef Name="StoreId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Store_Store">
+          <End Role="Store" Type="RetailEntitiesModel.Store.Store" Multiplicity="0..1" />
+          <End Role="Store1" Type="RetailEntitiesModel.Store.Store" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Store">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Store1">
+              <PropertyRef Name="TransportStoreId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+      </Schema></edmx:StorageModels>
+    <!-- CSDL content -->
+    <edmx:ConceptualModels>
+      <Schema Namespace="RetailEntitiesModel" Alias="Self" xmlns="http://schemas.microsoft.com/ado/2009/11/edm" xmlns:ib12="http://www.ideablade.com/edm/2012">
+        <EntityContainer Name="RetailEntities" annotation:LazyLoadingEnabled="true" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" ib12:DevForceEnabled="true">
+          <EntitySet Name="CashPoints" EntityType="RetailEntitiesModel.CashPoint" />
+          <EntitySet Name="UpdateStatus" EntityType="RetailEntitiesModel.UpdateStatu" />
+          <EntitySet Name="Stores" EntityType="RetailEntitiesModel.Store" />
+          <AssociationSet Name="FK_CashPoint_Store" Association="RetailEntitiesModel.FK_CashPoint_Store">
+            <End Role="Store" EntitySet="Stores" />
+            <End Role="CashPoint" EntitySet="CashPoints" />
+          </AssociationSet>
+          <EntitySet Name="DbVersions" EntityType="RetailEntitiesModel.DbVersion" />
+          <EntitySet Name="LogCommons" EntityType="RetailEntitiesModel.LogCommon" />
+          <EntitySet Name="BackgroundWorkerStatus" EntityType="RetailEntitiesModel.BackgroundWorkerStatu" />
+          <AssociationSet Name="FK_Store_Store" Association="RetailEntitiesModel.FK_Store_Store">
+            <End Role="Store" EntitySet="Stores" />
+            <End Role="Store1" EntitySet="Stores" />
+          </AssociationSet>
+        </EntityContainer>
+        <EntityType Name="CashPoint">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" />
+          <Property Name="No" Type="Int64" Nullable="false" />
+          <Property Name="StoreId" Type="Int64" Nullable="false" />
+          <Property Name="Name" Type="String" Nullable="false" MaxLength="50" Unicode="true" FixedLength="false" />
+          <Property Name="DoSynchronize" Type="Boolean" Nullable="false" />
+          <Property Name="MacAddress" Type="String" Nullable="false" MaxLength="20" Unicode="true" FixedLength="false" />
+          <Property Name="SyncName" Type="String" Nullable="false" MaxLength="50" Unicode="true" FixedLength="false" />
+          <Property Name="CashConfigId" Type="Int64" />
+          <Property Name="LastSync" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="UpdatePackageCashPoint" Type="Int64" Nullable="false" />
+          <Property Name="UpdatePackageSyncService" Type="Int64" Nullable="false" />
+          <NavigationProperty Name="Store" Relationship="RetailEntitiesModel.FK_CashPoint_Store" FromRole="CashPoint" ToRole="Store" />
+          <Property Type="DateTime" Name="ItemSyncTimeStamp" Nullable="false" Precision="3" />
+          <Property Type="Int64" Name="ItemSyncMaxId" Nullable="false" />
+          <Property Type="DateTime" Name="CustomerSyncTimeStamp" Nullable="false" Precision="3" />
+          <Property Type="Int64" Name="CustomerSyncMaxId" Nullable="false" />
+          <Property Type="DateTime" Name="VoucherSyncTimeStamp" Nullable="false" Precision="3" />
+          <Property Type="Int64" Name="VoucherSyncMaxId" Nullable="false" />
+          <Property Type="DateTime" Name="CustomerSalesSyncTimeStamp" Nullable="false" Precision="3" />
+          <Property Type="Int64" Name="CustomerSalesSyncMaxId" Nullable="false" />
+          <Property Type="DateTime" Name="SalesOnApprovalSyncTimeStamp" Nullable="false" Precision="3" />
+          <Property Type="Int64" Name="SalesOnApprovalSyncMaxId" Nullable="false" />
+          <Property Type="Int64" Name="StartNoBilling" Nullable="false" />
+          <Property Type="Int64" Name="EndNoBilling" Nullable="false" />
+          <Property Type="Int64" Name="StartNoCustomer" Nullable="false" />
+          <Property Type="Int64" Name="EndNoCustomer" Nullable="false" />
+          <Property Type="DateTime" Name="VoucherDeletedSyncTimeStamp" Nullable="false" Precision="3" />
+          <Property Type="Int64" Name="VoucherDeletedSyncMaxId" Nullable="false" />
+          <Property Type="DateTime" Name="BillingSyncTimeStamp" Nullable="false" Precision="3" />
+          <Property Type="Int64" Name="BillingSyncMaxId" Nullable="false" />
+          <Property Type="String" Name="Password1" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Type="String" Name="Password2" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Type="Boolean" Name="SlowSpeedSync" Nullable="false" />
+          <Property Type="String" Name="Culture" MaxLength="10" FixedLength="false" Unicode="true" />
+          <Property Type="DateTime" Name="CustomerMergeTimeStamp" Nullable="false" Precision="3" />
+          <Property Type="Int64" Name="CustomerMergeSyncMaxId" Nullable="false" />
+          <Property Type="DateTime" Name="ItemMergeTimeStamp" Nullable="false" Precision="3" />
+          <Property Type="Int64" Name="ItemMergeSyncMaxId" Nullable="false" />
+        </EntityType>
+        <EntityType Name="UpdateStatu">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" />
+          <Property Name="CurrentProgramVersion" Type="String" Nullable="false" MaxLength="50" Unicode="true" FixedLength="false" />
+          <Property Name="CurrentUpdatePackage" Type="Int64" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Store">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Type="Int64" Name="Id" Nullable="false" annotation:StoreGeneratedPattern="Identity" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" />
+          <Property Type="Int32" Name="No" Nullable="false" />
+          <Property Type="String" Name="Name" Nullable="false" MaxLength="250" FixedLength="false" Unicode="true" />
+          <Property Type="String" Name="MainGln" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Type="Boolean" Name="NosEnabled" Nullable="false" />
+          <Property Type="Int64" Name="StartNoOrder" Nullable="false" />
+          <Property Type="Int64" Name="EndNoOrder" Nullable="false" />
+          <Property Type="String" Name="AssociationClientId" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Type="String" Name="ShortName" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Type="Int64" Name="VatSetId" Nullable="false" />
+          <Property Type="Int64" Name="AddressId" Nullable="false" />
+          <Property Type="Int64" Name="StoreGroupId" Nullable="false" />
+          <Property Type="Int64" Name="CurrencyId" Nullable="false" />
+          <Property Type="String" Name="StoreVatNo" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Type="String" Name="LogoPath" MaxLength="500" FixedLength="false" Unicode="true" />
+          <Property Type="DateTime" Name="ChangedAt" Nullable="false" Precision="3" />
+          <Property Type="Int64" Name="InvoiceAddressId" />
+          <Property Type="Int64" Name="StartNoBilling" Nullable="false" />
+          <Property Type="Int64" Name="EndNoBilling" Nullable="false" />
+          <Property Type="Int64" Name="StartNoCreditNote" Nullable="false" />
+          <Property Type="Int64" Name="EndNoCreditNote" Nullable="false" />
+          <NavigationProperty Name="CashPoints" Relationship="RetailEntitiesModel.FK_CashPoint_Store" FromRole="Store" ToRole="CashPoint" />
+          <Property Type="Int64" Name="StartNoBillingOffer" Nullable="false" />
+          <Property Type="Int64" Name="EndNoBillingOffer" Nullable="false" />
+          <Property Type="Int64" Name="StartNoBillingOrder" Nullable="false" />
+          <Property Type="Int64" Name="EndNoBillingOrder" Nullable="false" />
+          <Property Type="Int64" Name="DeliveryAddressId" />
+          <Property Type="String" Name="MainFon" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Type="String" Name="MainFax" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Type="String" Name="Email" Nullable="false" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Type="String" Name="WebSite" Nullable="false" MaxLength="150" FixedLength="false" Unicode="true" />
+          <Property Type="String" Name="MobileFon" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Type="String" Name="ReceiptFooterPicturePath" Nullable="false" MaxLength="500" FixedLength="false" Unicode="true" />
+          <Property Type="Boolean" Name="ReceiptFooterAsText" Nullable="false" />
+          <Property Type="String" Name="ReceiptFooterRtf" Nullable="false" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Type="Int32" Name="FiscalYearStartMonth" Nullable="false" />
+          <Property Type="String" Name="HouseType" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Type="Int64" Name="TransportStoreId" />
+          <Property Type="Int64" Name="StartNoReturns" Nullable="false" />
+          <Property Type="Int64" Name="EndNoReturns" Nullable="false" />
+          <Property Type="Int64" Name="ReturnsNo" Nullable="false" />
+          <NavigationProperty Name="Store1" Relationship="RetailEntitiesModel.FK_Store_Store" FromRole="Store" ToRole="Store1" />
+          <NavigationProperty Name="Store2" Relationship="RetailEntitiesModel.FK_Store_Store" FromRole="Store1" ToRole="Store" />
+        </EntityType>
+        <Association Name="FK_CashPoint_Store">
+          <End Type="RetailEntitiesModel.Store" Role="Store" Multiplicity="1" />
+          <End Type="RetailEntitiesModel.CashPoint" Role="CashPoint" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Store">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="CashPoint">
+              <PropertyRef Name="StoreId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="DbVersion">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Type="Int64" Name="Id" Nullable="false" annotation:StoreGeneratedPattern="Identity" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" />
+          <Property Type="Int64" Name="VersionNo" Nullable="false" />
+        </EntityType>
+        <EntityType Name="LogCommon">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Type="Int64" Name="Id" Nullable="false" annotation:StoreGeneratedPattern="Identity" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" />
+          <Property Type="DateTime" Name="Date" Nullable="false" Precision="3" />
+          <Property Type="String" Name="Category" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Type="String" Name="Status" Nullable="false" MaxLength="10" FixedLength="false" Unicode="true" />
+          <Property Type="String" Name="Message" Nullable="false" MaxLength="1000" FixedLength="false" Unicode="true" />
+        </EntityType>
+        <EntityType Name="BackgroundWorkerStatu">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Type="Int64" Name="Id" Nullable="false" annotation:StoreGeneratedPattern="Identity" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" />
+          <Property Type="Int32" Name="PID" Nullable="false" />
+          <Property Type="Int32" Name="Status" Nullable="false" />
+          <Property Type="DateTime" Name="LastLifeSign" Precision="3" />
+          <Property Type="String" Name="BaseDirectory" Nullable="false" MaxLength="255" FixedLength="false" Unicode="true" />
+        </EntityType>
+        <Association Name="FK_Store_Store">
+          <End Type="RetailEntitiesModel.Store" Role="Store" Multiplicity="0..1" />
+          <End Type="RetailEntitiesModel.Store" Role="Store1" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Store">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Store1">
+              <PropertyRef Name="TransportStoreId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+      </Schema>
+    </edmx:ConceptualModels>
+    <!-- C-S mapping content -->
+    <edmx:Mappings>
+      <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+        <EntityContainerMapping StorageEntityContainer="RetailEntitiesModelStoreContainer" CdmEntityContainer="RetailEntities">
+          <EntitySetMapping Name="CashPoints"><EntityTypeMapping TypeName="RetailEntitiesModel.CashPoint"><MappingFragment StoreEntitySet="CashPoint">
+            <ScalarProperty Name="ItemMergeSyncMaxId" ColumnName="ItemMergeSyncMaxId" />
+                <ScalarProperty Name="ItemMergeTimeStamp" ColumnName="ItemMergeTimeStamp" />
+                <ScalarProperty Name="CustomerMergeSyncMaxId" ColumnName="CustomerMergeSyncMaxId" />
+                <ScalarProperty Name="CustomerMergeTimeStamp" ColumnName="CustomerMergeTimeStamp" />
+                <ScalarProperty Name="Culture" ColumnName="Culture" />
+                <ScalarProperty Name="SlowSpeedSync" ColumnName="SlowSpeedSync" />
+                <ScalarProperty Name="Password2" ColumnName="Password2" />
+                <ScalarProperty Name="Password1" ColumnName="Password1" />
+                <ScalarProperty Name="BillingSyncMaxId" ColumnName="BillingSyncMaxId" />
+                <ScalarProperty Name="BillingSyncTimeStamp" ColumnName="BillingSyncTimeStamp" />
+                <ScalarProperty Name="VoucherDeletedSyncMaxId" ColumnName="VoucherDeletedSyncMaxId" />
+                <ScalarProperty Name="VoucherDeletedSyncTimeStamp" ColumnName="VoucherDeletedSyncTimeStamp" />
+                <ScalarProperty Name="EndNoCustomer" ColumnName="EndNoCustomer" />
+                <ScalarProperty Name="StartNoCustomer" ColumnName="StartNoCustomer" />
+                <ScalarProperty Name="EndNoBilling" ColumnName="EndNoBilling" />
+                <ScalarProperty Name="StartNoBilling" ColumnName="StartNoBilling" />
+                <ScalarProperty Name="SalesOnApprovalSyncMaxId" ColumnName="SalesOnApprovalSyncMaxId" />
+                <ScalarProperty Name="SalesOnApprovalSyncTimeStamp" ColumnName="SalesOnApprovalSyncTimeStamp" />
+                <ScalarProperty Name="CustomerSalesSyncMaxId" ColumnName="CustomerSalesSyncMaxId" />
+                <ScalarProperty Name="CustomerSalesSyncTimeStamp" ColumnName="CustomerSalesSyncTimeStamp" />
+                <ScalarProperty Name="VoucherSyncMaxId" ColumnName="VoucherSyncMaxId" />
+                <ScalarProperty Name="VoucherSyncTimeStamp" ColumnName="VoucherSyncTimeStamp" />
+                <ScalarProperty Name="CustomerSyncMaxId" ColumnName="CustomerSyncMaxId" />
+                <ScalarProperty Name="CustomerSyncTimeStamp" ColumnName="CustomerSyncTimeStamp" />
+                <ScalarProperty Name="ItemSyncMaxId" ColumnName="ItemSyncMaxId" />
+                <ScalarProperty Name="ItemSyncTimeStamp" ColumnName="ItemSyncTimeStamp" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+            <ScalarProperty Name="No" ColumnName="No" />
+            <ScalarProperty Name="StoreId" ColumnName="StoreId" />
+            <ScalarProperty Name="Name" ColumnName="Name" />
+            <ScalarProperty Name="DoSynchronize" ColumnName="DoSynchronize" />
+            <ScalarProperty Name="MacAddress" ColumnName="MacAddress" />
+            <ScalarProperty Name="SyncName" ColumnName="SyncName" />
+            <ScalarProperty Name="CashConfigId" ColumnName="CashConfigId" />
+            <ScalarProperty Name="LastSync" ColumnName="LastSync" />
+            <ScalarProperty Name="UpdatePackageCashPoint" ColumnName="UpdatePackageCashPoint" />
+            <ScalarProperty Name="UpdatePackageSyncService" ColumnName="UpdatePackageSyncService" />
+          </MappingFragment></EntityTypeMapping></EntitySetMapping>
+          <EntitySetMapping Name="UpdateStatus"><EntityTypeMapping TypeName="RetailEntitiesModel.UpdateStatu"><MappingFragment StoreEntitySet="UpdateStatus">
+            <ScalarProperty Name="Id" ColumnName="Id" />
+            <ScalarProperty Name="CurrentProgramVersion" ColumnName="CurrentProgramVersion" />
+            <ScalarProperty Name="CurrentUpdatePackage" ColumnName="CurrentUpdatePackage" />
+          </MappingFragment></EntityTypeMapping></EntitySetMapping>
+          <EntitySetMapping Name="Stores">
+            <EntityTypeMapping TypeName="RetailEntitiesModel.Store">
+              <MappingFragment StoreEntitySet="Store">
+                <ScalarProperty Name="ReturnsNo" ColumnName="ReturnsNo" />
+                <ScalarProperty Name="EndNoReturns" ColumnName="EndNoReturns" />
+                <ScalarProperty Name="StartNoReturns" ColumnName="StartNoReturns" />
+                <ScalarProperty Name="TransportStoreId" ColumnName="TransportStoreId" />
+                <ScalarProperty Name="HouseType" ColumnName="HouseType" />
+                <ScalarProperty Name="FiscalYearStartMonth" ColumnName="FiscalYearStartMonth" />
+                <ScalarProperty Name="ReceiptFooterRtf" ColumnName="ReceiptFooterRtf" />
+                <ScalarProperty Name="ReceiptFooterAsText" ColumnName="ReceiptFooterAsText" />
+                <ScalarProperty Name="ReceiptFooterPicturePath" ColumnName="ReceiptFooterPicturePath" />
+                <ScalarProperty Name="MobileFon" ColumnName="MobileFon" />
+                <ScalarProperty Name="WebSite" ColumnName="WebSite" />
+                <ScalarProperty Name="Email" ColumnName="Email" />
+                <ScalarProperty Name="MainFax" ColumnName="MainFax" />
+                <ScalarProperty Name="MainFon" ColumnName="MainFon" />
+                <ScalarProperty Name="DeliveryAddressId" ColumnName="DeliveryAddressId" />
+                <ScalarProperty Name="EndNoBillingOrder" ColumnName="EndNoBillingOrder" />
+                <ScalarProperty Name="StartNoBillingOrder" ColumnName="StartNoBillingOrder" />
+                <ScalarProperty Name="EndNoBillingOffer" ColumnName="EndNoBillingOffer" />
+                <ScalarProperty Name="StartNoBillingOffer" ColumnName="StartNoBillingOffer" />
+                <ScalarProperty Name="EndNoCreditNote" ColumnName="EndNoCreditNote" />
+                <ScalarProperty Name="StartNoCreditNote" ColumnName="StartNoCreditNote" />
+                <ScalarProperty Name="EndNoBilling" ColumnName="EndNoBilling" />
+                <ScalarProperty Name="StartNoBilling" ColumnName="StartNoBilling" />
+                <ScalarProperty Name="InvoiceAddressId" ColumnName="InvoiceAddressId" />
+                <ScalarProperty Name="ChangedAt" ColumnName="ChangedAt" />
+                <ScalarProperty Name="LogoPath" ColumnName="LogoPath" />
+                <ScalarProperty Name="StoreVatNo" ColumnName="StoreVatNo" />
+                <ScalarProperty Name="CurrencyId" ColumnName="CurrencyId" />
+                <ScalarProperty Name="StoreGroupId" ColumnName="StoreGroupId" />
+                <ScalarProperty Name="AddressId" ColumnName="AddressId" />
+                <ScalarProperty Name="VatSetId" ColumnName="VatSetId" />
+                <ScalarProperty Name="ShortName" ColumnName="ShortName" />
+                <ScalarProperty Name="AssociationClientId" ColumnName="AssociationClientId" />
+                <ScalarProperty Name="EndNoOrder" ColumnName="EndNoOrder" />
+                <ScalarProperty Name="StartNoOrder" ColumnName="StartNoOrder" />
+                <ScalarProperty Name="NosEnabled" ColumnName="NosEnabled" />
+                <ScalarProperty Name="MainGln" ColumnName="MainGln" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="No" ColumnName="No" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="DbVersions">
+            <EntityTypeMapping TypeName="RetailEntitiesModel.DbVersion">
+              <MappingFragment StoreEntitySet="DbVersion">
+                <ScalarProperty Name="VersionNo" ColumnName="VersionNo" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="LogCommons">
+            <EntityTypeMapping TypeName="RetailEntitiesModel.LogCommon">
+              <MappingFragment StoreEntitySet="LogCommon">
+                <ScalarProperty Name="Message" ColumnName="Message" />
+                <ScalarProperty Name="Status" ColumnName="Status" />
+                <ScalarProperty Name="Category" ColumnName="Category" />
+                <ScalarProperty Name="Date" ColumnName="Date" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="BackgroundWorkerStatus">
+            <EntityTypeMapping TypeName="RetailEntitiesModel.BackgroundWorkerStatu">
+              <MappingFragment StoreEntitySet="BackgroundWorkerStatus">
+                <ScalarProperty Name="BaseDirectory" ColumnName="BaseDirectory" />
+                <ScalarProperty Name="LastLifeSign" ColumnName="LastLifeSign" />
+                <ScalarProperty Name="Status" ColumnName="Status" />
+                <ScalarProperty Name="PID" ColumnName="PID" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+        </EntityContainerMapping>
+      </Mapping>
+    </edmx:Mappings>
+  </edmx:Runtime>
+  <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <Connection>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
+      </DesignerInfoPropertySet>
+    </Connection>
+    <Options>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="ValidateOnBuild" Value="true" />
+        <DesignerProperty Name="EnablePluralization" Value="True" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="True" />
+      </DesignerInfoPropertySet>
+    </Options>
+    <!-- Diagram content (shape and connector positions) -->
+    <Diagrams></Diagrams>
+  </Designer>
+</edmx:Edmx>

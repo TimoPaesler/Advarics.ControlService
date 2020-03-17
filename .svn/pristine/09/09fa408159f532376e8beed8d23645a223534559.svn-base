@@ -1,0 +1,30 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Configuration;
+using System.Data;
+using System.Linq;
+using System.Windows;
+using Telerik.Windows.Controls;
+using System.Windows.Controls;
+using System.Globalization;
+using System.Reflection;
+
+namespace Advarics.ControlServiceClient
+{
+	public partial class App : Application
+	{
+        public App()
+        {
+            LocalizationManager.DefaultCulture = CultureInfo.CurrentCulture;
+            StyleManager.ApplicationTheme = new Expression_DarkTheme();
+            InitializeComponent();
+        }
+
+        private void Application_Exit(object sender, EventArgs e)
+        {
+
+        }
+
+
+	}
+}

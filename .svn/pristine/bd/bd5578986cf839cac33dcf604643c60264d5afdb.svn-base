@@ -1,0 +1,38 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Advarics.ControlServiceClient.ViewModel.BaseData
+{
+    class CashViewModel: ViewModelBase
+    {
+
+        private Cash _Cash = null;
+
+        public Cash Cash
+        {
+            get { return _Cash; }
+            set
+            {
+                _Cash = value;
+                SendPropertyChanged("Cash");
+            }
+        }
+
+
+        private Customer _Customer = null;
+
+        public Customer Customer
+        {
+            get { return _Customer; }
+            set
+            {
+                _Customer = value;
+                SendPropertyChanged("Customer");
+            }
+        }
+
+    }
+}

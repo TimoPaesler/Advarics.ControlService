@@ -1,0 +1,495 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.Serialization;
+using System.ServiceModel;
+using System.ServiceModel.Web;
+using System.Text;
+using System.IO;
+using Advarics.ControlService.DataContracts.FileTransfer;
+using System.Web.Services;
+using System.Web;
+using Advarics.ControlService.Common;
+using Advarics.ControlService.DataContracts.VersionInfo;
+using IdeaBlade.EntityModel;
+using IdeaBlade.Core;
+using Advarics.Retail;
+using Advarics.ControlService.DataContracts.UpdateInfo;
+using System.Diagnostics;
+using System.Configuration;
+using Advarics.ControlService.DataContracts.DBLeaning;
+using System.Reflection;
+
+namespace Advarics.ControlService
+{
+	// NOTE: You can use the "Rename" command on the "Refactor" menu to change the class name "Service1" in code, svc and config file together.
+	public class AdvaricsControlService : IAdvaricsControlService
+	{
+        public AdvaricsControlService()
+        {
+            HttpContext httpContext = HttpContext.Current;
+
+            if (httpContext != null)
+            {
+                httpContext.Response.BufferOutput = false;
+            }
+
+        }
+
+		#region IAdvaricsControlService Members
+
+		public UploadInfoResponse UploadFile(FileTransferInfo request)
+		{
+			UploadInfoResponse response = new UploadInfoResponse();
+			List<LogResponse> logResponse = new List<LogResponse>();
+
+            if (request.IdToken == SecurityIdProvider.GetIDToken())
+            {
+				logResponse.Add(Log.LogEntry(DateTime.Now, "-", "-", null, "Starte Upload am Server File :"+ request.FileName,0, false, false, DateTime.Now,0, "Server","-",Log.LogStatus.OK));
+
+				try
+				{
+					if (System.IO.Directory.Exists(request.UpdateOrdner) == false)
+						System.IO.Directory.CreateDirectory(request.UpdateOrdner);
+
+
+					using (System.IO.FileStream writeStream = new System.IO.FileStream(request.UpdateOrdner + "\\" + request.FileName, System.IO.FileMode.Create, System.IO.FileAccess.Write))
+					{
+						int chunkSize = 4096;
+						byte[] buffer = new byte[chunkSize];
+
+						do
+						{
+							// read bytes from input stream
+							int bytesRead = request.FileByteStream.Read(buffer, 0, chunkSize);
+							if (bytesRead == 0) break;
+
+							// write bytes to output stream
+							writeStream.Write(buffer, 0, bytesRead);
+						} while (true);
+						writeStream.Close();
+					};
+
+					logResponse.Add(Log.LogEntry(DateTime.Now, "-", "-", null, "Upload am Server Erfolgreich File :" + request.FileName, 0, false, false, DateTime.Now, 0, "Server", "-", Log.LogStatus.OK));
+					
+
+					DirectoryInfo dirInfo = new DirectoryInfo(request.UpdateOrdner);
+					var fileToProcess = dirInfo.GetFiles(request.FileName).OrderByDescending(x => x.CreationTime).FirstOrDefault();
+
+					logResponse.Add(Log.LogEntry(DateTime.Now, "-", "-", null, "Entpacke ZipFile am Server :" + fileToProcess.FullName, 0, false, false, DateTime.Now, 0, "Server", "-", Log.LogStatus.OK));
+					Zip.UnZipProcess(fileToProcess.FullName);
+
+					logResponse.Add(Log.LogEntry(DateTime.Now, "-", "-", null, "Lösche ZipFile am Server :" + fileToProcess.FullName, 0, false, false, DateTime.Now, 0, "Server", "-", Log.LogStatus.OK));
+					fileToProcess.Delete();
+				}
+				catch(Exception e)
+				{
+					logResponse.Add(Log.LogEntry(DateTime.Now, "-", "-", e, "Fehler beim Upload/Entpacken am Server", 0, true, false, DateTime.Now, 0, "Server", "-", Log.LogStatus.OK));
+				}
+				
+            }
+			response.Logs = logResponse.ToArray();
+			return response;
+		}
+
+		public PathInfoResponse GetFilePaths(DataContracts.FileTransfer.BasePathRequest request)
+		{
+			PathInfoResponse response = new PathInfoResponse();
+			List<LogResponse> logResponse = new List<LogResponse>();
+
+			if (request.IdToken == SecurityIdProvider.GetIDToken())
+			{
+				try
+				{
+					logResponse.Add(Log.LogEntry(DateTime.Now, "-", "-", null, "Hole Backup Path ZipFile am Server :" + request.CustomerBaseFilePath, 0, false, false, DateTime.Now, 0, "Server", "-", Log.LogStatus.OK));
+
+					DirectoryInfo zipDir = new DirectoryInfo(request.BaseFilePath + "/zip");
+					if (zipDir.Exists == true)
+						zipDir.Delete(true);
+
+					List<PathFileInfo> pathFileInfos = new List<PathFileInfo>();
+					List<string> directories = new List<string>();
+
+
+					if (request.CustomerBaseFilePath == string.Empty)
+					{
+						var directoriestring = System.IO.Directory.GetDirectories(request.BaseFilePath);
+						directories = directoriestring.ToList();
+					}
+					else
+					{
+						directories.Add(request.BaseFilePath + "/" + request.CustomerBaseFilePath);
+					}
+
+					foreach (var directory in directories)
+					{
+						DirectoryInfo di = new DirectoryInfo(directory);
+						if (di.Name == "Zip")
+							continue;
+
+
+						var fileInfo = di.GetFiles("*.bak").OrderByDescending(x => x.CreationTime).FirstOrDefault();
+						Zip.ZipProcess(request.BaseFilePath + "/zip", fileInfo);
+					}
+
+					DirectoryInfo zipDirectory = new DirectoryInfo(request.BaseFilePath + "/zip");
+					var fileInfos = zipDirectory.GetFiles();
+					foreach (var file in fileInfos)
+					{
+						if (file != null)
+						{
+							var pathInfo = new PathFileInfo();
+							pathInfo.Name = file.Name;
+							pathInfo.FullName = file.FullName;
+							pathFileInfos.Add(pathInfo);
+						}
+					}
+
+					response.FileInfos = pathFileInfos.ToArray();
+					logResponse.Add(Log.LogEntry(DateTime.Now, "-", "-", null, "Gebe Backup Path ZipFile an Server :" + request.CustomerBaseFilePath, 0, false, false, DateTime.Now, 0, "Server", "", Log.LogStatus.OK));
+				}
+				catch (Exception e)
+				{
+					logResponse.Add(Log.LogEntry(DateTime.Now, "-", "-", e, "Fehler beim Pfad hollen vom Server", 0, true, false, DateTime.Now, 0, "Server", "-", Log.LogStatus.OK));
+				}
+
+			}
+
+			response.Logs = logResponse.ToArray();
+			return response;
+		}
+
+        public DataContracts.FileTransfer.FileTransferInfo DownloadFile(DataContracts.FileTransfer.DownloadFileRequest request)
+        {
+            var result = new FileTransferInfo();
+
+            if (request.IdToken == SecurityIdProvider.GetIDToken())
+            {
+                System.IO.FileStream stream = new System.IO.FileStream(request.FileInfo.FullName, System.IO.FileMode.Open, System.IO.FileAccess.Read);           
+                result.FileName = request.FileInfo.Name;
+                result.Length = stream.Length;
+                result.FileByteStream = stream;
+            }
+
+            return result;
+        }
+
+        public VersionInfoResponse GetVersions(VersionRequest request)
+        {
+            VersionInfoResponse response = new VersionInfoResponse();
+			List<LogResponse> logResponse = new List<LogResponse>();
+
+
+			if (request.IdToken == SecurityIdProvider.GetIDToken())
+			{
+				logResponse.Add(Log.LogEntry(DateTime.Now, "-", request.Customer.Name, null, "Starte Versions Nr. holen :", 0, false, false, DateTime.Now, 0, "Server", "-", Log.LogStatus.OK));
+				EntityConnectionProvider.GetRetailEntityConnection(request.Customer.DBName);
+				RetailEntities entMgr = new RetailEntities(dataSourceExtension: request.Customer.DBName);
+
+
+				List<CashVersion> cashVersions = new List<CashVersion>();
+
+				try
+				{
+					var cashPoints = entMgr.CashPoints.Include(x => x.Store).Where(x => x.DoSynchronize == true).Execute();
+
+					foreach (var cashPoint in cashPoints)
+					{
+						CashVersion cashVersion = new CashVersion();
+						cashVersion.Name = cashPoint.Name;
+						cashVersion.No = cashPoint.No;
+						cashVersion.UpdatePackageCashPoint = cashPoint.UpdatePackageCashPoint;
+						cashVersion.UpdatePackageSyncService = cashPoint.UpdatePackageSyncService;
+						cashVersion.StoreNo = cashPoint.Store.No;
+						cashVersion.LastSync = cashPoint.LastSync;
+
+						if (cashPoint.LastSync <= DateTime.Now.AddHours(-1))
+						{
+							cashVersion.Sync = true;
+
+						}
+						else
+						{
+							cashVersion.Sync = false;
+						}
+
+						cashVersions.Add(cashVersion);
+						logResponse.Add(Log.LogEntry(DateTime.Now, "-", request.Customer.Name, null, "Kassen Versions Nr. holen :" + cashPoint.Name, 0, false, false, DateTime.Now, 0, "Server", "-", Log.LogStatus.OK));
+					}
+
+
+					response.CashVersions = cashVersions.ToArray();
+
+					var updateStatus = entMgr.UpdateStatus.Execute().FirstOrDefault();
+
+					if (updateStatus != null)
+					{
+						response.RetailPakNo = updateStatus.CurrentUpdatePackage;
+						response.RetailProgramVersion = updateStatus.CurrentProgramVersion;
+						response.RetailDBVersion = entMgr.DbVersions.Execute().FirstOrDefault().VersionNo;
+					}
+					try
+					{
+
+						string xmlRental = FileProcess.Read(request.BaseProgramPath + "\\" + request.Customer.BaseCustomerPath + "\\Advarics.RentalService\\version.xml");
+						string xmlSecuDataService = FileProcess.Read(request.BaseProgramPath + "\\" + request.Customer.BaseCustomerPath + "\\Advarics.SecuDataService\\version.xml");
+						string xmlStatisticService = FileProcess.Read(request.BaseProgramPath + "\\" + request.Customer.BaseCustomerPath + "\\Advarics.StatisticService\\version.xml");
+						string xmlWebShopService = FileProcess.Read(request.BaseProgramPath + "\\" + request.Customer.BaseCustomerPath + "\\Advarics.WebShopService\\version.xml");
+						string xmlBackgroundWorkerService = FileProcess.Read(request.BaseProgramPath + "\\" + request.Customer.BaseCustomerPath + "\\Advarics.Retail.BackgroundWork\\version.xml");
+
+
+
+						if (xmlRental != string.Empty)
+						{
+							var rentalServicePakNos = Serialize.DeSerializeFromXml<VersionQueryResult>(xmlRental);
+							foreach (var item in rentalServicePakNos.Items.Take(1))
+							{
+								response.RentalServicePakNo = item.PackageNo;
+							}
+						}
+						if (xmlSecuDataService != string.Empty)
+						{
+							var secuDataServicePakNos = Serialize.DeSerializeFromXml<VersionQueryResult>(xmlSecuDataService);
+							foreach (var item in secuDataServicePakNos.Items.Take(1))
+							{
+								response.SecuDataServicePakNo = item.PackageNo;
+							}
+						}
+						if (xmlStatisticService != string.Empty)
+						{
+							var statisticServicePakNos = Serialize.DeSerializeFromXml<VersionQueryResult>(xmlStatisticService);
+							foreach (var item in statisticServicePakNos.Items.Take(1))
+							{
+								response.StatisticServicePakNo = item.PackageNo;
+							}
+						}
+						if (xmlWebShopService != string.Empty)
+						{
+							var webShopServicePakNos = Serialize.DeSerializeFromXml<VersionQueryResult>(xmlWebShopService);
+							foreach (var item in webShopServicePakNos.Items.Take(1))
+							{
+								response.WebShopServicePakNo = item.PackageNo;
+							}
+						}
+					}
+					catch
+					{ }
+
+					logResponse.Add(Log.LogEntry(DateTime.Now, "-", request.Customer.Name, null, "Versions Nr. holen Erfolgreich" , 0, false, false, DateTime.Now, 0, "Server", "-", Log.LogStatus.OK));
+				}
+				catch (Exception e)
+				{
+					logResponse.Add(Log.LogEntry(DateTime.Now, "-", request.Customer.Name, e, "Fehler beim Versions Nr. holen", 0, true, false, DateTime.Now, 0, "Server", "-", Log.LogStatus.OK));
+				}
+			}
+
+			response.Logs = logResponse.ToArray();
+            return response;
+        }
+
+		public UpdateInfoResponse UpdateCustomer(UpdateRequest request)
+        {
+			UpdateInfoResponse response = new UpdateInfoResponse();
+			List<LogResponse> logResponse = new List<LogResponse>();
+
+            // Alle Service/Retail Updaten daten aus d:/Update kopieren 
+            if (request.IdToken == SecurityIdProvider.GetIDToken())
+            {
+				logResponse.Add(Log.LogEntry(DateTime.Now, "-", "-", null, "Starte Update for : "+request.Customer.Name +" Package No "+request.PackageNo, 0, false, false, DateTime.Now, 0, "Server", "-", Log.LogStatus.OK));
+		
+                try
+                {
+					EntityConnectionProvider.GetRetailEntityConnection(request.Customer.DBName);
+					RetailEntities entMgr = new RetailEntities(dataSourceExtension: request.Customer.DBName);
+
+
+
+
+
+					try
+					{
+						logResponse.Add(Log.LogEntry(DateTime.Now, "-", "-", null, "Starte Copy Files Paket No:" + request.PackageNo, 0, false, false, DateTime.Now, 0, "Server", "-", Log.LogStatus.OK));
+
+                        // Copy Retail
+                        Copy.CopyDirectoryWithIncludedFiles(request.UpdateServerPath + "\\" + request.PackageNo, request.AdvProgramPath + "\\" + request.Customer.BaseCustomerPath, true);
+					}
+					catch(Exception e)
+					{
+						logResponse.Add(Log.LogEntry(DateTime.Now, "-", "-", null, "Error while Copping Files" + e.ToString(), 0, false, false, DateTime.Now, 0, "Server", "-", Log.LogStatus.ERROR));
+					}
+
+                    logResponse.Add(Log.LogEntry(DateTime.Now, "-", "-", null, "Retail-Fiels are ready", 0, false, true, DateTime.Now, 0, "Server", "-", Log.LogStatus.OK));
+
+                    try
+                    {
+
+                        string bgwPath = GetBgwPath(request.AdvProgramPath);
+                        
+                        // Copy method für BGW xsd's
+                        Copy.CopyDirectoryWithIncludedFilesAll(request.UpdateServerPath + "\\" + request.PackageNo + "\\Advarics.Retail.BackgroundWork\\XsdValidation", bgwPath);
+					}
+					catch(Exception e)
+					{
+						logResponse.Add(Log.LogEntry(DateTime.Now, "-", "-", null, "Error while Copping xsd-Files" + e.ToString(), 0, false, false, DateTime.Now, 0, "Server", "-", Log.LogStatus.ERROR));
+					}
+
+                    logResponse.Add(Log.LogEntry(DateTime.Now, "-", "-", null, "xsd-Fiels are ready", 0, false, true, DateTime.Now, 0, "Server", "-", Log.LogStatus.OK));
+
+                    try
+                    {
+
+                        string bgwPath = GetBgwPath(request.AdvProgramPath);
+
+                        // Copy method für BGW, nur dann wenn nicht schon gestartet
+                        Copy.CopyDirectoryWithIncludedFilesAll(request.UpdateServerPath + "\\" + request.PackageNo + "\\Advarics.Retail.BackgroundWork\\", bgwPath + "\\BGW" + request.PackageNo);
+
+					}
+					catch(Exception e)
+					{
+						logResponse.Add(Log.LogEntry(DateTime.Now, "-", "-", null, "Error while Copping BGW-Files" + e.ToString(), 0, false, false, DateTime.Now, 0, "Server", "-", Log.LogStatus.ERROR));
+					}
+
+                    // Starte den updater
+					try
+					{
+
+						logResponse.Add(Log.LogEntry(DateTime.Now, "-", "-", null, "Starte DB Updater", 0, false, false, DateTime.Now, 0, "Server", "-", Log.LogStatus.OK));
+
+						Process P = new Process();
+						P.StartInfo.CreateNoWindow = true;
+						P.StartInfo.FileName = request.AdvProgramPath + "\\" + request.Customer.BaseCustomerPath + "\\Advarics.Retail\\bin\\Advarics.Retail.DbUpdater.exe";
+						P.StartInfo.Arguments = "true " + request.PackageNo;
+						P.Start();
+
+					}
+					catch(Exception e)
+					{
+						logResponse.Add(Log.LogEntry(DateTime.Now, "-", "-", null, "Error while Starting Updater" + e.ToString(), 0, false, false, DateTime.Now, 0, "Server", "-", Log.LogStatus.ERROR));
+					}
+
+
+                    // Delete old dlls
+                    try
+                    {
+                        logResponse.Add(Log.LogEntry(DateTime.Now, "-", "-", null, "Start Delete Old Dll Files from"+ request.Customer.Name, 0, false, false, DateTime.Now, 0, "Server", "-", Log.LogStatus.OK));
+
+                        DeleteOldDlls.Delete(request.AdvProgramPath + "\\" + request.Customer.BaseCustomerPath);
+
+                        Copy.CopyDirectoryWithIncludedFiles(request.UpdateServerPath + "\\" + request.PackageNo, request.AdvProgramPath + "\\" + request.Customer.BaseCustomerPath, true);
+
+
+                    }
+                    catch (Exception e)
+                    {
+                        logResponse.Add(Log.LogEntry(DateTime.Now, "-", "-", null, "Error while Deleting old DLLS " + e.ToString(), 0, false, false, DateTime.Now, 0, "Server", "", Log.LogStatus.ERROR));
+
+                    }
+
+                }
+                catch (Exception e)
+                {
+					logResponse.Add(Log.LogEntry(DateTime.Now, "-", "-", null, "Error update" + e.ToString(), 0, false, false, DateTime.Now, 0, "Server", "", Log.LogStatus.ERROR));
+                }
+            }
+			logResponse.Add(Log.LogEntry(DateTime.Now, "-", "-", null, "Update Erfolgreich", 0, false, false, DateTime.Now, 0, "Server", "-", Log.LogStatus.OK));
+
+			response.Logs = logResponse.ToArray();
+			return response;
+        }
+
+        private string GetBgwPath(string AdvProgramPath)
+        {
+            string bgwPath = string.Empty;
+            string[] bgwPathSearch = Directory.GetDirectories(AdvProgramPath, "Advarics*Common");
+            foreach (var path in bgwPathSearch)
+            {
+                bgwPath = path;
+                break;
+            }
+
+            return bgwPath;
+        }
+
+
+        public PathInfoResponse GetAdvFilePath(DataContracts.FileTransfer.BasePathRequest request)
+        {
+            PathInfoResponse response = new PathInfoResponse();
+
+            if (request.IdToken == SecurityIdProvider.GetIDToken())
+            {
+                var advPath = request.CustomerBaseFilePath;
+                var BackupPath = request.BaseFilePath;
+
+                try
+                {
+                    DirectoryInfo zipDir = new DirectoryInfo(BackupPath + "/zip");
+                    if (zipDir.Exists == true)
+                        zipDir.Delete(true);
+
+                    List<PathFileInfo> pathFileInfos = new List<PathFileInfo>();
+
+                    var zipFileInfo= new FileInfo(Zip.ZipRecursive(advPath, BackupPath));
+                        if (zipFileInfo != null)
+                        {
+                            var pathInfo = new PathFileInfo();
+                            pathInfo.Name = zipFileInfo.Name;
+                            pathInfo.FullName = zipFileInfo.FullName;
+                            pathFileInfos.Add(pathInfo);
+                        }
+                    
+
+                    response.FileInfos = pathFileInfos.ToArray();
+                }
+                catch (Exception e)
+                {
+                    throw new System.IO.FileNotFoundException("Error Server" + e);
+                }
+                return response;
+            }
+            else
+            {
+                return response;
+            }
+        }
+
+		public CleanDBResponse CleanDBs(CleanRequest request)
+		{
+			CleanDBResponse response = new CleanDBResponse();
+			List<LogResponse> logResponse = new List<LogResponse>();
+
+			if (request.IdToken == SecurityIdProvider.GetIDToken())
+			{
+				logResponse.Add(Log.LogEntry(DateTime.Now, "-", "-", null, "Clean DBs", 0, false, false, DateTime.Now, 0, "Server", "-", Log.LogStatus.OK));
+				var directories = Directory.GetDirectories(request.BaseBackupPath);
+
+				foreach (var item in directories)
+				{
+					var files = System.IO.Directory.GetFiles(item,"*.bak");
+
+					foreach (var file in files)
+					{
+						DateTime fileDate = File.GetLastWriteTime(file);
+
+						if (fileDate <= DateTime.Now.AddDays(-request.backupStoreTimeDays) && fileDate.Day != 1)
+						{
+							try
+							{
+								System.IO.File.Delete(@file);
+								logResponse.Add(Log.LogEntry(DateTime.Now, "-", "-", null, "Delete File End " + file, 0, false, false, DateTime.Now, 0, "Server", "-", Log.LogStatus.OK));
+							
+							}
+							catch(Exception e)
+							{
+								logResponse.Add(Log.LogEntry(DateTime.Now, "-", "-", null, "Delete File" + file + " Error = "+e.ToString(), 0, false, false, DateTime.Now, 0, "Server", "-", Log.LogStatus.ERROR));
+							}
+						}
+					}
+				}
+			}
+			response.Logs = logResponse.ToArray();
+			return response;
+		}
+
+		#endregion
+	}
+}

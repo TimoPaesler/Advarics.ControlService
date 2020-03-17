@@ -1,0 +1,68 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Collections.ObjectModel;
+using IdeaBlade.Core;
+using IdeaBlade.EntityModel;
+using System.Windows;
+using Advarics.ControlServiceClient.Model;
+using Advarics.ControlServiceClient.View;
+using Advarics.ControlServiceClient.ViewModel.BaseData;
+
+namespace Advarics.ControlServiceClient.ViewModel
+{
+    class CashInformationViewModel : ViewModelBaseForEntities
+    {
+        public CashInformationViewModel()
+        {
+            RefreshData();
+        }
+
+        private ObservableCollection<CashViewModel> _CashInfos = new ObservableCollection<CashViewModel>();
+
+        public ObservableCollection<CashViewModel> CashInfos
+        {
+            get { return _CashInfos; }
+            set
+            {
+                _CashInfos = value;
+                SendPropertyChanged("CashInfos");
+            }
+        }
+
+        internal void RefreshData()
+        {
+            try
+            {
+                var query = PersistMgr.Cashes.Include(x => x.Customer).OrderByDescending(l => l.No).Select(l => l);
+                ObservableCollection<CashViewModel> entries = new ObservableCollection<CashViewModel>();
+                foreach (var item in query)
+                {
+                    var customerInfo = new CashViewModel();
+                    customerInfo.Cash = item;
+                    customerInfo.Customer = item.Customer;
+                    entries.Add(customerInfo);
+                }
+                CashInfos = entries;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Fehler beim Laden des Logs: " + ex.Message);
+            }
+
+        }
+
+        private CashViewModel _SelectedCustomer = null;
+
+        public CashViewModel SelectedCustomer
+        {
+            get { return _SelectedCustomer; }
+            set
+            {
+                _SelectedCustomer = value;
+                SendPropertyChanged("SelectedCustomer");
+            }
+        }
+    }
+}

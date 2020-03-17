@@ -1,0 +1,136 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using Advarics.ControlServiceClient.Model;
+using IdeaBlade.EntityModel;
+using IdeaBlade.Core;
+
+namespace Advarics.ControlServiceClient.ViewModel.Operation
+{
+	class WorkerViewModel: ViewModelBaseForEntities
+	{
+
+		private Worker _Worker = null;
+
+		public Worker Worker
+		{
+			get { return _Worker; }
+			set
+			{
+				_Worker = value;
+				ChangeWorker();
+				SendPropertyChanged("Worker");
+			}
+		}
+
+		private void ChangeWorker()
+		{
+
+			IntervalName = IntervalTypeHelper.GetName((IntervalType)Worker.Interval);
+			OperationName = OperationTypeHelper.GetName((OperationType)Worker.Operation);
+			BaseTypeName = BaseTypeHelper.GetName((BaseType)Worker.BaseTyp);
+
+
+
+			switch ((BaseType)Worker.BaseTyp)
+			{
+				case BaseType.Customer:
+					List<Customer> customerList = new List<Customer>();
+					customerList = (List<Customer>)PersistMgr.Customers
+						.With(QueryStrategy.DataSourceOnly)
+						.Where(x => x.Id == Worker.BaseTypId)
+						.Select(c => c).Execute();
+
+					foreach (var item in customerList)
+					{
+						BaseTypeIdName = item.Name;
+					}
+
+					break;
+				case BaseType.Server:
+					List<Server> serverList = new List<Server>();
+					serverList = (List<Server>)PersistMgr.Servers
+						.With(QueryStrategy.DataSourceOnly)
+						.Where(x => x.Id == Worker.BaseTypId)
+						.Select(c => c).Execute();
+
+					foreach (var item in serverList)
+					{
+						BaseTypeIdName = item.Name;
+					}
+					break;
+				case BaseType.UpdateProfile:
+					List<UpdateProfile> updateProfileList = new List<UpdateProfile>();
+					updateProfileList = (List<UpdateProfile>)PersistMgr.UpdateProfiles
+						.With(QueryStrategy.DataSourceOnly)
+						.Where(x => x.Id == Worker.BaseTypId)
+						.Select(c => c).Execute();
+
+					foreach (var item in updateProfileList)
+					{
+						BaseTypeIdName = item.Name;
+					}
+					break;
+				case BaseType.AllCustomers:
+					BaseTypeIdName = "Alle";
+					break;
+				default:
+					BaseTypeIdName = "Alle";
+					break;
+			}
+
+		}
+
+
+		private string _IntervalName = string.Empty;
+
+		public string IntervalName
+		{
+			get { return _IntervalName; }
+			set
+			{
+				_IntervalName = value;
+				SendPropertyChanged("IntervalName");
+			}
+		}
+
+		private string _OperationName = string.Empty;
+
+		public string OperationName
+		{
+			get { return _OperationName; }
+			set
+			{
+				_OperationName = value;
+				SendPropertyChanged("OperationName");
+			}
+		}
+
+		private string _BaseTypeName = string.Empty;
+
+		public string BaseTypeName
+		{
+			get { return _BaseTypeName; }
+			set
+			{
+				_BaseTypeName = value;
+				SendPropertyChanged("BaseTypeName");
+			}
+		}
+
+		private string _BaseTypeIdName = string.Empty;
+
+		public string BaseTypeIdName
+		{
+			get { return _BaseTypeIdName; }
+			set
+			{
+				_BaseTypeIdName = value;
+				SendPropertyChanged("BaseTypeIdName");
+			}
+		}
+
+
+	}
+}

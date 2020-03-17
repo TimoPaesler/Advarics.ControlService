@@ -1,0 +1,141 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Collections.ObjectModel;
+using IdeaBlade.EntityModel;
+using IdeaBlade.Core;
+using Advarics.ControlServiceClient.ViewModel.Common;
+using Advarics.ControlServiceClient.Model;
+
+
+namespace Advarics.ControlServiceClient.ViewModel.Log
+{
+	class TimeLineVM:ViewModelBaseForEntities
+	{
+
+		public TimeLineVM()
+		{	
+			InitEnums();
+			RefreshJobActions();		
+		}
+
+		private void InitEnums()
+		{
+			foreach (var item in EnumHelper.GetValues<OperationType>())
+			{
+				var bm = new OperationTypeVM(item);
+				OperationTypeVMs.Add(bm);
+			}
+		}
+
+		private int _NumberLogEntries = 100;
+
+		public int NumberLogEntries
+		{
+			get { return _NumberLogEntries; }
+			set
+			{
+				_NumberLogEntries = value;
+				SendPropertyChanged("NumberLogEntries");
+			}
+		}
+
+		private ObservableCollection<OperationTypeVM> _OperationTypeVMs = new ObservableCollection<OperationTypeVM>();
+
+		public ObservableCollection<OperationTypeVM> OperationTypeVMs
+		{
+			get { return _OperationTypeVMs; }
+			set
+			{
+				_OperationTypeVMs = value;
+				SendPropertyChanged("OperationTypeVMs");
+			}
+		}
+
+		private OperationTypeVM _SelectedOperationTypeVM = null;
+
+		public OperationTypeVM SelectedOperationTypeVM
+		{
+			get { return _SelectedOperationTypeVM; }
+			set
+			{
+				_SelectedOperationTypeVM = value;
+				SendPropertyChanged("SelectedOperationTypeVM");
+			}
+		}
+
+		public void RefreshJobActions()
+		{
+			JobActions.Clear();
+
+			List<JobAction> query = new List<JobAction>();
+			if (SelectedOperationTypeVM != null)
+				if (SelectedOperationTypeVM.OperationType != OperationType.NA)
+					query = PersistMgr.JobActions.OrderByDescending(l => l.StartTime).Where(x => x.Operation == (int)SelectedOperationTypeVM.OperationType).Take(NumberLogEntries).ToList();
+				else
+				{
+				}
+			else
+				query = PersistMgr.JobActions.OrderByDescending(l => l.StartTime).Take(NumberLogEntries).ToList();
+
+			ObservableCollection<JobActionVM> jobActions = new ObservableCollection<JobActionVM>();
+			foreach (var item in query)
+			{
+				jobActions.Add(new JobActionVM { JobAction = item });
+			}
+
+			JobActions = jobActions;
+		}
+
+		private ObservableCollection<JobActionVM> _JobActions = new ObservableCollection<JobActionVM>();
+
+		public ObservableCollection<JobActionVM> JobActions
+		{
+			get { return _JobActions; }
+			set
+			{
+				_JobActions = value;
+				SendPropertyChanged("JobActions");
+			}
+		}
+
+
+		private JobActionVM _SelectedJobAction = null;
+
+		public JobActionVM SelectedJobAction
+		{
+			get { return _SelectedJobAction; }
+			set
+			{
+				_SelectedJobAction = value;
+				TimeLineJobs();
+				SendPropertyChanged("SelectedJobAction");
+			}
+		}
+
+
+		private TimeLineItemVM _EditTimeLine = null;
+
+		public TimeLineItemVM EditTimeLine
+		{
+			get { return _EditTimeLine; }
+			set
+			{
+				_EditTimeLine = value;			
+				SendPropertyChanged("EditTimeLine");
+			}
+		}
+
+
+		private void TimeLineJobs()
+		{
+			if (SelectedJobAction == null)
+				return;
+
+			EditTimeLine = new TimeLineItemVM(this);
+		}
+
+
+	}
+}

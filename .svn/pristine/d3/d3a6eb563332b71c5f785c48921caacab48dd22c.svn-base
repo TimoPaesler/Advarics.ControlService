@@ -1,0 +1,141 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using Advarics.ControlServiceClient.ViewModel;
+using Advarics.ControlServiceClient.Model;
+using Advarics.ControlServiceClient.ServiceHandler;
+using System.Windows;
+using IdeaBlade.EntityModel;
+using IdeaBlade.Core;
+using Advarics.ControlService.Logging;
+
+namespace Advarics.ControlServiceClient.Timer
+{
+	class WorkerVM : ViewModelBase
+	{
+		Queue<WorkerItemVM> Jobs = new Queue<WorkerItemVM>();
+		bool IsWorking = false;
+
+		private DateTime _currentStartTime = new DateTime();
+
+		private DateTime CurrentStartTime
+		{
+			get { return _currentStartTime; }
+			set
+			{
+				_currentStartTime = value;
+			}
+		}
+
+		public void DoWork()
+		{
+			if (IsWorking == true)
+				return;
+
+			IsWorking = true;
+
+			while (Jobs.Count > 0)
+			{
+				var job = Jobs.First();
+				if (job == null)
+					return;
+
+				try
+				{
+					switch ((OperationType)job.Worker.Operation)
+					{
+						case OperationType.NA:
+							break;
+						case OperationType.Upload:
+							UploadPackage uploadPackage = new UploadPackage();
+							uploadPackage.Start(job);
+							break;
+						case OperationType.Update:
+							StartUpdate startUpdate = new StartUpdate();
+							startUpdate.Start(job);
+							break;
+						case OperationType.GetVersion:
+							Versions getVersions = new Versions();
+							getVersions.Start(job);
+							break;
+					}
+				}
+				catch (Exception e)
+				{
+					
+				}
+				finally
+				{
+					if (job.Worker.Interval == (int)IntervalType.Einmalig || job.Worker.Interval == (int)IntervalType.Sofort)
+					{
+						if (job.Worker.Successful == true) // Nur Taks löschen die erfolgreich waren Fehlerhafte stehen lassen !!
+						{
+							job.Worker.EntityAspect.Delete();
+							job.Worker.EntityAspect.EntityManager.SaveChanges();
+						}
+					}
+					Jobs.Dequeue();
+				}
+			}
+			IsWorking = false;
+		}
+
+		internal void DoAddQueWork()
+		{
+			CurrentStartTime = DateTime.Now;
+
+			Entities pMgr = new Entities();
+			pMgr.AuthorizedThreadId = null;
+			try
+			{
+				foreach (var item in pMgr.Workers.With(QueryStrategy.DataSourceOnly))
+				{
+					if (Jobs.Where(x => x.Worker.Id == item.Id).Count() == 0)
+					{
+						if (CurrentStartTime.Year == item.StartTime.Year && CurrentStartTime.Month == item.StartTime.Month && CurrentStartTime.Day == item.StartTime.Day && CurrentStartTime.Hour == item.StartTime.Hour && CurrentStartTime.Minute == item.StartTime.Minute && item.Interval == (int)IntervalType.Einmalig)
+						{
+
+							CreateJob(item);
+						}
+						if (CurrentStartTime.Minute == item.StartTime.Minute && item.Interval == (int)IntervalType.Stündlich)
+						{
+							CreateJob(item);
+						}
+						if (item.Interval == (int)IntervalType.Sofort && item.Successful != true && item.ErrorRepeatCount == 0)
+						{
+							CreateJob(item);
+						}
+						//if (item.RepeatOnError == true && item.Successful == false && item.ErrorRepeatCount <= 3 && item.ErrorRepeatCount != 0)
+						//{
+						//	CreateJob(item);
+						//}
+					}
+				}
+			}
+			catch (Exception ex)
+			{
+
+			}
+		}
+
+
+		private void CreateJob(Worker item)
+		{
+			try
+			{
+				Jobs.Enqueue(new WorkerItemVM { Worker = item});
+				var jobAction = LogHandler.JobActionEntry(DateTime.Now, "In Queue ID:"+ item.Id, "OK", item.Operation);
+				
+
+
+				Jobs.LastOrDefault().Action = jobAction;
+				
+			}
+			catch
+			{
+				LogHandler.JobActionEntry(DateTime.Now, "In Queue", "Error", item.Operation);
+			}
+		}
+	}
+}

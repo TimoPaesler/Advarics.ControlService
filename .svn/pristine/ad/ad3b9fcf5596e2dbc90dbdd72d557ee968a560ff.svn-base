@@ -1,0 +1,456 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{EE2D7491-E381-434B-B5DB-274160C5D4B9}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Advarics.ControlServiceClient</RootNamespace>
+    <AssemblyName>Advarics.ControlServiceClient</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkProfile>
+    </TargetFrameworkProfile>
+    <FileAlignment>512</FileAlignment>
+    <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <WarningLevel>4</WarningLevel>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <PlatformTarget>x86</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <PlatformTarget>x86</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>monitor.ico</ApplicationIcon>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Accessibility">
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </Reference>
+    <Reference Include="IdeaBlade.Core, Version=7.2.2.0, Culture=neutral, PublicKeyToken=287b5094865421c0, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\IdeaBlade.DevForce.Core.7.2.2\lib\net45\IdeaBlade.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="IdeaBlade.EntityModel, Version=7.2.2.0, Culture=neutral, PublicKeyToken=287b5094865421c0, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\IdeaBlade.DevForce.Core.7.2.2\lib\net45\IdeaBlade.EntityModel.dll</HintPath>
+    </Reference>
+    <Reference Include="IdeaBlade.EntityModel.Compat, Version=7.2.2.0, Culture=neutral, PublicKeyToken=287b5094865421c0, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\IdeaBlade.DevForce.Compat.7.2.2\lib\net45\IdeaBlade.EntityModel.Compat.dll</HintPath>
+    </Reference>
+    <Reference Include="IdeaBlade.EntityModel.Edm.EF5">
+      <HintPath>..\packages\IdeaBlade.DevForce.Server.7.2.2\lib\net45\IdeaBlade.EntityModel.Edm.EF5.dll</HintPath>
+    </Reference>
+    <Reference Include="IdeaBlade.EntityModel.Edm.EF6">
+      <HintPath>..\packages\IdeaBlade.DevForce.Server.7.2.2\lib\net45\IdeaBlade.EntityModel.Edm.EF6.dll</HintPath>
+    </Reference>
+    <Reference Include="IdeaBlade.EntityModel.Server, Version=7.2.2.0, Culture=neutral, PublicKeyToken=287b5094865421c0, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\IdeaBlade.DevForce.Server.7.2.2\lib\net45\IdeaBlade.EntityModel.Server.dll</HintPath>
+    </Reference>
+    <Reference Include="IdeaBlade.Linq, Version=7.2.2.0, Culture=neutral, PublicKeyToken=287b5094865421c0, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\IdeaBlade.DevForce.Core.7.2.2\lib\net45\IdeaBlade.Linq.dll</HintPath>
+    </Reference>
+    <Reference Include="IdeaBlade.Validation, Version=7.2.2.0, Culture=neutral, PublicKeyToken=287b5094865421c0, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\IdeaBlade.DevForce.Core.7.2.2\lib\net45\IdeaBlade.Validation.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Azure.KeyVault.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Azure.KeyVault.Core.1.0.0\lib\net40\Microsoft.Azure.KeyVault.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.WindowsAzure.Storage, Version=9.3.2.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\WindowsAzure.Storage.9.3.2\lib\net45\Microsoft.WindowsAzure.Storage.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.10.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.Composition" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.configuration" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Data.Entity" />
+    <Reference Include="System.IdentityModel" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Security" />
+    <Reference Include="System.ServiceModel" />
+    <Reference Include="System.Transactions" />
+    <Reference Include="System.Xml" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Xaml">
+      <RequiredTargetFramework>4.0</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="Telerik.Windows.Controls, Version=2012.3.1129.45, Culture=neutral, PublicKeyToken=5803cfa389c90ce7, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\Program Files (x86)\Telerik\UI for WPF Q1 2014\Binaries\WPF45\Telerik.Windows.Controls.dll</HintPath>
+    </Reference>
+    <Reference Include="Telerik.Windows.Controls.Data, Version=2012.3.1129.45, Culture=neutral, PublicKeyToken=5803cfa389c90ce7, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\Program Files (x86)\Telerik\UI for WPF Q1 2014\Binaries\WPF45\Telerik.Windows.Controls.Data.dll</HintPath>
+    </Reference>
+    <Reference Include="Telerik.Windows.Controls.DataVisualization, Version=2012.3.1129.45, Culture=neutral, PublicKeyToken=5803cfa389c90ce7, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\Program Files (x86)\Telerik\UI for WPF Q1 2014\Binaries\WPF45\Telerik.Windows.Controls.DataVisualization.dll</HintPath>
+    </Reference>
+    <Reference Include="Telerik.Windows.Controls.Docking, Version=2012.3.1129.45, Culture=neutral, PublicKeyToken=5803cfa389c90ce7, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\Program Files (x86)\Telerik\UI for WPF Q1 2014\Binaries\WPF45\Telerik.Windows.Controls.Docking.dll</HintPath>
+    </Reference>
+    <Reference Include="Telerik.Windows.Controls.Gauge, Version=2012.3.1129.45, Culture=neutral, PublicKeyToken=5803cfa389c90ce7, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\Program Files (x86)\Telerik\UI for WPF Q1 2014\Binaries\WPF45\Telerik.Windows.Controls.Gauge.dll</HintPath>
+    </Reference>
+    <Reference Include="Telerik.Windows.Controls.GridView, Version=2012.3.1129.45, Culture=neutral, PublicKeyToken=5803cfa389c90ce7, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\Program Files (x86)\Telerik\UI for WPF Q1 2014\Binaries\WPF45\Telerik.Windows.Controls.GridView.dll</HintPath>
+    </Reference>
+    <Reference Include="Telerik.Windows.Controls.Input, Version=2012.3.1129.45, Culture=neutral, PublicKeyToken=5803cfa389c90ce7, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\Program Files (x86)\Telerik\UI for WPF Q1 2014\Binaries\WPF45\Telerik.Windows.Controls.Input.dll</HintPath>
+    </Reference>
+    <Reference Include="Telerik.Windows.Controls.Navigation, Version=2012.3.1129.45, Culture=neutral, PublicKeyToken=5803cfa389c90ce7, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\Program Files (x86)\Telerik\UI for WPF Q1 2014\Binaries\WPF45\Telerik.Windows.Controls.Navigation.dll</HintPath>
+    </Reference>
+    <Reference Include="Telerik.Windows.Data, Version=2012.3.1129.45, Culture=neutral, PublicKeyToken=5803cfa389c90ce7, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\Program Files (x86)\Telerik\UI for WPF Q1 2014\Binaries\WPF45\Telerik.Windows.Data.dll</HintPath>
+    </Reference>
+    <Reference Include="UIAutomationProvider">
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="UIAutomationTypes">
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="WindowsBase" />
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+  </ItemGroup>
+  <ItemGroup>
+    <ApplicationDefinition Include="App.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </ApplicationDefinition>
+    <Compile Include="ControlService.IB.Designer.cs">
+      <DependentUpon>ControlService.edmx.tt</DependentUpon>
+    </Compile>
+    <Compile Include="DataContract\VersionQueryResult.cs" />
+    <Compile Include="Model\BaseDataDto.cs" />
+    <Compile Include="Model\BaseType.cs" />
+    <Compile Include="Model\BaseTypeHelper.cs" />
+    <Compile Include="Model\EnumHelper.cs" />
+    <Compile Include="Model\IntervalType.cs" />
+    <Compile Include="Model\IntervalTypeHelper.cs" />
+    <Compile Include="Model\OperationType.cs" />
+    <Compile Include="Model\OperationTypeHelper.cs" />
+    <Compile Include="SaveInterceptor.cs" />
+    <Compile Include="ServiceHandler\GetVersions.cs" />
+    <Compile Include="ServiceHandler\SetUpdate.cs" />
+    <Compile Include="ServiceHandler\StartUpdate.cs" />
+    <Compile Include="ServiceHandler\UploadPackage.cs" />
+    <Compile Include="Model\Common\ContentCategory.cs" />
+    <Compile Include="Model\Common\ContentItem.cs" />
+    <Compile Include="Timer\WorkerItemVM.cs" />
+    <Compile Include="Timer\WorkerVM.cs" />
+    <Compile Include="ViewModel\BaseData\CashViewModel.cs" />
+    <Compile Include="ViewModel\BaseData\ServerItemViewModel.cs" />
+    <Compile Include="ViewModel\BaseData\ServerViewModel.cs" />
+    <Compile Include="ViewModel\Common\BaseTypeVM.cs" />
+    <Compile Include="ViewModel\Common\CreateWorkerViewModel.cs" />
+    <Compile Include="ViewModel\Common\IntervalTypeVM.cs" />
+    <Compile Include="ViewModel\Common\OperationTypeVM.cs" />
+    <Compile Include="ViewModel\Log\BackupLogViewModel.cs" />
+    <Compile Include="ViewModel\Log\CashInformationViewModel.cs" />
+    <Compile Include="ViewModel\Log\CustomerInformationViewModel.cs" />
+    <Compile Include="ViewModel\BaseData\CustomersItemViewModel.cs" />
+    <Compile Include="ViewModel\BaseData\CustomersViewModel.cs" />
+    <Compile Include="ViewModel\BaseData\CustomerViewModel.cs" />
+    <Compile Include="DataContract\SecurityIdProvider.cs" />
+    <Compile Include="DataContract\ServerPathDto.cs" />
+    <Compile Include="Helper\EntityConnectionInfo.cs" />
+    <Compile Include="Helper\EntityManagerConfigHelper.cs" />
+    <Compile Include="Logging\LogHandler.cs" />
+    <Compile Include="Service References\AdvaricsControlService\Reference.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Compile>
+    <Compile Include="ServiceHandler\Versions.cs" />
+    <Compile Include="ServiceHandler\ServiceProxyProvider.cs" />
+    <Compile Include="Timer\Timer.cs" />
+    <Compile Include="Model\Common\DummyContentType.cs" />
+    <Compile Include="Model\Common\IContentItemActionHandler.cs" />
+    <Compile Include="ViewModel\Log\LogVM.cs" />
+    <Compile Include="ViewModel\Log\TimeLineItemVM.cs" />
+    <Compile Include="ViewModel\Log\JobActionVM.cs" />
+    <Compile Include="ViewModel\Log\TimeLineVM.cs" />
+    <Compile Include="ViewModel\Operation\WorkerViewModel.cs" />
+    <Compile Include="ViewModel\Style\InfoStyleSelector.cs" />
+    <Compile Include="ViewModel\MainViewModel.cs" />
+    <Compile Include="ViewModel\Operation\WorkOperationViewModel.cs" />
+    <Compile Include="ViewModel\Setting\SettingsViewModel.cs" />
+    <Compile Include="ViewModel\ViewModelBase.cs" />
+    <Compile Include="ViewModel\ViewModelBaseForEntities.cs" />
+    <Compile Include="View\BaseData\ServerItemView.xaml.cs">
+      <DependentUpon>ServerItemView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\Log\BackupLogView.xaml.cs">
+      <DependentUpon>BackupLogView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\Common\CreateWorkerView.xaml.cs">
+      <DependentUpon>CreateWorkerView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\Log\CashInformationView.xaml.cs">
+      <DependentUpon>CashInformationView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\Log\CustomerInformationView.xaml.cs">
+      <DependentUpon>CustomerInformationView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\BaseData\CustomerItemView.xaml.cs">
+      <DependentUpon>CustomerItemView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\BaseData\CustomerView.xaml.cs">
+      <DependentUpon>CustomerView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="App.xaml.cs">
+      <DependentUpon>App.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="View\Log\TimeLineView.xaml.cs">
+      <DependentUpon>TimeLineView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\MainPage.xaml.cs">
+      <DependentUpon>MainPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\BaseData\ServerView.xaml.cs">
+      <DependentUpon>ServerView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\Setting\SettingsView.xaml.cs">
+      <DependentUpon>SettingsView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\Operation\WorkOperationView.xaml.cs">
+      <DependentUpon>WorkOperationView.xaml</DependentUpon>
+    </Compile>
+    <Page Include="View\BaseData\ServerItemView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\Log\BackupLogView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\Common\CreateWorkerView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\Log\CashInformationView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\Log\CustomerInformationView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\BaseData\CustomerItemView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\BaseData\CustomerView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\Log\TimeLineView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\MainPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\BaseData\ServerView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\Setting\SettingsView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\Operation\WorkOperationView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Properties\AssemblyInfo.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <None Include="app.config">
+      <SubType>Designer</SubType>
+    </None>
+    <EntityDeploy Include="ControlService.edmx">
+      <EntityManagerName>.Entities</EntityManagerName>
+      <CodeGenNamespace>__default__</CodeGenNamespace>
+    </EntityDeploy>
+    <None Include="ControlService.edmx.ReadMe">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>ControlService.edmx.tt</DependentUpon>
+    </None>
+    <None Include="ControlService.edmx.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <TemplateName>DomainModelTemplate</TemplateName>
+      <LastGenOutput>ControlService.edmx.ReadMe</LastGenOutput>
+    </None>
+    <None Include="packages.config" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <AppDesigner Include="Properties\" />
+    <None Include="Service References\AdvaricsControlService\Advarics.ControlServiceClient.AdvaricsControlService.UpdateInfoResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\AdvaricsControlService\Advarics.ControlServiceClient.AdvaricsControlService.UploadInfoResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\AdvaricsControlService\Advarics.ControlServiceClient.AdvaricsControlService.VersionInfoResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\AdvaricsControlService\AdvaricsControlService.wsdl" />
+    <None Include="Service References\AdvaricsControlService\AdvaricsControlService.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\AdvaricsControlService\AdvaricsControlService1.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\AdvaricsControlService\AdvaricsControlService2.xsd">
+      <SubType>Designer</SubType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Service References\" />
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadataStorage Include="Service References\AdvaricsControlService\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\AdvaricsControlService\AdvaricsControlService.disco" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\AdvaricsControlService\AdvaricsControlService3.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\AdvaricsControlService\AdvaricsControlService4.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\AdvaricsControlService\AdvaricsControlService5.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\AdvaricsControlService\configuration91.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\AdvaricsControlService\configuration.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\AdvaricsControlService\Reference.svcmap">
+      <Generator>WCF Proxy Generator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include=".NETFramework,Version=v4.0,Profile=Client">
+      <Visible>False</Visible>
+      <ProductName>Microsoft .NET Framework 4 Client Profile %28x86 und x64%29</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Windows.Installer.3.1">
+      <Visible>False</Visible>
+      <ProductName>Windows Installer 3.1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\icon_bo_setup.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Images\download.png" />
+    <EmbeddedResource Include="Images\upload.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="monitor.ico" />
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

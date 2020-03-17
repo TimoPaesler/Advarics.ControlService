@@ -1,0 +1,51 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Data;
+using System.Windows.Documents;
+using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
+using System.Windows.Shapes;
+using Advarics.ControlServiceClient.ViewModel.BaseData;
+
+namespace Advarics.ControlServiceClient.View.BaseData
+{
+    /// <summary>
+    /// Interaction logic for UpdateProfileItemView.xaml
+    /// </summary>
+    public partial class UpdateProfileItemView : UserControl
+    {
+        public UpdateProfileItemView()
+        {
+            InitializeComponent();
+        }
+
+        public UpdateProfileItemViewModel _viewModel
+        {
+            get { return (this.DataContext as UpdateProfileItemViewModel); }
+        }
+
+        private void _saveAndNewButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (_viewModel.UpdateProfile != null)
+                _viewModel.SaveAndNew();
+        }
+
+        private void _cancelButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (_viewModel.UpdateProfile != null)
+                _viewModel.Cancel();
+        }
+
+        private void _saveButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (_viewModel.UpdateProfile != null)
+                _viewModel.Save();
+        }
+    }
+}

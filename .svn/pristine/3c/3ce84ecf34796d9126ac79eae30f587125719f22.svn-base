@@ -1,0 +1,28 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.ServiceModel;
+using Advarics.ControlServiceClient.DataContract;
+using Advarics.ControlServiceClient.AdvaricsControlService;
+using Advarics.ControlService.Logging;
+
+namespace Advarics.ControlServiceClient.ServiceHandler
+{
+    public class SetUpdate
+    {
+        public void Update(UpdateRequest updateRequest, string url,JobAction jobAction)
+        {
+            AdvaricsControlService.AdvaricsControlServiceClient client = new AdvaricsControlService.AdvaricsControlServiceClient();
+            ServiceProxyProvider serviceProxy = new ServiceProxyProvider();
+            DnsEndpointIdentity endpointIdentity = new DnsEndpointIdentity("advarics.net");
+            var uri = new Uri(url);
+            var endpointAddress = new EndpointAddress(uri, endpointIdentity);
+            client = serviceProxy.GetProxyServer1(endpointAddress);
+			var response = client.UpdateCustomer(updateRequest);
+            client.Close();
+
+			LogHandler.JobResponseInsert(response.Logs, jobAction);
+        }
+    }
+}

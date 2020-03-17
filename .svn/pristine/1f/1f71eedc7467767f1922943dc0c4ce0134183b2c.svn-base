@@ -1,0 +1,41 @@
+﻿<rad:RadWindow x:Class="Advarics.ControlServiceClient.View.CreateWorkerView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:rad="http://schemas.telerik.com/2008/xaml/presentation"
+             Height="286" Width="570" Header="Job Erstellen" WindowStartupLocation="CenterScreen" mc:Ignorable="d" d:DesignHeight="288">
+
+    <Grid  Background="{StaticResource MainBrush}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"></RowDefinition>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+
+        <StackPanel Orientation="Horizontal" Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" Margin="5" VerticalAlignment="Top">
+            <StackPanel Orientation="Vertical"  HorizontalAlignment="Stretch" Margin="5" VerticalAlignment="Top">
+                <TextBlock Margin="5" Height="22" Text="Operation" ></TextBlock>
+                <TextBlock Margin="5" Height="22" Text="Stammdaten Typ" ></TextBlock>
+                <TextBlock Margin="5" Visibility="{Binding VisBaseData,Mode=TwoWay}" Height="22" Text="Stammdate Auswählen" ></TextBlock>
+                <TextBlock Margin="5" Height="22" Text="Intervall" ></TextBlock>
+                <TextBlock Margin="5" Visibility="{Binding VisPackage,Mode=TwoWay}"  Height="22" Text="Paket Nr." ></TextBlock>
+                <TextBlock Margin="5" Height="22" Text="Start Zeit" ></TextBlock>               
+                <TextBlock Margin="5" Height="22" Text="Wiederholung beim Fehler" ></TextBlock>             
+            </StackPanel>
+            <StackPanel Orientation="Vertical"  HorizontalAlignment="Stretch" Margin="5" VerticalAlignment="Top">
+                <ComboBox Width="120" Margin="5" Height="22" DisplayMemberPath="Name" ItemsSource="{Binding OperationTypeVMs,Mode=TwoWay}" SelectedItem="{Binding SelectedOperationTypeVM,Mode=TwoWay}" />
+                <ComboBox Width="120" Margin="5" Height="22" DisplayMemberPath="Name" ItemsSource="{Binding BaseTypeVMs,Mode=TwoWay}" SelectedItem="{Binding SelectedBaseTypeVM,Mode=TwoWay}" />
+                <ComboBox Width="120" Margin="5" Height="22" DisplayMemberPath="NoAndName" ItemsSource="{Binding BaseDatas,Mode=TwoWay}" SelectedItem="{Binding SelectedBaseData,Mode=TwoWay}" Visibility="{Binding VisBaseData,Mode=TwoWay}" />
+                <ComboBox Width="120" Margin="5" Height="22" DisplayMemberPath="Name" ItemsSource="{Binding IntervalTypeVMs,Mode=TwoWay}" SelectedItem="{Binding SelectedIntervalTypeVM,Mode=TwoWay}" />
+                <ComboBox Width="120" Margin="5" Height="22"  ItemsSource="{Binding Packages,Mode=TwoWay}" SelectedItem="{Binding SelectedPackageNo,Mode=TwoWay}" Visibility="{Binding VisPackage,Mode=TwoWay}" />
+                <rad:RadDateTimePicker Width="200" Margin="5" Height="22" SelectedValue="{Binding SelectedStartTime,Mode=TwoWay}" />
+                <CheckBox Width="120" Margin="5,10,5,5" IsChecked="{Binding Worker.RepeatOnError,Mode=TwoWay}" />
+            </StackPanel>
+            <StackPanel Orientation="Horizontal"  HorizontalAlignment="Stretch" Margin="5" VerticalAlignment="Top">
+                <Button Width="120" Height="22" Margin="5" Content="Erstellen" Click="Button_Click"></Button>
+            </StackPanel>
+        </StackPanel>
+    </Grid>
+</rad:RadWindow>

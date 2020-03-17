@@ -1,0 +1,17 @@
+﻿param($installPath, $toolsPath, $package, $project)
+
+#$project = Get-Project   # for testing
+
+[string] $extenderNames = $project.ExtenderNames
+if ($extenderNames.Contains("WebApplication"))
+{
+    #if this is a web application, add IdeaBlade.EntityModel.Web.dll reference
+    $assembly = [System.IO.Path]::Combine($installPath, "tools\lib\net45\IdeaBlade.EntityModel.Web.dll")
+    $project.Object.References.Add($assembly)
+
+	try{
+	    $project.ProjectItems.AddFromFileCopy($toolsPath + '\Global.asax')
+	}catch{
+	    'Global.asax already exists'
+	}
+}

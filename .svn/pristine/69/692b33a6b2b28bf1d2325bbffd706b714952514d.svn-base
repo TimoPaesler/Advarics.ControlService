@@ -1,0 +1,45 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using Advarics.ControlServiceClient.Model;
+
+namespace Advarics.ControlServiceClient.ViewModel.Common
+{
+    class BaseTypeVM: ViewModelBase
+    {
+        public BaseTypeVM(BaseType methodMode)
+        {
+            BaseType = methodMode;
+            Name = BaseTypeHelper.GetName(methodMode);
+        }
+
+        private BaseType _BaseType = BaseType.NA;
+        public BaseType BaseType
+        {
+            get { return _BaseType; }
+            set
+            {
+                _BaseType = value;
+                SendPropertyChanged("BaseType");
+            }
+        }
+
+        private string _Name = string.Empty;
+
+        public string Name
+        {
+            get { return _Name; }
+            set
+            {
+                _Name = value;
+                SendPropertyChanged("Name");
+            }
+        }
+
+        public override string ToString()
+        {
+            return Name;
+        }
+    }
+}

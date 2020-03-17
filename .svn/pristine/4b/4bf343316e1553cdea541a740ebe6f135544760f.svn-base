@@ -1,0 +1,389 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using Advarics.ControlServiceClient.Model;
+using System.Collections.ObjectModel;
+using System.Windows;
+using IdeaBlade.EntityModel;
+using IdeaBlade.Core;
+using System.IO;
+
+namespace Advarics.ControlServiceClient.ViewModel.Common
+{
+    class CreateWorkerViewModel : ViewModelBaseForEntities
+    {
+        bool ok = false;
+
+        public CreateWorkerViewModel(BaseType baseType = BaseType.NA,OperationType operationType = OperationType.NA,long baseId = 0)
+        {
+            InitEnums();
+            Worker = new Worker();
+            Worker.RepeatOnError = true;
+            PersistMgr.AddEntity(Worker);
+
+            DirectoryInfo dInfo = new DirectoryInfo(PersistMgr.CommonSettings.FirstOrDefault().LocalUpdatePath);
+			if(dInfo != null)
+            foreach (var item in dInfo.GetDirectories().OrderByDescending(x=> x.CreationTime))
+            {
+                Packages.Add(Int64.Parse(item.Name));
+            }
+
+            SelectedPackageNo = Packages.FirstOrDefault();
+            if (operationType != OperationType.NA)
+                SelectedOperationTypeVM = OperationTypeVMs.Where(x => x.OperationType == operationType).FirstOrDefault();
+            if (baseType != BaseType.NA)
+                SelectedBaseTypeVM = BaseTypeVMs.Where(x => x.BaseType == baseType).FirstOrDefault();
+            if (baseId != 0)
+                SelectedBaseData = BaseDatas.Where(x=> x.Id == baseId).FirstOrDefault();
+        }
+
+        private Visibility _VisPackage = Visibility.Collapsed;
+
+        public Visibility VisPackage
+        {
+            get { return _VisPackage; }
+            set
+            {
+                _VisPackage = value;
+                SendPropertyChanged("VisPackage");
+            }
+        }
+
+        private Visibility _VisBaseData = Visibility.Collapsed;
+
+        public Visibility VisBaseData
+        {
+            get { return _VisBaseData; }
+            set
+            {
+                _VisBaseData = value;
+                SendPropertyChanged("VisBaseData");
+            }
+        }
+
+        private Worker _Worker = null;
+
+        public Worker Worker
+        {
+            get { return _Worker; }
+            set
+            {
+                _Worker = value;
+                SendPropertyChanged("Worker");
+            }
+        }
+
+        internal bool CreateWorker()
+        {
+            Worker.ErrorRepeatCount = 0;
+            Worker.Successful = false;
+            Worker.Operation = (int)SelectedOperationTypeVM.OperationType;
+            Worker.Interval = (int)SelectedIntervalTypeVM.IntervalType;
+            Worker.BaseTyp = (int)SelectedBaseTypeVM.BaseType;
+            Worker.StartTime = SelectedStartTime;
+            Worker.PackageNo = SelectedPackageNo;
+
+            if (SelectedBaseData != null)
+                Worker.BaseTypId = SelectedBaseData.Id;
+            else
+                Worker.BaseTypId = 0;
+
+            Validate();
+
+            try
+            {
+                PersistMgr.SaveChanges();
+            }
+            catch (Exception e)
+            {
+                ok = false;
+            }
+
+            return ok;
+        }
+
+        private void Validate()
+        {
+            if (Worker.BaseTyp == 0)
+                return;
+            if (Worker.BaseTypId == 0 && Worker.BaseTyp != (int)BaseType.AllCustomers)
+                return;
+            if (Worker.Operation == 0)
+                return;
+            if (Worker.Interval == 0)
+                return;
+            if (Worker.StartTime == null)
+                return;
+            ok = true;
+        }
+
+        private void InitEnums()
+        {
+            foreach (var item in EnumHelper.GetValues<IntervalType>())
+            {
+                var bm = new IntervalTypeVM(item);
+                IntervalTypeVMs.Add(bm);
+            }
+
+            foreach (var item in EnumHelper.GetValues<OperationType>())
+            {
+                var bm = new OperationTypeVM(item);
+                OperationTypeVMs.Add(bm);
+            }
+        }
+
+        private DateTime _SelectedStartTime = DateTime.Now;
+
+        public DateTime SelectedStartTime
+        {
+            get { return _SelectedStartTime; }
+            set
+            {
+                _SelectedStartTime = value;
+                SendPropertyChanged("SelectedStartTime");
+            }
+        }
+
+        private long _SelectedPackageNo = 0;
+
+        public long SelectedPackageNo
+        {
+            get { return _SelectedPackageNo; }
+            set
+            {
+                _SelectedPackageNo = value;
+                SendPropertyChanged("SelectedPackageNo");
+            }
+        }
+
+        private ObservableCollection<long> _Packages = new ObservableCollection<long>();
+
+        public ObservableCollection<long> Packages
+        {
+            get { return _Packages; }
+            set
+            {
+                _Packages = value;
+                SendPropertyChanged("Packages");
+            }
+        }
+
+
+        private ObservableCollection<BaseTypeVM> _BaseTypeVMs = new ObservableCollection<BaseTypeVM>();
+
+        public ObservableCollection<BaseTypeVM> BaseTypeVMs
+        {
+            get { return _BaseTypeVMs; }
+            set
+            {
+                _BaseTypeVMs = value;
+                SendPropertyChanged("BaseTypeVMs");
+            }
+        }
+
+        private ObservableCollection<OperationTypeVM> _OperationTypeVMs = new ObservableCollection<OperationTypeVM>();
+
+        public ObservableCollection<OperationTypeVM> OperationTypeVMs
+        {
+            get { return _OperationTypeVMs; }
+            set
+            {
+                _OperationTypeVMs = value;
+                SendPropertyChanged("OperationTypeVMs");
+            }
+        }
+
+        private ObservableCollection<IntervalTypeVM> _IntervalTypeVMs = new ObservableCollection<IntervalTypeVM>();
+
+        public ObservableCollection<IntervalTypeVM> IntervalTypeVMs
+        {
+            get { return _IntervalTypeVMs; }
+            set
+            {
+                _IntervalTypeVMs = value;
+                SendPropertyChanged("IntervalTypeVMs");
+            }
+        }
+
+        private ObservableCollection<BaseDataDto> _BaseDatas = new ObservableCollection<BaseDataDto>();
+
+        public ObservableCollection<BaseDataDto> BaseDatas
+        {
+            get { return _BaseDatas; }
+            set
+            {
+                _BaseDatas = value;
+                SendPropertyChanged("BaseDatas");
+            }
+        }
+
+        private BaseDataDto _SelectedBaseData = null;
+
+        public BaseDataDto SelectedBaseData
+        {
+            get { return _SelectedBaseData; }
+            set
+            {
+                _SelectedBaseData = value;
+                SendPropertyChanged("SelectedBaseData");
+            }
+        }
+
+        private BaseTypeVM _SelectedBaseTypeVM = null;
+
+        public BaseTypeVM SelectedBaseTypeVM
+        {
+            get { return _SelectedBaseTypeVM; }
+            set
+            {
+                _SelectedBaseTypeVM = value;
+                LoadBaseData();
+                SendPropertyChanged("SelectedBaseTypeVM");
+            }
+        }
+
+        private IntervalTypeVM _SelectedIntervalTypeVM = null;
+
+        public IntervalTypeVM SelectedIntervalTypeVM
+        {
+            get { return _SelectedIntervalTypeVM; }
+            set
+            {
+                _SelectedIntervalTypeVM = value;
+                SendPropertyChanged("SelectedIntervalTypeVM");
+            }
+        }
+
+        private OperationTypeVM _SelectedOperationTypeVM = null;
+
+        public OperationTypeVM SelectedOperationTypeVM
+        {
+            get { return _SelectedOperationTypeVM; }
+            set
+            {
+                _SelectedOperationTypeVM = value;
+                changeVis();
+                SendPropertyChanged("SelectedOperationTypeVM");
+            }
+        }
+
+        private void changeVis()
+        {
+            if (SelectedOperationTypeVM == null)
+                return;
+
+            BaseTypeVMs.Clear();
+
+            foreach (var item in EnumHelper.GetValues<BaseType>())
+            {
+                var bm = new BaseTypeVM(item);
+                BaseTypeVMs.Add(bm);
+            }
+
+            switch (SelectedOperationTypeVM.OperationType)
+            {
+                case OperationType.NA:
+                    VisPackage = Visibility.Collapsed;
+                    break;
+                case OperationType.Upload:
+                    VisPackage = Visibility.Visible;
+                    break;
+                case OperationType.Backup:
+                    VisPackage = Visibility.Collapsed;
+                    break;
+                case OperationType.Update:
+                    VisPackage = Visibility.Visible;
+                   // BaseTypeVMs.Remove(BaseTypeVMs.Where(x=> x.BaseType == BaseType.Server).FirstOrDefault());
+                    break;
+                case OperationType.GetVersion:
+                    VisPackage = Visibility.Collapsed;
+                    break;
+                case OperationType.CleanLocalDBs:
+                    VisPackage = Visibility.Collapsed;
+                    break;
+                default:
+                    VisPackage = Visibility.Collapsed;
+                    break;
+            }
+        }
+
+        private void LoadBaseData()
+        {
+            if (SelectedBaseTypeVM == null)
+                return;
+
+            BaseDatas.Clear();
+          
+            switch (SelectedBaseTypeVM.BaseType)
+            {
+                case BaseType.NA:
+                    MessageBox.Show("Bitte eine Basis Stammdate auswählen");
+                    break;
+                case BaseType.Customer:
+                    List<Customer> customerList = new List<Customer>();
+                    customerList = (List<Customer>)PersistMgr.Customers
+                        .With(QueryStrategy.DataSourceOnly)
+                        .Select(c => c).Execute();
+
+                    foreach (var item in customerList)
+                    {
+                        var baseDataDto = new BaseDataDto()
+                        {
+                            Id = item.Id,
+                            Name = item.Name,
+                            No = item.No
+                        };
+                        BaseDatas.Add(baseDataDto);
+                    }
+                    VisBaseData = Visibility.Visible;
+                    break;
+                case BaseType.Server:
+                    List<Server> serverList = new List<Server>();
+                    serverList = (List<Server>)PersistMgr.Servers
+                        .With(QueryStrategy.DataSourceOnly)
+                        .Select(c => c).Execute();
+
+                    foreach (var item in serverList)
+                    {
+                        var baseDataDto = new BaseDataDto()
+                        {
+                            Id = item.Id,
+                            Name = item.Name,
+                            No = item.No
+                        };
+                        BaseDatas.Add(baseDataDto);
+                    }
+                    VisBaseData = Visibility.Visible;
+                    break;
+                case BaseType.UpdateProfile:
+                    List<UpdateProfile> updateProfileList = new List<UpdateProfile>();
+                    updateProfileList = (List<UpdateProfile>)PersistMgr.UpdateProfiles
+                        .With(QueryStrategy.DataSourceOnly)
+                        .Select(c => c).Execute();
+
+                    foreach (var item in updateProfileList)
+                    {
+                        var baseDataDto = new BaseDataDto()
+                        {
+                            Id = item.Id,
+                            Name = item.Name,
+                            No = item.No
+                        };
+                        BaseDatas.Add(baseDataDto);
+                    }
+                    VisBaseData = Visibility.Visible;
+                    break;
+                case BaseType.AllCustomers:
+                    VisBaseData = Visibility.Collapsed;
+                    break;
+                default:
+                    MessageBox.Show("Bitte eine Basis Stammdate auswählen");
+                    break;
+            }
+        }
+
+
+
+    }
+}

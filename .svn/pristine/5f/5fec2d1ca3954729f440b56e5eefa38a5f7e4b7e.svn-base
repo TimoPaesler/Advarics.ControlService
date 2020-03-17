@@ -1,0 +1,41 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using System.IO;
+
+namespace Advarics.ControlService.Common
+{
+    public class IgnoreFileList
+    {
+       static List<String> retailList = new List<string>();
+
+
+
+        public static bool Retail(FileInfo fileInfo)
+        {
+            retailList.Add("*.config");
+            retailList.Add("*.xml");
+            retailList.Add("*.pdb");
+            retailList.Add("config.json");
+            retailList.Add("appsettings.json");
+
+            bool FileCopyOk = true;
+
+            if (retailList.Where(x => x.Contains(fileInfo.Name.ToLower().Substring(fileInfo.Name.LastIndexOf(@".")))).Count() > 0)
+                FileCopyOk = false;
+
+            if (fileInfo.Name.ToLower().Contains("version.xml"))
+                FileCopyOk = true;
+
+            if (fileInfo.Name.ToLower().Contains("clientaccesspolicy.xml"))
+                FileCopyOk = true;
+
+            return FileCopyOk;
+        }
+
+
+
+
+    }
+}

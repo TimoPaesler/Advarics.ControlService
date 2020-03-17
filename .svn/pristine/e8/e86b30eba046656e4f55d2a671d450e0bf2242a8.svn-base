@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ReferenceGroup xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" ID="af7f8c27-a09b-4513-b726-955691ee6060" xmlns="urn:schemas-microsoft-com:xml-wcfservicemap">
+  <ClientOptions>
+    <GenerateAsynchronousMethods>false</GenerateAsynchronousMethods>
+    <EnableDataBinding>true</EnableDataBinding>
+    <ExcludedTypes />
+    <ImportXmlTypes>false</ImportXmlTypes>
+    <GenerateInternalTypes>false</GenerateInternalTypes>
+    <GenerateMessageContracts>false</GenerateMessageContracts>
+    <NamespaceMappings />
+    <CollectionMappings />
+    <GenerateSerializableTypes>true</GenerateSerializableTypes>
+    <Serializer>Auto</Serializer>
+    <UseSerializerForFaults>true</UseSerializerForFaults>
+    <ReferenceAllAssemblies>true</ReferenceAllAssemblies>
+    <ReferencedAssemblies />
+    <ReferencedDataContractTypes />
+    <ServiceContractMappings />
+  </ClientOptions>
+  <MetadataSources>
+    <MetadataSource Address="http://localhost:51336/AdvaricsControlService.svc" Protocol="http" SourceId="1" />
+  </MetadataSources>
+  <Metadata>
+    <MetadataFile FileName="AdvaricsControlService.wsdl" MetadataType="Wsdl" ID="caf2d486-131b-4c67-a839-06a7a03a4e64" SourceId="1" SourceUrl="http://localhost:51336/AdvaricsControlService.svc?wsdl" />
+    <MetadataFile FileName="AdvaricsControlService1.xsd" MetadataType="Schema" ID="c6f705aa-74a8-4f48-b778-29257996f7af" SourceId="1" SourceUrl="http://localhost:51336/AdvaricsControlService.svc?xsd=xsd2" />
+    <MetadataFile FileName="AdvaricsControlService3.xsd" MetadataType="Schema" ID="a7627108-c031-4f5c-a7f7-a04c557fcc92" SourceId="1" SourceUrl="http://localhost:51336/AdvaricsControlService.svc?xsd=xsd3" />
+    <MetadataFile FileName="AdvaricsControlService4.xsd" MetadataType="Schema" ID="f561c91b-e6d0-43c3-8f2c-bde1fab2f5d8" SourceId="1" SourceUrl="http://localhost:51336/AdvaricsControlService.svc?xsd=xsd4" />
+    <MetadataFile FileName="AdvaricsControlService5.xsd" MetadataType="Schema" ID="5ca91231-a778-4206-b076-00445a3ba75e" SourceId="1" SourceUrl="http://localhost:51336/AdvaricsControlService.svc?xsd=xsd5" />
+    <MetadataFile FileName="AdvaricsControlService6.xsd" MetadataType="Schema" ID="e3878304-6a85-4f61-b156-6b43ec37455f" SourceId="1" SourceUrl="http://localhost:51336/AdvaricsControlService.svc?xsd=xsd6" />
+    <MetadataFile FileName="AdvaricsControlService7.xsd" MetadataType="Schema" ID="f7c350a6-78f6-4033-8c6e-ed1557d38b0a" SourceId="1" SourceUrl="http://localhost:51336/AdvaricsControlService.svc?xsd=xsd7" />
+    <MetadataFile FileName="AdvaricsControlService.xsd" MetadataType="Schema" ID="60b35f77-d7fb-4a01-9fc0-fe6d824f093c" SourceId="1" SourceUrl="http://localhost:51336/AdvaricsControlService.svc?xsd=xsd1" />
+    <MetadataFile FileName="AdvaricsControlService.disco" MetadataType="Disco" ID="fff8bfd1-06c0-471c-88c1-9602d2114b86" SourceId="1" SourceUrl="http://localhost:51336/AdvaricsControlService.svc?disco" />
+    <MetadataFile FileName="AdvaricsControlService2.xsd" MetadataType="Schema" ID="ea87503c-de21-4357-a998-0407bae15b09" SourceId="1" SourceUrl="http://localhost:51336/AdvaricsControlService.svc?xsd=xsd0" />
+  </Metadata>
+  <Extensions>
+    <ExtensionFile FileName="configuration91.svcinfo" Name="configuration91.svcinfo" />
+    <ExtensionFile FileName="configuration.svcinfo" Name="configuration.svcinfo" />
+  </Extensions>
+</ReferenceGroup>

@@ -1,0 +1,25 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+
+namespace Advarics.ControlServiceClient.ViewModel.Log
+{
+	class LogVM:ViewModelBase
+	{
+		private Advarics.ControlServiceClient.Log _Log = null;
+
+		public Advarics.ControlServiceClient.Log Log
+		{
+			get { return _Log; }
+			set
+			{
+				_Log = value;
+				SendPropertyChanged("Log");
+			}
+		}
+
+
+
+	}
+}

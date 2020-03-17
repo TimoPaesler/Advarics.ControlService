@@ -1,0 +1,42 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+
+namespace Advarics.ControlServiceClient.Model
+{
+    class BaseTypeHelper
+    {
+        public static string GetName(BaseType status)
+        {
+            string statusName = "N/A";
+
+            switch (status)
+            {
+                case BaseType.NA:
+                    statusName = "N/A";
+                    break;
+                case BaseType.Customer:
+                    statusName = "Customer";
+                    break;
+                case BaseType.Server:
+                    statusName = "Server";
+                    break;
+                case BaseType.UpdateProfile:
+                    statusName = "UpdateProfile";
+                    break;
+                case BaseType.AllCustomers:
+                    statusName = "Alle Customers";
+                    break;
+                default:
+                    statusName = "N/A";
+                    break;
+            }
+            
+
+
+            return statusName;
+
+        }
+    }
+}

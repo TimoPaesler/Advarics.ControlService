@@ -1,0 +1,251 @@
+﻿using System;
+using System.Net;
+using System.Windows;
+using System.Windows.Controls;
+using System.Linq;
+using System.Collections.Generic;
+using IdeaBlade.EntityModel;
+using IdeaBlade.Core;
+using System.Collections.ObjectModel;
+using System.Windows.Documents;
+using Advarics.ControlServiceClient.Model;
+using Advarics.ControlServiceClient.View;
+using IdeaBlade.EntityModel.Compat;
+
+namespace Advarics.ControlServiceClient.ViewModel
+{
+    public class CustomersViewModel : ViewModelBaseForEntities
+    {
+        public CustomersViewModel()
+        {
+            LoadData();
+            RefreshItems();
+        }
+
+
+        private void LoadData()
+        {
+            List<Server> serverList = new List<Server>();
+            List<UpdateProfile> updateProfileList = new List<UpdateProfile>();
+            serverList = PersistMgr.Servers
+                 .With(QueryStrategy.DataSourceOnly)
+                 .Select(c => c).Execute().ToList();
+
+            updateProfileList = PersistMgr.UpdateProfiles
+                    .With(QueryStrategy.DataSourceOnly)
+                    .Select(c => c).Execute().ToList();
+
+            foreach (var item in serverList)
+            {
+                Servers.Add(item);
+            }
+            foreach (var item in updateProfileList)
+            {
+                UpdateProfiles.Add(item);
+            }
+
+        }
+
+        List<Customer> customerList = new List<Customer>();
+        internal void RefreshItems()
+        {
+            customerList.Clear();
+            Customers.Clear();
+
+            var query = PersistMgr.Customers
+                .With(QueryStrategy.DataSourceOnly)
+                .Include("Server")
+                .Select(c => c);
+
+            if (SearchName != string.Empty)
+                query = query.Where(x => x.Name.Contains(SearchName) == true);
+
+            if (SearchFromCustomerNo != 0)
+                query = query.Where(x => x.No >= SearchFromCustomerNo);
+
+            if (SearchToCustomerNo != 0)
+                query = query.Where(x => x.No <= SearchToCustomerNo);
+
+            customerList = (List<Customer>)query.Execute();
+
+          foreach (var item in customerList)
+          {
+              var customers = new CustomerViewModel() { Customer = item };
+              Customers.Add(customers);
+          }
+        }
+
+        private ObservableCollection<CustomerViewModel> _customers = new ObservableCollection<CustomerViewModel>();
+
+        public ObservableCollection<CustomerViewModel> Customers
+        {
+            get { return _customers; }
+            set
+            {
+                _customers = value;
+                SendPropertyChanged("Customers");
+            }
+        }
+
+
+        private CustomerViewModel _selectedCustomer = null;
+
+        public CustomerViewModel SelectedCustomer
+        {
+            get { return _selectedCustomer; }
+            set
+            {
+                _selectedCustomer = value;
+                SendPropertyChanged("SelectedCustomer");
+            }
+        }
+
+
+        private Visibility _editCustomerVisibilty = Visibility.Collapsed;
+
+        public Visibility EditCustomerVisibilty
+        {
+            get { return _editCustomerVisibilty; }
+            set
+            {
+                _editCustomerVisibilty = value;
+                SendPropertyChanged("EditCustomerVisibilty");
+            }
+        }
+
+
+        private CustomersItemViewModel _editedCustomer = null;
+
+        public CustomersItemViewModel EditedCustomer
+        {
+            get { return _editedCustomer; }
+            set
+            {
+                _editedCustomer = value;
+                SetEditedCustomerVisibility();
+                SendPropertyChanged("EditedCustomer");
+            }
+        }
+
+        private void SetEditedCustomerVisibility()
+        {
+            if (EditedCustomer != null)
+                EditCustomerVisibilty = Visibility.Visible;
+            else
+                EditCustomerVisibilty = Visibility.Collapsed;
+        }
+
+        public void AddCustomer()
+        {
+            EditedCustomer = new CustomersItemViewModel(this, true);
+        }
+
+        public void EditCustomer()
+        {
+            if (SelectedCustomer != null)
+                EditedCustomer = new CustomersItemViewModel(this, false);
+        }
+
+        public void DeleteCustomer()
+        {
+            if (SelectedCustomer != null)
+            {
+                DeleteCustomerDecided(MessageBoxResult.Yes);
+            }
+        }
+
+        private void DeleteCustomerDecided(MessageBoxResult decision)
+        {
+            if (decision == MessageBoxResult.Yes)
+            {
+                PersistMgr.Customers
+				.Include(x=> x.Cashes)
+                .With(QueryStrategy.DataSourceOnly)				
+                .Where(c => c.Id == SelectedCustomer.Customer.Id)
+                .Take(1).ExecuteAsync(op =>
+                {
+                    var customer = op.Results.FirstOrDefault();
+					foreach (var item in customer.Cashes.ToList())
+					{
+						item.EntityAspect.Delete();
+					}
+
+                    customer.EntityAspect.Delete();
+                    Customers.Remove(SelectedCustomer);
+                    SelectedCustomer = null;
+                    PersistMgr.SaveChanges();
+                });
+            }
+        }
+
+        private string _SearchName = string.Empty;
+
+        public string SearchName
+        {
+            get { return _SearchName; }
+            set
+            {
+                _SearchName = value;
+                SendPropertyChanged("SearchName");
+            }
+        }
+
+        private long _SearchFromCustomerNo = 0;
+        
+        public long SearchFromCustomerNo
+        {
+            get { return _SearchFromCustomerNo; }
+            set
+            {
+                _SearchFromCustomerNo = value;
+                SendPropertyChanged("SearchFromCustomerNo");
+            }
+        }
+
+        private long _SearchToCustomerNo = 0;
+      
+        public long SearchToCustomerNo
+        {
+            get { return _SearchToCustomerNo; }
+            set
+            {
+                _SearchToCustomerNo = value;
+                SendPropertyChanged("SearchToCustomerNo");
+            }
+        }
+
+        private ObservableCollection<Server> _Servers = new ObservableCollection<Server>();
+
+        public ObservableCollection<Server> Servers
+        {
+            get { return _Servers; }
+            set
+            {
+                _Servers = value;
+                SendPropertyChanged("Servers");
+            }
+        }
+
+        private ObservableCollection<UpdateProfile> _UpdateProfiles = new ObservableCollection<UpdateProfile>();
+
+        public ObservableCollection<UpdateProfile> UpdateProfiles
+        {
+            get { return _UpdateProfiles; }
+            set
+            {
+                _UpdateProfiles = value;
+                SendPropertyChanged("UpdateProfiles");
+            }
+        }
+
+
+        internal void CreateWork(OperationType operationType)
+        {
+            if (SelectedCustomer == null)
+                return;
+
+            var popUp = new CreateWorkerView(BaseType.Customer, operationType, SelectedCustomer.Customer.Id);
+            popUp.ShowDialog();
+        }
+    }
+}

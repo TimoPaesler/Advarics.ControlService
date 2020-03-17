@@ -1,0 +1,64 @@
+﻿using System;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Input;
+using Telerik.Windows.Controls.GridView;
+using System.Threading;
+using Telerik.Windows;
+using Advarics.ControlServiceClient.ViewModel;
+using Advarics.ControlServiceClient.Model;
+
+namespace Advarics.ControlServiceClient.View
+{
+    public partial class CustomerView : UserControl
+    {
+        CustomersViewModel _viewModel = null;
+ 
+
+        public CustomerView()
+        {
+            InitializeComponent();
+            _viewModel = new CustomersViewModel();
+            this.DataContext = _viewModel;
+
+            _gridView.AddHandler(GridViewCellBase.CellDoubleClickEvent, new EventHandler<RadRoutedEventArgs>(this.OnCellDoubleClick));
+        }
+        private void OnCellDoubleClick(object sender, RadRoutedEventArgs e)
+        {
+            if (e.OriginalSource is GridViewCell)
+                _viewModel.EditCustomer();
+        }
+
+        private void _newCustomerButton_Click(object sender, RoutedEventArgs e)
+        {
+            _viewModel.AddCustomer();
+        }
+
+
+        private void _refreshButton_Click(object sender, RoutedEventArgs e)
+        {
+            _viewModel.RefreshItems();
+        }
+
+        private void _deleteCustomer_MouseLeftButtonUp(object sender, Telerik.Windows.RadRoutedEventArgs e)
+        {
+            _viewModel.DeleteCustomer();
+        }
+
+        private void _uploadCustomer_MouseLeftButtonUp(object sender, RadRoutedEventArgs e)
+        {
+            _viewModel.CreateWork(OperationType.Upload);
+        }
+
+        private void _updateCustomer_MouseLeftButtonUp(object sender, RadRoutedEventArgs e)
+        {
+            _viewModel.CreateWork(OperationType.Update);
+        }
+
+        private void _backupCustomer_MouseLeftButtonUp(object sender, RadRoutedEventArgs e)
+        {
+        
+        }
+
+    }
+}

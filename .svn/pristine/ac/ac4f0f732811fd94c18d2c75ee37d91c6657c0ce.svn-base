@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<publishData>
+  <publishProfile publishUrl="C:\Publish\ControlService" deleteExistingFiles="True" ftpAnonymousLogin="False" ftpPassiveMode="True" msdeploySite="" msdeploySiteID="" msdeployRemoteSitePhysicalPath="" msdeployAllowUntrustedCertificate="False" msdeploySkipExtraFilesOnServer="True" msdeployMarkAsApp="False" profileName="Profile1" publishMethod="FileSystem" replaceMatchingFiles="False" userName="" savePWD="False" userPWD="" SelectedForPublish="True">
+    <file relUrl="bin/Advarics.ControlService.pdb" publishTime="10/26/2012 11:50:35" />
+    <file relUrl="Web.config" publishTime="10/26/2012 13:03:58" />
+    <file relUrl="bin/IdeaBlade.EntityModel.dll" publishTime="08/02/2012 12:03:48" />
+    <file relUrl="bin/IdeaBlade.Validation.xml" publishTime="08/02/2012 12:03:46" />
+    <file relUrl="AdvaricsControlService.svc" publishTime="02/06/2012 12:39:18" />
+    <file relUrl="bin/IdeaBlade.EntityModel.xml" publishTime="08/02/2012 12:03:48" />
+    <file relUrl="bin/Ionic.Zip.dll" publishTime="08/06/2011 23:01:40" />
+    <file relUrl="bin/IdeaBlade.Core.dll" publishTime="08/02/2012 12:03:44" />
+    <file relUrl="bin/IdeaBlade.EntityModel.Server.xml" publishTime="08/02/2012 12:03:50" />
+    <file relUrl="bin/IdeaBlade.Linq.dll" publishTime="08/02/2012 12:03:44" />
+    <file relUrl="bin/IdeaBlade.EntityModel.Server.dll" publishTime="08/02/2012 12:03:50" />
+    <file relUrl="bin/IdeaBlade.Validation.dll" publishTime="08/02/2012 12:03:46" />
+    <file relUrl="bin/Advarics.ControlService.dll" publishTime="10/26/2012 11:50:35" />
+    <file relUrl="bin/IdeaBlade.EntityModel.Web.xml" publishTime="08/02/2012 12:04:12" />
+    <file relUrl="bin/IdeaBlade.Linq.xml" publishTime="08/02/2012 12:03:44" />
+    <file relUrl="bin/IdeaBlade.EntityModel.Web.dll" publishTime="08/02/2012 12:04:12" />
+    <file relUrl="bin/IdeaBlade.Core.xml" publishTime="08/02/2012 12:03:44" />
+    <file relUrl="bin/IdeaBlade.EntityModel.Edm.dll" publishTime="08/02/2012 12:03:48" />
+  </publishProfile>
+</publishData>

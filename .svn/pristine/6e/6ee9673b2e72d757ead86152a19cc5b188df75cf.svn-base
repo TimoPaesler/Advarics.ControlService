@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:ser="http://schemas.microsoft.com/2003/10/Serialization/" xmlns:tns="http://schemas.datacontract.org/2004/07/Advarics.ControlService.DataContracts.VersionInfo" elementFormDefault="qualified" targetNamespace="http://schemas.datacontract.org/2004/07/Advarics.ControlService.DataContracts.VersionInfo" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:import schemaLocation="http://localhost:51336/AdvaricsControlService.svc?xsd=xsd2" namespace="http://schemas.microsoft.com/2003/10/Serialization/" />
+  <xs:import schemaLocation="http://localhost:51336/AdvaricsControlService.svc?xsd=xsd3" namespace="http://schemas.datacontract.org/2004/07/Advarics.ControlService.DataContracts.FileTransfer" />
+  <xs:complexType name="VersionRequest">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="BaseProgramPath" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="Customer" nillable="true" type="tns:CustomerInfo" />
+      <xs:element minOccurs="0" name="IdToken" type="ser:guid" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="VersionRequest" nillable="true" type="tns:VersionRequest" />
+  <xs:complexType name="CustomerInfo">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="BaseCustomerPath" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="DBName" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="Name" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="No" type="xs:long" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="CustomerInfo" nillable="true" type="tns:CustomerInfo" />
+  <xs:complexType name="VersionInfoResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="CashVersions" nillable="true" type="tns:ArrayOfCashVersion" />
+      <xs:element xmlns:q1="http://schemas.datacontract.org/2004/07/Advarics.ControlService.DataContracts.FileTransfer" minOccurs="0" name="Logs" nillable="true" type="q1:ArrayOfLogResponse" />
+      <xs:element minOccurs="0" name="RentalServicePakNo" type="xs:long" />
+      <xs:element minOccurs="0" name="RetailDBVersion" type="xs:long" />
+      <xs:element minOccurs="0" name="RetailPakNo" type="xs:long" />
+      <xs:element minOccurs="0" name="RetailProgramVersion" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="SecuDataServicePakNo" type="xs:long" />
+      <xs:element minOccurs="0" name="StatisticServicePakNo" type="xs:long" />
+      <xs:element minOccurs="0" name="WebShopServicePakNo" type="xs:long" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="VersionInfoResponse" nillable="true" type="tns:VersionInfoResponse" />
+  <xs:complexType name="ArrayOfCashVersion">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="CashVersion" nillable="true" type="tns:CashVersion" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfCashVersion" nillable="true" type="tns:ArrayOfCashVersion" />
+  <xs:complexType name="CashVersion">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="LastSync" type="xs:dateTime" />
+      <xs:element minOccurs="0" name="Name" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="No" type="xs:long" />
+      <xs:element minOccurs="0" name="StoreNo" type="xs:long" />
+      <xs:element minOccurs="0" name="Sync" type="xs:boolean" />
+      <xs:element minOccurs="0" name="UpdatePackageCashPoint" type="xs:long" />
+      <xs:element minOccurs="0" name="UpdatePackageSyncService" type="xs:long" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="CashVersion" nillable="true" type="tns:CashVersion" />
+</xs:schema>

@@ -1,0 +1,42 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.Serialization;
+using System.ServiceModel;
+using System.ServiceModel.Web;
+using System.Text;
+using Advarics.ControlService.DataContracts.FileTransfer;
+using System.IO;
+using Advarics.ControlService.DataContracts.VersionInfo;
+using Advarics.ControlService.DataContracts.UpdateInfo;
+using Advarics.ControlService.DataContracts.DBLeaning;
+
+namespace Advarics.ControlService
+{
+	// NOTE: You can use the "Rename" command on the "Refactor" menu to change the interface name "IService1" in both code and config file together.
+	[ServiceContract]
+	public interface IAdvaricsControlService
+	{
+		[OperationContract]
+        UploadInfoResponse UploadFile(DataContracts.FileTransfer.FileTransferInfo request);
+
+		[OperationContract]
+		FileTransferInfo DownloadFile(DownloadFileRequest request);
+
+        [OperationContract]
+        PathInfoResponse GetFilePaths(BasePathRequest request);
+
+        [OperationContract]
+        PathInfoResponse GetAdvFilePath(BasePathRequest request);
+
+        [OperationContract]
+        VersionInfoResponse GetVersions(VersionRequest request);
+
+        [OperationContract]
+        UpdateInfoResponse UpdateCustomer(UpdateRequest request);
+
+		[OperationContract]
+		CleanDBResponse CleanDBs(CleanRequest request);
+
+	}
+}

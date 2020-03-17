@@ -1,0 +1,40 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using Advarics.ControlServiceClient.AdvaricsControlService;
+using System.ServiceModel;
+using Advarics.ControlServiceClient.DataContract;
+using Advarics.ControlService.Logging;
+
+namespace Advarics.ControlServiceClient.ServiceHandler
+{
+	class StartCleaning
+	{
+		public void CleanDB(string url, long ServerId, int backupStoreTimeDays,string backupPath,JobAction jobAction)
+		{
+			AdvaricsControlService.AdvaricsControlServiceClient client = new AdvaricsControlService.AdvaricsControlServiceClient();
+			ServiceProxyProvider serviceProxy = new ServiceProxyProvider();
+			DnsEndpointIdentity endpointIdentity = new DnsEndpointIdentity("advarics.net");
+			var uri = new Uri(url);
+			var endpointAddress = new EndpointAddress(uri, endpointIdentity);
+			client = serviceProxy.GetProxyServer1(endpointAddress);
+
+			Guid idToken = SecurityIdProvider.GetIDToken();
+
+
+			var cleanRequest = new CleanRequest()
+				{
+					IdToken= idToken,
+					backupStoreTimeDays=backupStoreTimeDays,
+					BaseBackupPath = backupPath
+				};
+
+
+			var response = client.CleanDBs(cleanRequest);		
+			client.Close();
+
+			LogHandler.JobResponseInsert(response.Logs, jobAction);
+		}
+	}
+}

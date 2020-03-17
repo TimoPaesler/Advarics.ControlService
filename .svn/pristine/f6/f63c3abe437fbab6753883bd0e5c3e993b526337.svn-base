@@ -1,0 +1,18 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+
+namespace Advarics.ControlServiceClient.Model
+{
+    public enum OperationType: int
+    {
+        NA=0,
+        Upload=1,
+        Backup=2,
+        Update=3,
+        GetVersion=4,
+        CleanLocalDBs=5,
+        AdvProgramsBackup=6
+    }
+}

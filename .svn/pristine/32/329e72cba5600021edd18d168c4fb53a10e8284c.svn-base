@@ -1,0 +1,291 @@
+﻿using System;
+using System.Net;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Documents;
+using System.Windows.Ink;
+using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Animation;
+using System.Windows.Shapes;
+using System.Collections.ObjectModel;
+using System.Windows.Media.Imaging;
+using System.Reflection;
+using System.Linq;
+using IdeaBlade.EntityModel;
+using IdeaBlade.Core;
+using System.Collections.Generic;
+using Advarics.ControlServiceClient.Model.Common;
+using Advarics.ControlServiceClient.Timer;
+
+namespace Advarics.ControlServiceClient.ViewModel
+{
+    public class MainViewModel : ViewModelBase
+    {
+        public MainViewModel()
+        {
+            CreateContentItems();
+            SelectStartItem();
+            StartTimer();
+        }
+
+        public void StartTimer()
+        {
+			Advarics.ControlServiceClient.Timer.Timer atimer = new Advarics.ControlServiceClient.Timer.Timer();
+			atimer.Start();
+
+			//this.ExecuteBackgroundProcess(() =>
+			//{
+			//    try
+			//    {
+      
+
+			//    }
+			//    catch (Exception ex)
+			//    {
+			//        MessageBox.Show("Fehler beim starten des Timers: " + ex.Message);
+			//    }
+			//    finally
+			//    {
+			//    }
+			//});
+        }
+
+        private void CreateContentItems()
+        {
+            DataContentItems = new ObservableCollection<ContentItem>();
+            DataHeadline = "Operationen";
+            DataContentItems.Add(new ContentItem() { Name = "Time Control", ImgSource = new BitmapImage(new Uri("../Images/SectionBaseData40x40.png", UriKind.Relative)), ContentType = typeof(Advarics.ControlServiceClient.View.WorkOperationView) });
+
+			MappingContentItems = new ObservableCollection<ContentItem>();
+			MappingHeadline = "Information / Logs";
+            MappingContentItems.Add(new ContentItem() { Name = "Kunden Übersicht", ImgSource = new BitmapImage(new Uri("../Images/SectionBaseData40x40.png", UriKind.Relative)), ContentType = typeof(Advarics.ControlServiceClient.View.CustomerInformationView) });
+            MappingContentItems.Add(new ContentItem() { Name = "Kassen Übersicht", ImgSource = new BitmapImage(new Uri("../Images/SectionBaseData40x40.png", UriKind.Relative)), ContentType = typeof(Advarics.ControlServiceClient.View.Log.CashInformationView) });
+            MappingContentItems.Add(new ContentItem() { Name = "Logs", ImgSource = new BitmapImage(new Uri("../Images/SectionBaseData40x40.png", UriKind.Relative)), ContentType = typeof(Advarics.ControlServiceClient.View.BackupLogView) });
+			MappingContentItems.Add(new ContentItem() { Name = "TimeLine Log", ImgSource = new BitmapImage(new Uri("../Images/SectionBaseData40x40.png", UriKind.Relative)), ContentType = typeof(Advarics.ControlServiceClient.View.Log.TimeLineView) });
+
+			BaseDataContentItems = new ObservableCollection<ContentItem>();
+			BaseDataHeadline = "Stammdaten";
+            BaseDataContentItems.Add(new ContentItem() { Name = "Kunden", ImgSource = new BitmapImage(new Uri("../Images/SectionBaseData40x40.png", UriKind.Relative)), ContentType = typeof(Advarics.ControlServiceClient.View.CustomerView) });
+            BaseDataContentItems.Add(new ContentItem() { Name = "Server", ImgSource = new BitmapImage(new Uri("../Images/SectionBaseData40x40.png", UriKind.Relative)), ContentType = typeof(Advarics.ControlServiceClient.View.ServerView) });
+            BaseDataContentItems.Add(new ContentItem() { Name = "Update Profile", ImgSource = new BitmapImage(new Uri("../Images/SectionBaseData40x40.png", UriKind.Relative)), ContentType = typeof(Advarics.ControlServiceClient.View.BaseData.UpdateProfileView) });
+
+            SettingsContentItems = new ObservableCollection<ContentItem>();
+			SettingsHeadline = "Einstellungen";
+            SettingsContentItems.Add(new ContentItem() { Name = "Settings", ImgSource = new BitmapImage(new Uri("../Images/SectionBaseData40x40.png", UriKind.Relative)), ContentType = typeof(Advarics.ControlServiceClient.View.Setting.SettingsView) });
+        }
+
+		private void SelectStartItem()
+		{
+			//SetContentItem(DashboardContentItems.Where(x => x.Name == "Dashboard").FirstOrDefault());
+		}
+
+		private Visibility _dataCenterVisibility = Visibility.Visible;
+		public Visibility DataCenterVisibility
+		{
+			get
+			{
+				return _dataCenterVisibility;
+			}
+			set
+			{
+				_dataCenterVisibility = value;
+				SendPropertyChanged("DataCenterVisibility");
+			}
+		}
+
+        private UIElement _mainContentUIElement = null;
+        public UIElement MainContentUIElement
+        {
+            get
+            {
+                return _mainContentUIElement;
+            }
+            set
+            {
+                _mainContentUIElement = value;
+                SendPropertyChanged("MainContentUIElement");
+            }
+        }
+
+        public void SetContentItem(object p)
+        {
+            ContentItem item = p as ContentItem;
+            if (item == null)
+            {
+                InitContentArea();
+            }
+            else
+            {
+                if (item.ContentType == null)
+                {
+                    InitContentArea();
+                }
+                else
+                {
+                    Type type = item.ContentType;
+
+                    if (MainContentUIElement != null)
+                    {
+                        if (MainContentUIElement.GetType() == type)
+                            return; // richtiger Typ ist schon aktiv
+                    }
+
+					InitContentArea();
+                    Assembly assembly = type.Assembly;
+                    UserControl uc = (UserControl)assembly.CreateInstance(type.Namespace + "." + type.Name);
+                    MainContentUIElement = uc;
+                    ContentHeadline = item.Name;
+                }
+            }
+        }
+
+		public void SetContentItemFromExistingUserControl(UserControl uc, string headLine)
+		{
+			MainContentUIElement = uc;
+			ContentHeadline = headLine;
+		}
+
+        private void InitContentArea()
+        {
+			
+            MainContentUIElement = null;
+            ContentHeadline = string.Empty;
+			GC.Collect();
+			GC.WaitForPendingFinalizers();
+        }
+
+        #region Section Headlines
+
+
+        private string _mappingHeadline = string.Empty;
+        public string MappingHeadline
+        {
+            get
+            {
+                return _mappingHeadline;
+            }
+            set
+            {
+                _mappingHeadline = value;
+                SendPropertyChanged("MappingHeadline");
+            }
+        }
+
+        private string _baseDataHeadline = string.Empty;
+        public string BaseDataHeadline
+        {
+            get
+            {
+                return _baseDataHeadline;
+            }
+            set
+            {
+                _baseDataHeadline = value;
+                SendPropertyChanged("BaseDataHeadline");
+            }
+        }
+
+        private string _dataHeadline = string.Empty;
+        public string DataHeadline
+        {
+            get
+            {
+                return _dataHeadline;
+            }
+            set
+            {
+                _dataHeadline = value;
+                SendPropertyChanged("DataHeadline");
+            }
+        }
+
+        private string _settingsHeadline = string.Empty;
+        public string SettingsHeadline
+        {
+            get
+            {
+                return _settingsHeadline;
+            }
+            set
+            {
+                _settingsHeadline = value;
+                SendPropertyChanged("SettingsHeadline");
+            }
+        }
+
+        #endregion
+        #region Section Colletions
+
+        private ObservableCollection<ContentItem> _mappingContentItems = new ObservableCollection<ContentItem>();
+        public ObservableCollection<ContentItem> MappingContentItems
+        {
+            get
+            {
+                return _mappingContentItems;
+            }
+            set
+            {
+                _mappingContentItems = value;
+				SendPropertyChanged("MappingContentItems");
+            }
+        }
+
+        private ObservableCollection<ContentItem> _dataContentItems = new ObservableCollection<ContentItem>();
+        public ObservableCollection<ContentItem> DataContentItems
+        {
+            get
+            {
+                return _dataContentItems;
+            }
+            set
+            {
+                _dataContentItems = value;
+                SendPropertyChanged("DataContentItems");
+            }
+        }
+
+		private ObservableCollection<ContentItem> _baseDataContentItems = new ObservableCollection<ContentItem>();
+		public ObservableCollection<ContentItem> BaseDataContentItems
+		{
+			get
+			{
+				return _baseDataContentItems;
+			}
+			set
+			{
+				_baseDataContentItems = value;
+				SendPropertyChanged("BaseDataContentItems");
+			}
+		}
+
+		private ObservableCollection<ContentItem> _settingsContentItems = new ObservableCollection<ContentItem>();
+        public ObservableCollection<ContentItem> SettingsContentItems
+        {
+            get
+            {
+                return _settingsContentItems;
+            }
+            set
+            {
+                _settingsContentItems = value;
+                SendPropertyChanged("SettingsContentItems");
+            }
+        }
+
+        private string _contentHeadline = string.Empty;
+        public string ContentHeadline
+        {
+            get
+            {
+                return _contentHeadline;
+            }
+            set
+            {
+                _contentHeadline = value;
+                SendPropertyChanged("ContentHeadline");
+            }
+        }
+        #endregion
+    }
+}
