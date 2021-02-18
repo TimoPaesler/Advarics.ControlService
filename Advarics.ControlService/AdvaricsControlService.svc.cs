@@ -264,7 +264,7 @@ namespace Advarics.ControlService
                     }
                     catch (Exception e)
                     {
-                        logResponse.Add(Log.LogEntry(DateTime.Now, "-", "-", null, "Error while copying Files" + e.Message + e.InnerException.ToString(), 0, false, false, DateTime.Now, 0, "Server", "-", Log.LogStatus.ERROR));
+                        logResponse.Add(Log.LogEntry(DateTime.Now, "-", "-", null, "Error while copying Files" + e.Message + e?.InnerException?.ToString(), 0, false, false, DateTime.Now, 0, "Server", "-", Log.LogStatus.ERROR));
                     }
 
                     logResponse.Add(Log.LogEntry(DateTime.Now, "-", "-", null, "Retail-Files are ready", 0, false, true, DateTime.Now, 0, "Server", "-", Log.LogStatus.OK));
