@@ -7,23 +7,23 @@ using Advarics.ControlService.DataContracts.VersionInfo;
 
 namespace Advarics.ControlService.DataContracts.UpdateInfo
 {
-    [DataContract]
-    public class UpdateRequest
-    {
-        [DataMember]
-        public CustomerInfo Customer;
+	[DataContract]
+	public class UpdateRequest
+	{
+		[DataMember]
+		public CustomerInfo Customer;
 
-        [DataMember]
-        public Guid IdToken;
+		[DataMember]
+		public Guid IdToken;
 
-        [DataMember]
-        public long PackageNo;
+		[DataMember]
+		public string PackageNo;
 
-        [DataMember]
-        public string UpdateServerPath;
+		[DataMember]
+		public string UpdateServerPath;
 
-        [DataMember]
-        public string AdvProgramPath;
+		[DataMember]
+		public string AdvProgramPath;
 
-    }
+	}
 }

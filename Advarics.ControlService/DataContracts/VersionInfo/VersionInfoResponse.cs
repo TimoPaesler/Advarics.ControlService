@@ -7,36 +7,36 @@ using Advarics.ControlService.DataContracts.FileTransfer;
 
 namespace Advarics.ControlService.DataContracts.VersionInfo
 {
-    [DataContract]
-    public class VersionInfoResponse
-    {
+	[DataContract]
+	public class VersionInfoResponse
+	{
 
-        [DataMember]
-        public CashVersion[] CashVersions;
+		[DataMember]
+		public CashVersion[] CashVersions;
 
-        [DataMember]
-        public string RetailProgramVersion;
+		[DataMember]
+		public string RetailProgramVersion;
 
 		[DataMember]
 		public long RetailDBVersion;
 
-        [DataMember]
-        public long RetailPakNo;
+		[DataMember]
+		public string RetailPakNo;
 
-        [DataMember]
-        public long SecuDataServicePakNo;
+		[DataMember]
+		public string SecuDataServicePakNo;
 
-        [DataMember]
-        public long StatisticServicePakNo;
+		[DataMember]
+		public string StatisticServicePakNo;
 
-        [DataMember]
-        public long WebShopServicePakNo;
+		[DataMember]
+		public string WebShopServicePakNo;
 
-        [DataMember]
-        public long RentalServicePakNo;
+		[DataMember]
+		public string RentalServicePakNo;
 
 		[DataMember]
 		public LogResponse[] Logs;
 
-    }
+	}
 }

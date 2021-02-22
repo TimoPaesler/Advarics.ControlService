@@ -14,17 +14,17 @@ namespace Advarics.ControlService.Common
 		}
 
 
-		public static LogResponse LogEntry(DateTime date, string path, string customerName, Exception exception, string info, long workerPackageNo, bool error, bool workerSuccessful, DateTime workerStartTime, int workerErrorCount, string description, string serverName,LogStatus status)
+		public static LogResponse LogEntry(DateTime date, string path, string customerName, Exception exception, string info, string workerPackageNo, bool error, bool workerSuccessful, DateTime workerStartTime, int workerErrorCount, string description, string serverName, LogStatus status)
 		{
 			LogResponse logEntry = new LogResponse();
 			try
 			{
 				logEntry = WriteResponseLog(date, path, customerName, exception, info, workerPackageNo, error, workerSuccessful, workerStartTime, workerErrorCount, description, serverName);
-				WriteFileLog(GetLogDateTimeString(date) + "\t" + status.ToString() + "\t" + info +"\t" + path+ "\t"+ exception);			
+				WriteFileLog(GetLogDateTimeString(date) + "\t" + status.ToString() + "\t" + info + "\t" + path + "\t" + exception);
 			}
-			catch (Exception e) 
-			{ 
-			
+			catch (Exception e)
+			{
+
 			}
 
 			return logEntry;
@@ -45,17 +45,17 @@ namespace Advarics.ControlService.Common
 			catch (Exception) { }
 		}
 
-		private static LogResponse WriteResponseLog(DateTime date, string path, string customerName, Exception exception, string info, long workerPackageNo, bool error, bool workerSuccessful, DateTime workerStartTime, int workerErrorCount, string description, string serverName)
+		private static LogResponse WriteResponseLog(DateTime date, string path, string customerName, Exception exception, string info, string workerPackageNo, bool error, bool workerSuccessful, DateTime workerStartTime, int workerErrorCount, string description, string serverName)
 		{
 			LogResponse logEntry = new LogResponse();
-			logEntry.CustomerName =customerName;
+			logEntry.CustomerName = customerName;
 			logEntry.Date = date;
 			logEntry.Description = description;
 			logEntry.Error = error;
-			logEntry.Exception =exception;
+			logEntry.Exception = exception;
 			logEntry.Info = info;
 			logEntry.Path = path;
-			logEntry.ServerName =serverName;
+			logEntry.ServerName = serverName;
 			logEntry.WorkerErrorCount = workerErrorCount;
 			logEntry.workerPackageNo = workerPackageNo;
 			logEntry.WorkerStartTime = workerStartTime;
